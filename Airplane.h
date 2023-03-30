@@ -1,4 +1,5 @@
 #pragma once
+#include <fstream>
 #include <cstring>
 #include <conio.h>
 #include <iostream>
@@ -8,6 +9,7 @@
 #include "KeyValue.h"
 #include "Constraint.h"
 #include "UserInterface.h"
+
 
 using namespace std;
 
@@ -44,6 +46,9 @@ void ShowAirplane(PAirplane, int);
 void ShowListAirplaneOnePage(ListAir, int);
 void ChangeAirplaneMenuManagerPage(ListAir);
 void MenuManageAirplane(ListAir &, Airplane);
+
+bool SaveAirplane(ListAir &listAir);
+bool LoadAirplane(ListAir &listAir);
 
 void InitListAirplane(ListAir &ListAir){
     ListAir.size = 0;
@@ -126,15 +131,15 @@ void ShowAirplane(PAirplane pAir, int position)
 	int xKeyDisplay[10] = {20,40,60,80,100,120,130,140,150,160};
 	
 	gotoxy(xKeyDisplay[0] + 3, Y_Display + position +3);
-    printf("%-15s", pAir->idAir);			//dung printtf %s: de ko bi loi dinh dang khi chuyen trang
+    cout << left << setw(15) << pAir->idAir;
     gotoxy(xKeyDisplay[1] + 3, Y_Display + position +3);
-    printf("%-15s", pAir->typeAir);
+    cout << left << setw(15) << pAir->typeAir;
     gotoxy(xKeyDisplay[2] + 3, Y_Display + position +3);
-    printf("%-15d", pAir->col);
+    cout << left << setw(15) << pAir->col;
     gotoxy(xKeyDisplay[3] + 3, Y_Display + position +3);
-    printf("%-15d", pAir->row);
+    cout << left << setw(15) << pAir->row;
     gotoxy(xKeyDisplay[4] + 3, Y_Display + position +3);
-    printf("%-15d", (pAir->col * pAir->row));
+    cout << left << setw(15) << (pAir->col * pAir->row);
 }
 
 void ShowListAirplaneOnePage(ListAir list, int startIndex)
@@ -176,7 +181,6 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 	while(true)
 	{
 		menu:
-		
 		signal = menu_dong(X_ThaoTac,Y_ThaoTac,6,ContentThaoTac);
 		switch(signal) {
 			case 1: // Insert
@@ -189,7 +193,11 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 				}
 				gotoxy(X_Add, Y_Add-1);
 				InputListAirplane(list);
-				Notification("Them thanh cong");
+				
+				if(SaveAirplane(list)){
+					Notification("Them thanh cong");
+				}
+				
 				system("color 0E");
 				TotalAirplanePage = (int)ceil((double)list.size/NumberPerPage);
 				RemoveForm(0, 4, 27);
@@ -211,15 +219,18 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 					Notification("Xoa khong thanh cong");
 				}
 				else {
+					if(SaveAirplane(list)){
 					Notification("Xoa thanh cong");
+				}
 				}
 				system("color 0E");
 				RemoveForm(0, 4, 27);
 				TotalAirplanePage = (int)ceil((double)list.size / NumberPerPage);
-				if (ListAirIsNull) {
+				if (ListAirIsNull(list))  {
 					CurAirplanePage = 0;
 					ShowListAirplaneOnePage(list, 0);
 				} else {
+					if (CurAirplanePage > TotalAirplanePage) CurAirplanePage--;
 					ShowListAirplaneOnePage(list, (CurAirplanePage-1) * NumberPerPage);
 				}
 				goto menu;
@@ -227,9 +238,14 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 			case 3: //Edit chua xong
 			{
 				ShowCursor(true);
-				thanh_sang(20,Y_Display,15,2,BLUE_LIGHT," ");
+				int i = 0;
+				char c;
 				if (_kbhit()) {
-					goto menu;
+					c = getch();
+					thanh_sang(22,Y_Display+2,20,2,BLUE_LIGHT,"Khang");
+					if (c == ENTER) {
+						goto menu;
+					}
 				}
 				// gotoxy(20,Y_Display);
 				// CreateForm(ContentAirplane,0, 4, 27);
@@ -254,6 +270,55 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 				goto menu;
 			}
 			default: return;
+			
 		}
 	}
+}
+
+
+bool LoadAirplane(ListAir &listAir)
+{
+    ifstream filein("DSMB.TXT", ios_base::in);
+    char str[1000];
+    PAirplane pAir;
+
+    if (!filein.is_open())
+        return false;
+
+    filein.getline(str, sizeof(str));
+    listAir.size = atoi(str);
+    for(int i = 0; i < listAir.size; i++)
+    {
+        pAir = new Airplane;
+        filein.getline(pAir->idAir, sizeof(pAir->idAir), ';');
+        filein.getline(pAir->typeAir, sizeof(pAir->typeAir), ';');
+        filein.getline(str, sizeof(str), ';');
+        pAir->col = atoi(str);
+        filein.getline(str, sizeof(str));
+        pAir->row = atoi(str);
+
+        listAir.nodes[i] = pAir;
+    }
+    
+    filein.close();
+    return true;
+}
+
+bool SaveAirplane(ListAir &listAir)
+{
+    ofstream file("DSMB.TXT", ios_base::out);
+
+    if (!file.is_open())
+        return false;
+
+    file << listAir.size << endl;
+    for (int i = 0; i < listAir.size; i++)
+    {
+        file << listAir.nodes[i]->idAir << ";"
+             << listAir.nodes[i]->typeAir << ";"
+             << listAir.nodes[i]->col << ";"
+             << listAir.nodes[i]->row << endl;
+    }
+    file.close();
+    return true;
 }
