@@ -150,7 +150,7 @@ void ShowListAirplaneOnePage(ListAir list, int startIndex)
 	cout <<" Trang " << CurAirplanePage <<"/"<< TotalAirplanePage; 
 }
 
-void ChangeAirplaneMenuManagerPage(ListAir &list)
+void ChangeAirplaneMenuManagerPage(ListAir list)
 {
 	gotoxy(X_TitlePage,Y_TitlePage);
 	cout << "QUAN LY MAY BAY";
