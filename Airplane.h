@@ -1,12 +1,12 @@
 #pragma once
-#include "KeyValue.h"
-#include "Constraint.h"
-#include "UserInterface.h"
 #include <cstring>
 #include <conio.h>
 #include <iostream>
-#include <windows.h>
 #include <math.h>
+
+#include "KeyValue.h"
+#include "Constraint.h"
+#include "UserInterface.h"
 
 using namespace std;
 
@@ -87,8 +87,9 @@ bool InsertListAir(ListAir &ListAir, Airplane &Air){
 }
 
 void InputAirplane(Airplane &Air){
-    gotoxy(X_Add+10,Y_Add);       strcpy(Air.idAir, Input(sizeof(Air.idAir)/sizeof(char), ID));
-    gotoxy(X_Add+10,Y_Add+3);     strcpy(Air.typeAir, Input(sizeof(Air.typeAir)/sizeof(char), ID));
+	ShowCursor(true);
+    gotoxy(X_Add+10,Y_Add);       strcpy(Air.idAir, Input(sizeof(Air.idAir), ID));
+    gotoxy(X_Add+10,Y_Add+3);     strcpy(Air.typeAir, Input(sizeof(Air.typeAir), ID));
     gotoxy(X_Add+10,Y_Add+6);     std::cin  >> Air.col;
     gotoxy(X_Add+10,Y_Add+9);     std::cin >> Air.row;
 }
@@ -149,7 +150,7 @@ void ShowListAirplaneOnePage(ListAir list, int startIndex)
 	cout <<" Trang " << CurAirplanePage <<"/"<< TotalAirplanePage; 
 }
 
-void ChangeAirplaneMenuManagerPage(ListAir list)
+void ChangeAirplaneMenuManagerPage(ListAir &list)
 {
 	gotoxy(X_TitlePage,Y_TitlePage);
 	cout << "QUAN LY MAY BAY";
@@ -189,7 +190,7 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 				system("color 0E");
 				TotalAirplanePage = (int)ceil((double)list.size/NumberPerPage);
 				RemoveForm(0, 4, 27);
-				ShowListAirplaneOnePage(list, (CurAirplanePage - 1)*NumberPerPage);
+				ShowListAirplaneOnePage(list, (CurAirplanePage-1)*NumberPerPage);
 				ShowCursor(false);
 				goto menu;
 			}
@@ -200,7 +201,6 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 					Notification("Danh sach rong, khong the xoa");
 					goto menu;
 				}
-				RemoveFormComplete();
 				CreateForm(ContentAirplane, 0, 1, 27);
 				gotoxy(X_Add+10,Y_Add);       strcpy(air.idAir, Input(sizeof(air.idAir)/sizeof(char), ID));
 				if (!RemoveAirplane(list, IndexAirplane(list, air.idAir )))
@@ -234,6 +234,7 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 			}
 			case 5:	//Chuyen trang tiep
 			{
+				if(CurAirplanePage >= TotalAirplanePage) goto menu;
 				CurAirplanePage ++;
 				ChangeAirplaneMenuManagerPage(list);
 				goto menu;
