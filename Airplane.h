@@ -95,9 +95,9 @@ bool InsertListAir(ListAir &ListAir, Airplane &Air){
 void InputAirplane(Airplane &Air){
 	ShowCursor(true);
     gotoxy(X_Add+10,Y_Add);       strcpy(Air.idAir, Input(sizeof(Air.idAir), ID));
-    gotoxy(X_Add+10,Y_Add+3);     strcpy(Air.typeAir, Input(sizeof(Air.typeAir), ID));
-    gotoxy(X_Add+10,Y_Add+6);     std::cin  >> Air.col;
-    gotoxy(X_Add+10,Y_Add+9);     std::cin >> Air.row;
+    gotoxy(X_Add+10,Y_Add+3);     strcpy(Air.typeAir, Input(sizeof(Air.typeAir), Text));
+    gotoxy(X_Add+10,Y_Add+6);     char col[2]; std::sprintf(col, "%d", Air.col); strcpy(col, Input(sizeof(col), Number));
+    gotoxy(X_Add+10,Y_Add+9);     char row[2]; std::sprintf(row, "%d", Air.row); strcpy(row, Input(sizeof(row), Number));
 }
 
 void InputListAirplane(ListAir &list){
