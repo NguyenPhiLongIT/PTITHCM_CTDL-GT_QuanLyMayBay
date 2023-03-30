@@ -125,15 +125,15 @@ void ShowAirplane(PAirplane pAir, int position)
 	int xKeyDisplay[10] = {20,40,60,80,100,120,130,140,150,160};
 	
 	gotoxy(xKeyDisplay[0] + 3, Y_Display + position +3);
-    printf("%-15s", pAir->idAir);			//dung printtf %s: de ko bi loi dinh dang khi chuyen trang
+    cout << left << setw(15) << pAir->idAir;
     gotoxy(xKeyDisplay[1] + 3, Y_Display + position +3);
-    printf("%-15s", pAir->typeAir);
+    cout << left << setw(15) << pAir->typeAir;
     gotoxy(xKeyDisplay[2] + 3, Y_Display + position +3);
-    printf("%-15d", pAir->col);
+    cout << left << setw(15) << pAir->col;
     gotoxy(xKeyDisplay[3] + 3, Y_Display + position +3);
-    printf("%-15d", pAir->row);
+    cout << left << setw(15) << pAir->row;
     gotoxy(xKeyDisplay[4] + 3, Y_Display + position +3);
-    printf("%-15d", (pAir->col * pAir->row));
+    cout << left << setw(15) << (pAir->col * pAir->row);
 }
 
 void ShowListAirplaneOnePage(ListAir list, int startIndex)
