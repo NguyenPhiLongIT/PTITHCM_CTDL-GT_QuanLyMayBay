@@ -4,12 +4,16 @@
 #include <string.h>
 #include <iomanip>
 #include <windows.h>
+
+
+using namespace std;
+
+
 #include "Airplane.h"
+#include "Ticket.h"
 #include "Flight.h"
 #include "Mylibrary.h"
 #include "KeyValue.h"
-
-using namespace std;
 
 // Xuat bang thong tin
 int xKeyDisplay[10] = {20,40,60,80,100,120,130,140,150,160};
@@ -18,6 +22,9 @@ string ContentFlight[6] = { "Flight ID", "Plane ID", "Destination", "Date and Ti
 string ContentTicket[4] = {"Passenger ID", "Column", "Row", "Seat"};
 string ContentMenu[6] = {"Home", "Plane", "Flight", "Passenger", "Ticket", "Exit"};
 string ContentThaoTac[6] = {"Insert", "Delete", "Edit", "Previous Page", "Next Page", "Back"};
+
+
+
 
 void box(int x, int y, int w, int h, string nd) {
 	SetBGColor(BLACK);
@@ -130,6 +137,8 @@ int menu_dong(int x, int y, int sl, string nd[]) {
 			} else if (c == ENTER) {
 				if (yp == y + Box_Height*(sl-1)) thanh_sang(xp,yp,Box_Width,Box_Height,BLACK,nd[i]);
 				return i+1;
+			} else if (c == ESC) {
+				return -1;
 			}
 		}
 	}
@@ -265,13 +274,8 @@ void RemoveForm(int StartIndex,int nContent,int length) {
 	}
 }
 
-//Xoa toan bo bang nhap thong tin
-void RemoveFormComplete()
-{
-	for( int i = 0 ; i < 15 ; i++)
-	{
-		gotoxy(X_Add - 2, Y_Add - 2 + i );
-		printf("%-32s", " ");
-	}
-	//ShowCur(false);
-}
+
+
+
+
+
