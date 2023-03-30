@@ -156,8 +156,8 @@ void Display(string content[], int nContent) 	// ve bang
 		cout << content[i];
 	}
 
-	//ve cac duong thang de phan chia cac cot - kich thuoc toi da la 33 ve chieu dai
-	for (int j = Y_Display ; j <= Y_Display + 30; j++)
+	//ve cac duong thang de phan chia cac cot - kich thuoc toi da la 28 ve chieu dai
+	for (int j = Y_Display ; j <= Y_Display + 24; j++)
 	{
 		for (int i = 0; i < nContent+1; i++)
 		{
@@ -177,7 +177,7 @@ void Display(string content[], int nContent) 	// ve bang
 		cout << char(178);
 
 		//ve thanh ngang ben duoi
-		gotoxy(i, Y_Display + 31);
+		gotoxy(i, Y_Display + 25);
 		cout << char(205);
 	}
 }
@@ -273,9 +273,3 @@ void RemoveForm(int StartIndex,int nContent,int length) {
 		yAdd += 3;
 	}
 }
-
-
-
-
-
-
