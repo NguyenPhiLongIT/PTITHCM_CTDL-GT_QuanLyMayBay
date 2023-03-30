@@ -5,87 +5,111 @@
 #include "Ticket.h"
 #include <iostream>
 
-typedef struct _FLight{
-    char idFlight[16];
-    char arrivalAir[41];
-    Date date;
-    int status;
-    char *idAir;
+typedef struct _FLight
+{
+	char idFlight[16];
+	char arrivalAir[41];
+	char *idAir;
+	Date date;
+	int status;
+	// TicketList ticketList;
+} Flight, *PFlight;
 
-    TicketList ticketList; 
-}Flight, *PFlight;
-
-typedef struct _NodeFli{
-    Flight data;
-    struct _NodeFli *pNext;
-}NodeFli, *PNodeFli;
+typedef struct _NodeFli
+{
+	Flight data;
+	struct _NodeFli *pNext;
+} NodeFli, *PNodeFli;
 
 void InitFlight(PFlight);
-PNodeFli CreateFlight(Flight&);
+bool FlightDataIsEmpty(Flight &flight);
+PNodeFli CreateFlight(Flight &);
 int CancleFlight(PNodeFli);
-void AddFlight(PNodeFli&, Flight&);
-PNodeFli FindFlight(PNodeFli&, const char*);
-PNodeFli FindFlightByIdPlane(PNodeFli&, const char*);
-int FindIndexFlight(PNodeFli, const char*);
-int FindDestination(PNodeFli, const char*);
-void InputFlight(Flight&);
-void ShowFlight(Flight ,int );
+void InsertFlight(PNodeFli &, Flight &);
+PNodeFli FindFlight(PNodeFli &, const char *);
+PNodeFli FindFlightByIdPlane(PNodeFli &, const char *);
+int FindIndexFlight(PNodeFli, const char *);
+int FindDestination(PNodeFli, const char *);
 
-void InitFlight(PFlight pFlight){
-    pFlight->ticketList.size = 0;
+void InitFlight(PFlight pFlight)
+{
+	// pFlight->ticketList.size = 0;
 	pFlight->status = CONVE;
 }
 
-PNodeFli CreateFlight(Flight &flight){
-    PNodeFli tmp = new NodeFli;
-    tmp->data = flight;
-    tmp->pNext = NULL;
-    return tmp;
+bool FlightDataIsEmpty(Flight &flight)
+{
+	return 
+		strlen(flight.idAir) == 0 ||
+		strlen(flight.arrivalAir) == 0;
 }
 
-int CancleFlight(PNodeFli pFlight){
-    if (pFlight->data.status == CONVE || pFlight->data.status == HETVE){
-        pFlight->data.status = HUYCHUYEN;
-        return 1;
-    }
-    return 0;
+PNodeFli CreateFlight(Flight &flight)
+{
+	PNodeFli tmp = new NodeFli;
+	tmp->data = flight;
+	tmp->pNext = NULL;
+	return tmp;
 }
 
-void AddFlight(PNodeFli &first, Flight &flight){
+int CancleFlight(PNodeFli pFlight)
+{
+	if (pFlight->data.status == CONVE || pFlight->data.status == HETVE)
+	{
+		pFlight->data.status = HUYCHUYEN;
+		return 1;
+	}
+	return 0;
+}
+
+void InsertFlight(PNodeFli &first, Flight &flight)
+{
 	PNodeFli tmp = CreateFlight(flight);
-	if (first == NULL) {
+	if (first == NULL)
+	{
 		first = tmp;
 		first->pNext = NULL;
 	}
 	else
 	{
-		PNodeFli p = first ;
-		for(p = first; p->pNext != NULL; p = p->pNext);
-			p->pNext = tmp ;
+		PNodeFli p = first;
+		while (p->pNext != NULL)
+		{
+			p = p->pNext;
+		}
+		p->pNext = tmp;
 	}
 }
 
-PNodeFli FindFlight(PNodeFli &first, const char *id){
-	if (first == NULL) return NULL;
-    for (PNodeFli p = first; p != NULL; p = p->pNext)
+PNodeFli FindFlight(PNodeFli &first, const char *id)
+{
+	if (first == NULL)
+		return NULL;
+	for (PNodeFli p = first; p != NULL; p = p->pNext)
 		if (strcmp(p->data.idFlight, id) == 0)
 			return p;
 	return NULL;
 }
 
-PNodeFli FindFlightByIdPlane(PNodeFli &first, const char *id){
-	if (first == NULL) return NULL;
-    for (PNodeFli p = first; p != NULL; p = p->pNext) {
+PNodeFli FindFlightByIdPlane(PNodeFli &first, const char *id)
+{
+	if (first == NULL)
+		return NULL;
+	for (PNodeFli p = first; p != NULL; p = p->pNext)
+	{
 		if (strcmp(p->data.idAir, id) == 0)
 			return p;
 	}
 	return NULL;
 }
 
-int FindIndexFlight(PNodeFli first, const char *id){
+int FindIndexFlight(PNodeFli first, const char *id)
+{
 	int index = 0;
-	for(PNodeFli p = first; p != NULL; p = p->pNext){
-		if(strcmp(p->data.idFlight, id) == 0){
+	for (PNodeFli p = first; p != NULL; p = p->pNext)
+	{
+		if (strcmp(p->data.idFlight, id) == 0)
+		{
 			return index;
 		}
 		index++;
@@ -93,10 +117,13 @@ int FindIndexFlight(PNodeFli first, const char *id){
 	return -1;
 }
 
-int FindDestination(PNodeFli first, const char *arrival){
+int FindDestination(PNodeFli first, const char *arrival)
+{
 	int index = 0;
-	for(PNodeFli p = first; p != NULL; p = p->pNext){
-		if(strcmp(p->data.arrivalAir, arrival) == 0){
+	for (PNodeFli p = first; p != NULL; p = p->pNext)
+	{
+		if (strcmp(p->data.arrivalAir, arrival) == 0)
+		{
 			return index;
 		}
 		index++;
