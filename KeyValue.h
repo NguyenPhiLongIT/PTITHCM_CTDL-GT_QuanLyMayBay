@@ -53,8 +53,8 @@ const int MaxItem = 9;
 #define X_Add 125
 #define Y_Add 21
 // Toa do cua phan hien thi page/ total Page
-#define X_Page 125
-#define Y_Page 35
+#define X_Page 130
+#define Y_Page 38
 // Toa do phan chuc nang
 #define X_Tutorial 5
 #define Y_Tutorial 28
@@ -63,7 +63,7 @@ const int MaxItem = 9;
 #define Y_TitlePage 2
 // Toa do phan thong bao
 #define X_Notification 125
-#define Y_Notification 27
+#define Y_Notification 32
 // Toa do thanh menu
 #define X_Menu 1
 #define Y_Menu 4
