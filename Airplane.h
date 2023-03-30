@@ -3,6 +3,7 @@
 #include <conio.h>
 #include <iostream>
 #include <math.h>
+#include <iomanip>
 
 #include "KeyValue.h"
 #include "Constraint.h"
@@ -125,15 +126,15 @@ void ShowAirplane(PAirplane pAir, int position)
 	int xKeyDisplay[10] = {20,40,60,80,100,120,130,140,150,160};
 	
 	gotoxy(xKeyDisplay[0] + 3, Y_Display + position +3);
-    cout << left << setw(15) << pAir->idAir;
+    printf("%-15s", pAir->idAir);			//dung printtf %s: de ko bi loi dinh dang khi chuyen trang
     gotoxy(xKeyDisplay[1] + 3, Y_Display + position +3);
-    cout << left << setw(15) << pAir->typeAir;
+    printf("%-15s", pAir->typeAir);
     gotoxy(xKeyDisplay[2] + 3, Y_Display + position +3);
-    cout << left << setw(15) << pAir->col;
+    printf("%-15d", pAir->col);
     gotoxy(xKeyDisplay[3] + 3, Y_Display + position +3);
-    cout << left << setw(15) << pAir->row;
+    printf("%-15d", pAir->row);
     gotoxy(xKeyDisplay[4] + 3, Y_Display + position +3);
-    cout << left << setw(15) << (pAir->col * pAir->row);
+    printf("%-15d", (pAir->col * pAir->row));
 }
 
 void ShowListAirplaneOnePage(ListAir list, int startIndex)
@@ -162,7 +163,7 @@ void ChangeAirplaneMenuManagerPage(ListAir list)
 void MenuManageAirplane(ListAir &list, Airplane air){
 //	ShowCursor(false);
 //	system("cls");
-	CurAirplanePage = 1;
+	CurAirplanePage = !ListAirIsNull(list);
 	TotalAirplanePage = (int)ceil((double)list.size/NumberPerPage); 	//ceil : lam tron 
 	
 	Display(ContentAirplane, sizeof(ContentAirplane)/sizeof(string));
@@ -175,10 +176,12 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 	while(true)
 	{
 		menu:
+		
 		signal = menu_dong(X_ThaoTac,Y_ThaoTac,6,ContentThaoTac);
 		switch(signal) {
 			case 1: // Insert
 			{
+				if(CurAirplanePage == 0) CurAirplanePage = 1;
 				if(list.size == MAXAIRPLANE) 
 				{	
 					Notification("Danh sach da day, khong the them");
@@ -202,7 +205,7 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 					goto menu;
 				}
 				CreateForm(ContentAirplane, 0, 1, 27);
-				gotoxy(X_Add+10,Y_Add);       strcpy(air.idAir, Input(sizeof(air.idAir)/sizeof(char), ID));
+				gotoxy(X_Add+10,Y_Add);       strcpy(air.idAir, Input(sizeof(air.idAir), ID));
 				if (!RemoveAirplane(list, IndexAirplane(list, air.idAir )))
 				{
 					Notification("Xoa khong thanh cong");
@@ -213,15 +216,26 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 				system("color 0E");
 				RemoveForm(0, 4, 27);
 				TotalAirplanePage = (int)ceil((double)list.size / NumberPerPage);
-				ShowListAirplaneOnePage(list, (CurAirplanePage - 1) * NumberPerPage);
+				if (ListAirIsNull) {
+					CurAirplanePage = 0;
+					ShowListAirplaneOnePage(list, 0);
+				} else {
+					ShowListAirplaneOnePage(list, (CurAirplanePage-1) * NumberPerPage);
+				}
 				goto menu;
 			}
 			case 3: //Edit chua xong
 			{
-				CreateForm(ContentAirplane,0, 4, 27);
-				TotalAirplanePage = (int)ceil((double)list.size / NumberPerPage);
-				ShowListAirplaneOnePage(list, (CurAirplanePage - 1) * NumberPerPage);
-				goto menu;
+				ShowCursor(true);
+				thanh_sang(20,Y_Display,15,2,BLUE_LIGHT," ");
+				if (_kbhit()) {
+					goto menu;
+				}
+				// gotoxy(20,Y_Display);
+				// CreateForm(ContentAirplane,0, 4, 27);
+				// TotalAirplanePage = (int)ceil((double)list.size / NumberPerPage);
+				// ShowListAirplaneOnePage(list, (CurAirplanePage - 1) * NumberPerPage);
+				// goto menu;
 			}
 			case 4: //Chuyen trang truoc
 			{
