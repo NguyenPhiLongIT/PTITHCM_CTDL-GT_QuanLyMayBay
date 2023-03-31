@@ -168,6 +168,7 @@ void ChangeAirplaneMenuManagerPage(ListAir list)
 
 
 void EditAirplane(string nd, ListAir list, Airplane air, int signal, int xp, int yp, int i){
+	ShowCursor(true);
 	CreateRow(X_Add, Y_Add, nd, 27);
 	gotoxy(X_Add+10,Y_Add);
 	if (signal == 1){
@@ -194,13 +195,15 @@ void EditAirplane(string nd, ListAir list, Airplane air, int signal, int xp, int
 		list.nodes[i]->row = atoi(r);
 	}
 	RemoveRow(X_Add, Y_Add, nd, 27);
-	Notification("Chinh sua thanh cong");
+	if(SaveAirplane(list)){
+		Notification("Chinh sua thanh cong");		
+	}
 	system("color 0E");
 	ShowListAirplaneOnePage(list, (CurAirplanePage-1) * NumberPerPage);
 	thanh_sang(xp, yp, 18, 2, BLUE_LIGHT, (string)list.nodes[i]->idAir);
 }
 void MenuManageAirplane(ListAir &list, Airplane air){
-//	ShowCursor(false);
+	ShowCursor(false);
 //	system("cls");
 	CurAirplanePage = !ListAirIsNull(list);
 	TotalAirplanePage = (int)ceil((double)list.size/NumberPerPage); 	//ceil : lam tron 
