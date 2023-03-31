@@ -180,7 +180,6 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 	int signal;
 	while(true)
 	{
-		menu:
 		signal = menu_dong(X_ThaoTac,Y_ThaoTac,6,ContentThaoTac);
 		switch(signal) {
 			case 1: // Insert
@@ -189,7 +188,7 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 				if(list.size == MAXAIRPLANE) 
 				{	
 					Notification("Danh sach da day, khong the them");
-					goto menu;
+					break;
 				}
 				gotoxy(X_Add, Y_Add-1);
 				InputListAirplane(list);
@@ -203,14 +202,14 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 				RemoveForm(0, 4, 27);
 				ShowListAirplaneOnePage(list, (CurAirplanePage-1)*NumberPerPage);
 				ShowCursor(false);
-				goto menu;
+				break;
 			}
 			case 2: //Delete
 			{
 				if(list.size == 0)
 				{
 					Notification("Danh sach rong, khong the xoa");
-					goto menu;
+					break;
 				}
 				CreateForm(ContentAirplane, 0, 1, 27);
 				gotoxy(X_Add+10,Y_Add);       strcpy(air.idAir, Input(sizeof(air.idAir), ID));
@@ -233,41 +232,68 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 					if (CurAirplanePage > TotalAirplanePage) CurAirplanePage--;
 					ShowListAirplaneOnePage(list, (CurAirplanePage-1) * NumberPerPage);
 				}
-				goto menu;
+				break;
 			}
 			case 3: //Edit chua xong
 			{
-				ShowCursor(true);
-				int i = 0;
+				ShowListAirplaneOnePage(list, (CurAirplanePage-1) * NumberPerPage);
+				int i = (CurAirplanePage-1)*20;
+				int j = i; 
+				int xp = 22, yp = Y_Display+2;
+				int xcu = xp, ycu = yp; //luu vi tri dong gan nhat
 				char c;
-				if (_kbhit()) {
-					c = getch();
-					thanh_sang(22,Y_Display+2,20,2,BLUE_LIGHT,"Khang");
-					if (c == ENTER) {
-						goto menu;
+				bool kt = true; //kiem tra co nhap phim chua
+				while (true) {
+					if (kt == true) {
+						gotoxy(xcu,ycu);
+						thanh_sang(xcu,ycu,18,2,BLACK,(string)list.nodes[j]->idAir);
+						j = i;
+						xcu = xp; ycu = yp;
+						thanh_sang(xp,yp,18,2,BLUE_LIGHT,(string)list.nodes[i]->idAir);
+						kt = false;
+					}
+					if (_kbhit()) {
+						char c = _getch();
+						if (c == -32) {
+							kt = true;
+							c = _getch();
+							int max;
+							if (CurAirplanePage < TotalAirplanePage) max = Y_Display+2 + (NumberPerPage-1);
+							else max = Y_Display+2 + (list.size%20-1);
+							if (c == UP && yp != Y_Display+2) {
+								yp--;
+								i--;
+							} else if (c == DOWN && yp != max) {
+								yp++;
+								i++;
+							} 
+						} else if (c == ENTER) {
+							Notification("Ban muon thay doi phan nao?");
+							thanh_sang(xp,yp,18,2,BLACK,(string)list.nodes[i]->idAir);
+							break;
+						} else if (c == ESC) {
+							thanh_sang(xp,yp,18,2,BLACK,(string)list.nodes[i]->idAir);
+							break;
+						}
 					}
 				}
-				// gotoxy(20,Y_Display);
-				// CreateForm(ContentAirplane,0, 4, 27);
-				// TotalAirplanePage = (int)ceil((double)list.size / NumberPerPage);
-				// ShowListAirplaneOnePage(list, (CurAirplanePage - 1) * NumberPerPage);
-				// goto menu;
+				break;
 			}
 			case 4: //Chuyen trang truoc
 			{
-				if(CurAirplanePage == 1) goto menu;
+				if(CurAirplanePage == 1) break;
 				else{
 					CurAirplanePage --;
 					ChangeAirplaneMenuManagerPage(list);
-					goto menu;
+					break;
 				}
 			}
 			case 5:	//Chuyen trang tiep
 			{
-				if(CurAirplanePage >= TotalAirplanePage) goto menu;
+				if(CurAirplanePage >= TotalAirplanePage) break;
 				CurAirplanePage ++;
 				ChangeAirplaneMenuManagerPage(list);
-				goto menu;
+				break;
 			}
 			default: return;
 			
