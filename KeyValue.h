@@ -53,8 +53,8 @@ const int MaxItem = 9;
 #define X_Add 125
 #define Y_Add 21
 // Toa do cua phan hien thi page/ total Page
-#define X_Page 130
-#define Y_Page 38
+#define X_Page 110
+#define Y_Page 3
 // Toa do phan chuc nang
 #define X_Tutorial 5
 #define Y_Tutorial 28
@@ -73,6 +73,9 @@ const int MaxItem = 9;
 //Chieu cao va chieu rong cua box
 #define Box_Height 2
 #define Box_Width 15
+//Toa do thong bao EditPlane
+#define X_EditPlane 147
+#define Y_EditPlane 9
 
 //Mau sac
 #define BLACK 0
