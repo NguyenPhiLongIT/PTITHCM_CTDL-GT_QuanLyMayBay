@@ -235,7 +235,7 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 				}
 				break;
 			}
-			case 3: //Edit chua xong
+			edit: case 3: //Edit chua xong
 			{
 				ShowListAirplaneOnePage(list, (CurAirplanePage-1) * NumberPerPage);
 				int i = (CurAirplanePage-1)*20;
@@ -261,13 +261,25 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 							int max;
 							if (CurAirplanePage < TotalAirplanePage) max = Y_Display+2 + (NumberPerPage-1);
 							else max = Y_Display+2 + (list.size%20-1);
-							if (c == UP && yp != Y_Display+2) {
-								yp--;
-								i--;
-							} else if (c == DOWN && yp != max) {
-								yp++;
-								i++;
-							} 
+							if (c == UP) {
+								if (yp != Y_Display+2) {
+									yp--;
+									i--;
+								} else if (yp == Y_Display+2 && CurAirplanePage > 1) {
+									CurAirplanePage--;
+									ChangeAirplaneMenuManagerPage(list);
+									goto edit;
+								}
+							} else if (c == DOWN) {
+								if (yp != max) {
+									yp++;
+									i++;
+								} else if (yp == max && CurAirplanePage < TotalAirplanePage) {
+									CurAirplanePage ++;
+									ChangeAirplaneMenuManagerPage(list);
+									goto edit;
+								}	
+							}
 						} else if (c == ENTER) {
 							Notification("Ban muon thay doi phan nao?");
 							thanh_sang(xp,yp,18,2,BLACK,(string)list.nodes[i]->idAir);
@@ -275,12 +287,12 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 						} else if (c == ESC) {
 							thanh_sang(xp,yp,18,2,BLACK,(string)list.nodes[i]->idAir);
 							break;
-						}
+						} 
 					}
 				}
 				break;
 			}
-			case 4: //Chuyen trang truoc
+			prepage: case 4: //Chuyen trang truoc
 			{
 				if(CurAirplanePage == 1) break;
 				else{
@@ -289,7 +301,7 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 					break;
 				}
 			}
-			case 5:	//Chuyen trang tiep
+			nextpage: case 5:	//Chuyen trang tiep
 			{
 				if(CurAirplanePage >= TotalAirplanePage) break;
 				CurAirplanePage ++;
