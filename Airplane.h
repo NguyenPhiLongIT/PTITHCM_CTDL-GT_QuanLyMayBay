@@ -1,4 +1,3 @@
-//test
 #pragma once
 #include <fstream>
 #include <cstring>
@@ -46,6 +45,7 @@ bool RemoveAirplane(ListAir &, int);
 void ShowAirplane(PAirplane, int);
 void ShowListAirplaneOnePage(ListAir, int);
 void ChangeAirplaneMenuManagerPage(ListAir);
+void EditAirplane(string , ListAir , Airplane , int , int , int , int );
 void MenuManageAirplane(ListAir &, Airplane);
 
 bool SaveAirplane(ListAir &listAir);
@@ -93,26 +93,6 @@ bool InsertListAir(ListAir &ListAir, Airplane &Air){
 	return true;
 }
 
-void InputAirplane(Airplane &Air){
-	ShowCursor(true);
-    gotoxy(X_Add+10,Y_Add);       strcpy(Air.idAir, Input(sizeof(Air.idAir), ID));
-    gotoxy(X_Add+10,Y_Add+3);     strcpy(Air.typeAir, Input(sizeof(Air.typeAir), Text));
-    gotoxy(X_Add+10,Y_Add+6);     char col[2]; std::sprintf(col, "%d", Air.col); strcpy(col, Input(sizeof(col), Number));
-    gotoxy(X_Add+10,Y_Add+9);     char row[2]; std::sprintf(row, "%d", Air.row); strcpy(row, Input(sizeof(row), Number));
-}
-
-void InputListAirplane(ListAir &list){
-	int size; 
-	cout << "So luong may bay: "; cin >> size;
-    for(int i = 0; i < size; i++){
-    	CreateForm(ContentAirplane, 0, 4, 27);
-    	Airplane air;
-    	cin.ignore();
-    	InputAirplane(air);
-    	InsertListAir(list, air);
-	}
-}
-
 bool RemoveAirplane(ListAir &ListAir, int position)
 {
     if (position < 0 || position >= ListAir.size)
@@ -125,6 +105,26 @@ bool RemoveAirplane(ListAir &ListAir, int position)
     }
     --ListAir.size;
     return true;
+}
+
+void InputAirplane(Airplane &Air){
+	ShowCursor(true);
+	CreateForm(ContentAirplane, 0, 4, 27);
+    gotoxy(X_Add+10,Y_Add);       strcpy(Air.idAir, Input(sizeof(Air.idAir), ID));
+    gotoxy(X_Add+10,Y_Add+3);     strcpy(Air.typeAir, Input(sizeof(Air.typeAir), Text));
+    gotoxy(X_Add+10,Y_Add+6);     char c[2]; strcpy(c, Input(sizeof(c), Number)); Air.col = atoi(c);
+    gotoxy(X_Add+10,Y_Add+9);     char r[2]; strcpy(r, Input(sizeof(r), Number)); Air.row = atoi(r);
+}
+
+void InputListAirplane(ListAir &list){
+	int size; 
+	cout << "So luong may bay: "; cin >> size;
+    for(int i = 0; i < size; i++){
+    	Airplane air;
+    	cin.ignore();
+    	InputAirplane(air);
+    	InsertListAir(list, air);
+	}
 }
 
 void ShowAirplane(PAirplane pAir, int position)
@@ -166,6 +166,39 @@ void ChangeAirplaneMenuManagerPage(ListAir list)
 	ShowListAirplaneOnePage(list,(CurAirplanePage-1)*NumberPerPage);
 }
 
+
+void EditAirplane(string nd, ListAir list, Airplane air, int signal, int xp, int yp, int i){
+	CreateRow(X_Add, Y_Add, nd, 27);
+	gotoxy(X_Add+10,Y_Add);
+	if (signal == 1){
+		CreateForm(ContentAirplane,0,4,27);
+		InputAirplane(*list.nodes[i]);
+		RemoveForm(0,4,27);
+	}
+	else if (signal == 2) {
+		strcpy(air.idAir, Input(sizeof(air.idAir), ID));
+		strcpy(list.nodes[i]->idAir, air.idAir);
+	}
+	else if(signal == 3){
+		strcpy(air.typeAir, Input(sizeof(air.typeAir), Text));
+		strcpy(list.nodes[i]->typeAir, air.typeAir);
+	}
+	else if(signal == 4){
+		char c[2];
+		strcpy(c, Input(sizeof(c), Number));
+		list.nodes[i]->col = atoi(c);	
+	}
+	else if(signal == 5){
+		char r[2];
+		strcpy(r, Input(sizeof(r), Number));
+		list.nodes[i]->row = atoi(r);
+	}
+	RemoveRow(X_Add, Y_Add, nd, 27);
+	Notification("Chinh sua thanh cong");
+	system("color 0E");
+	ShowListAirplaneOnePage(list, (CurAirplanePage-1) * NumberPerPage);
+	thanh_sang(xp, yp, 18, 2, BLUE_LIGHT, (string)list.nodes[i]->idAir);
+}
 void MenuManageAirplane(ListAir &list, Airplane air){
 //	ShowCursor(false);
 //	system("cls");
@@ -212,8 +245,8 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 					Notification("Danh sach rong, khong the xoa");
 					break;
 				}
-				CreateForm(ContentAirplane, 0, 1, 27);
-				gotoxy(X_Add+10,Y_Add);       strcpy(air.idAir, Input(sizeof(air.idAir), ID));
+				CreateRow(X_Add, Y_Add, ContentAirplane[0], 27);
+				gotoxy(X_Add+10,Y_Add); strcpy(air.idAir, Input(sizeof(air.idAir), ID));
 				if (!RemoveAirplane(list, IndexAirplane(list, air.idAir )))
 				{
 					Notification("Xoa khong thanh cong");
@@ -224,7 +257,7 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 				}
 				}
 				system("color 0E");
-				RemoveForm(0, 4, 27);
+				RemoveRow(X_Add, Y_Add, ContentAirplane[0], 27);
 				TotalAirplanePage = (int)ceil((double)list.size / NumberPerPage);
 				if (ListAirIsNull(list))  {
 					CurAirplanePage = 0;
@@ -235,7 +268,7 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 				}
 				break;
 			}
-			edit: case 3: //Edit chua xong
+			edit: case 3: //Edit 
 			{
 				ShowListAirplaneOnePage(list, (CurAirplanePage-1) * NumberPerPage);
 				int i = (CurAirplanePage-1)*20;
@@ -281,10 +314,41 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 								}	
 							}
 						} else if (c == ENTER) {
-							Notification("Ban muon thay doi phan nao?");
-							thanh_sang(xp,yp,18,2,BLACK,(string)list.nodes[i]->idAir);
-							break;
-						} else if (c == ESC) {
+							box(X_EditPlane, Y_EditPlane-2, 32, 2, "Ban muon thay doi phan nao?");
+							thanh_sang(xp,yp,18,2,BLUE_LIGHT,(string)list.nodes[i]->idAir);
+							int signalEdit;
+							while(true){
+								signalEdit = menu_dong(X_EditPlane+5, Y_EditPlane+1, 6, ContentEditAirplane);
+								switch(signalEdit){
+									case 1:{	//All
+										EditAirplane(ContentAirplane[0],list, air, signalEdit, xp, yp, i);
+										break;
+									}
+									case 2:{	//ID
+										EditAirplane(ContentAirplane[0],list, air, signalEdit, xp, yp, i);
+										break;
+									}
+									case 3:{	//Type
+										EditAirplane(ContentAirplane[1],list, air, signalEdit, xp, yp, i);
+										break;
+									}
+									case 4:{	//col
+										EditAirplane(ContentAirplane[2],list, air, signalEdit, xp, yp, i);
+										break;
+									}
+									case 5:{	//row
+										EditAirplane(ContentAirplane[3],list, air, signalEdit, xp, yp, i);
+										break;
+									}
+									default: break;
+								}
+								remove_box(X_EditPlane, Y_EditPlane-2, 32, 2);
+								remove_box(X_EditPlane+5, Y_EditPlane+1, 18, 12);
+								thanh_sang(xp,yp,18,2,BLUE_LIGHT,(string)list.nodes[i]->idAir);
+								break;
+							}
+						} 
+						else if (c == ESC) {
 							thanh_sang(xp,yp,18,2,BLACK,(string)list.nodes[i]->idAir);
 							break;
 						} 
