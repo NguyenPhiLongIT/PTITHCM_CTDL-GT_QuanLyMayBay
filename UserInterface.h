@@ -22,7 +22,7 @@ string ContentFlight[6] = { "Flight ID", "Plane ID", "Destination", "Date and Ti
 string ContentTicket[4] = {"Passenger ID", "Column", "Row", "Seat"};
 string ContentMenu[6] = {"Home", "Plane", "Flight", "Passenger", "Ticket", "Exit"};
 string ContentThaoTac[6] = {"Insert", "Delete", "Edit", "Previous Page", "Next Page", "Back"};
-
+string ContentEditAirplane[6] = {"All", "Plane ID", "Plane Type", "Column", "Row", "Back"};
 
 
 
