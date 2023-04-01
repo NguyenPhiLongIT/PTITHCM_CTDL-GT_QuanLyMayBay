@@ -5,24 +5,20 @@
 #include <iomanip>
 #include <windows.h>
 
-
 using namespace std;
 
-
-#include "Airplane.h"
-#include "Ticket.h"
-#include "Flight.h"
 #include "Mylibrary.h"
 #include "KeyValue.h"
 
 // Xuat bang thong tin
-int xKeyDisplay[10] = {20,40,60,80,100,120,130,140,150,160};
+int xKeyDisplay[10] = {20,35,55,70,85,100,115,130,145,160};
 string ContentAirplane[5] = { "Plane ID", "Plane Type", "Column", "Row", "Seat"};
 string ContentFlight[6] = { "Flight ID", "Plane ID", "Destination", "Date and Time", "Tickets", "Status"};
 string ContentTicket[4] = {"Passenger ID", "Column", "Row", "Seat"};
 string ContentMenu[6] = {"Home", "Plane", "Flight", "Passenger", "Ticket", "Exit"};
 string ContentThaoTac[6] = {"Insert", "Delete", "Edit", "Previous Page", "Next Page", "Back"};
 string ContentEditAirplane[6] = {"All", "Plane ID", "Plane Type", "Column", "Row", "Back"};
+
 
 
 
@@ -182,43 +178,6 @@ void Display(string content[], int nContent) 	// ve bang
 	}
 }
 
-void DisplayForWatchOnly(string content[], int nContent,int count)// ve bang 
-{
-	system("color 0E");
-	SetColor(14);
-	SetBGColor(0);
-	//show key - the hien ra noi dung cua cac cot
-	for (int i = 0; i < nContent; i++)
-	{// Y_Display 4
-		gotoxy(xKeyDisplay[i] + 3, Y_Display+1);
-		cout << content[i];
-	}
-
-	//ve cac duong thang de phan chia cac cot - kich thuoc toi da la 20+count ve chieu dai
-	for (int j = Y_Display ; j <= count*3 + 5; j++)
-	{
-		for (int i = 0; i < nContent+1; i++)
-		{
-			gotoxy(xKeyDisplay[i], j);
-			cout << char(176);
-		}
-	}
-	//ve thanh ngang ben tren va duoi
-	for (int i = xKeyDisplay[0]; i <= xKeyDisplay[nContent]; i++)
-	{
-		//ve thanh ngang ben tren so 1
-		gotoxy(i, Y_Display);
-		cout << char(176);
-
-		// ve thanh ngang ben tren so 2
-		gotoxy(i, Y_Display + 2);
-		cout << char(176);
-
-		gotoxy(i, count*3 + 5);
-		cout << char(176);
-	}
-}
-
 //Loai bo nhung phan tu da hien thi o Page truoc 
 void RemoveExceedMember(int count,int nContent)	
 {
@@ -228,7 +187,7 @@ void RemoveExceedMember(int count,int nContent)
 		{
 			for (int y = 0; y < nContent; y++)
 			{
-				gotoxy(xKeyDisplay[y] + 3, Y_Display + 3 + i); printf("%-15s"," ");
+				gotoxy(xKeyDisplay[y] + 3, Y_Display + 3 + i); printf("%-10s"," ");
 			}
 		}
 	}
