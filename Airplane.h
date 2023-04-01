@@ -171,60 +171,60 @@ void EditAirplane(string nd, ListAir list, Airplane air, int signal, int xp, int
 	ShowCursor(true);
 	CreateRow(X_Add, Y_Add, nd, 27);
 	gotoxy(X_Add+10,Y_Add);
-	if (signal == 1){
-		InputAirplane(*list.nodes[i]);
-		RemoveForm(0,4,27);
-		if(SaveAirplane(list)){
-			Notification("Chinh sua thanh cong");
-		}
-	}
-	else if (signal == 2) {
-		strcpy(air.idAir, Input(sizeof(air.idAir), ID));
-		if(IndexAirplane(list, air.idAir) > -1){
-			Notification("ID da ton tai");
-		}
-		else {
-			strcpy(list.nodes[i]->idAir, air.idAir);
-			if(SaveAirplane(list)){
-				Notification("Chinh sua thanh cong");
+	switch(signal) {
+		case 1: //all
+		{
+			InputAirplane(air);
+			RemoveForm(0,4,27);
+			if (IndexAirplane(list,air.idAir) > -1 && air.col*air.row >= 20 ) Notification("ID da ton tai");
+			else if (IndexAirplane(list,air.idAir) == -1 && air.col*air.row < 20) Notification("So ghe phai >= 20");
+			else if (IndexAirplane(list,air.idAir) > -1 && air.col*air.row < 20) Notification("ID da ton tai va so ghe phai >= 20");
+			else {
+				*list.nodes[i] = air;
+				if(SaveAirplane(list)) Notification("Chinh sua thanh cong");
 			}
+			break;
 		}
-	}
-	else if(signal == 3){
-		strcpy(air.typeAir, Input(sizeof(air.typeAir), Text));
-		strcpy(list.nodes[i]->typeAir, air.typeAir);
-		if(SaveAirplane(list)){
-			Notification("Chinh sua thanh cong");
-		}
-	}
-	else if(signal == 4){
-		char c[3];
-		strcpy(c, Input(sizeof(c), Number));
-		int tmp = atoi(c);
-		if((tmp*list.nodes[i]->row) >= 20){
-			list.nodes[i]->col = tmp;
-			if(SaveAirplane(list)){
-				Notification("Chinh sua thanh cong");
-			}	
-		}
-		else{
-			Notification("So cho ngoi phai >= 20");	
-		}	
-	}
-	else if(signal == 5){
-		char r[3];
-		strcpy(r, Input(sizeof(r), Number));
-		int tmp = atoi(r);
-		if((tmp*list.nodes[i]->col) >= 20) {
-			
-			list.nodes[i]->row = tmp;
-			if(SaveAirplane(list)){
-				Notification("Chinh sua thanh cong");
+		case 2: //idair
+		{
+			strcpy(air.idAir, Input(sizeof(air.idAir), ID));
+			if(IndexAirplane(list, air.idAir) > -1) Notification("ID da ton tai");
+			else {
+				strcpy(list.nodes[i]->idAir, air.idAir);
+				if(SaveAirplane(list)) Notification("Chinh sua thanh cong");			
 			}
+			break;
 		}
-		else{
-			Notification("So cho ngoi phai >= 20");	
+		case 3: // typeair
+		{
+			strcpy(air.typeAir, Input(sizeof(air.typeAir), Text));
+			strcpy(list.nodes[i]->typeAir, air.typeAir);
+			if(SaveAirplane(list)) Notification("Chinh sua thanh cong");
+			break;
 		}
+		case 4: //col
+		{
+			char c[3];
+			strcpy(c, Input(sizeof(c), Number));
+			int tmp = atoi(c);
+			if((tmp*list.nodes[i]->row) >= 20){
+				list.nodes[i]->col = tmp;
+				if(SaveAirplane(list)) Notification("Chinh sua thanh cong");	
+			} else Notification("So cho ngoi phai >= 20");
+			break;
+		}
+		case 5: //row
+		{
+			char r[3];
+			strcpy(r, Input(sizeof(r), Number));
+			int tmp = atoi(r);
+			if((tmp*list.nodes[i]->col) >= 20) {
+				list.nodes[i]->row = tmp;
+				if(SaveAirplane(list)) Notification("Chinh sua thanh cong");
+			} else Notification("So cho ngoi phai >= 20");
+			break;
+		}
+		default: break;
 	}
 	RemoveRow(X_Add, Y_Add, nd, 27);
 	system("color 0E");
@@ -233,7 +233,6 @@ void EditAirplane(string nd, ListAir list, Airplane air, int signal, int xp, int
 }
 void MenuManageAirplane(ListAir &list, Airplane air){
 	ShowCursor(false);
-//	system("cls");
 	CurAirplanePage = !ListAirIsNull(list);
 	TotalAirplanePage = (int)ceil((double)list.size/NumberPerPage); 	//ceil : lam tron 
 	
@@ -260,17 +259,12 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 				InputAirplane(air);
 				int checkDup = IndexAirplane(list, air.idAir);
 				int seat = air.col * air.row;
-				if(checkDup > -1){
-					Notification("ID da ton tai");
-				}
-				else if(seat < 20){
-					Notification("So cho ngoi phai >= 20");
-				}
+				if(checkDup > -1 && seat >= 20) Notification("ID da ton tai");
+				else if(checkDup == -1 && seat < 20) Notification("So cho ngoi phai >= 20");
+				else if (checkDup > -1 && seat < 20) Notification("ID da ton tai va so ghe phai >= 20");
 				else {
 					InsertListAir(list, air);
-					if(SaveAirplane(list)){
-						Notification("Them thanh cong");
-					}
+					if(SaveAirplane(list)) Notification("Them thanh cong");
 				}
 
 				system("color 0E");
@@ -289,19 +283,14 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 				}
 				CreateRow(X_Add, Y_Add, ContentAirplane[0], 27);
 				gotoxy(X_Add+10,Y_Add); strcpy(air.idAir, Input(sizeof(air.idAir), ID));
-				if (!RemoveAirplane(list, IndexAirplane(list, air.idAir )))
-				{
-					Notification("ID khong ton tai");
-				}
+				if (!RemoveAirplane(list, IndexAirplane(list, air.idAir ))) Notification("ID khong ton tai");
 				else {
-					if(SaveAirplane(list)){
-					Notification("Xoa thanh cong");
-				}
+					if(SaveAirplane(list)) Notification("Xoa thanh cong");
 				}
 				system("color 0E");
 				RemoveRow(X_Add, Y_Add, ContentAirplane[0], 27);
 				TotalAirplanePage = (int)ceil((double)list.size / NumberPerPage);
-				if (ListAirIsNull(list))  {
+				if (ListAirIsNull(list))  { //neu nhu danh sach khong co phan tu, trang 0/0
 					CurAirplanePage = 0;
 					ShowListAirplaneOnePage(list, 0);
 				} else {
@@ -329,7 +318,7 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 						kt = false;
 					}
 					if (_kbhit()) {
-						char c = _getch();
+						c = _getch();
 						if (c == -32) {
 							kt = true;
 							c = _getch();
@@ -340,7 +329,7 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 								if (yp != Y_Display+2) {
 									yp--;
 									i--;
-								} else if (yp == Y_Display+2 && CurAirplanePage > 1) {
+								} else if (yp == Y_Display+2 && CurAirplanePage > 1) { //neu dang o phan tu dau ma nhay len thi se qua trang truoc
 									CurAirplanePage--;
 									ChangeAirplaneMenuManagerPage(list);
 									goto edit;
@@ -349,7 +338,7 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 								if (yp != max) {
 									yp++;
 									i++;
-								} else if (yp == max && CurAirplanePage < TotalAirplanePage) {
+								} else if (yp == max && CurAirplanePage < TotalAirplanePage) { //neu dang o phan tu cuoi ma nhay xuong se qua trang sau
 									CurAirplanePage ++;
 									ChangeAirplaneMenuManagerPage(list);
 									goto edit;
@@ -392,13 +381,13 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 						} 
 						else if (c == ESC) {
 							thanh_sang(xp,yp,13,2,BLACK,(string)list.nodes[i]->idAir);
-							break;
+							break; //thoat khoi vong lap while(true)
 						} 
 					}
 				}
 				break;
 			}
-			prepage: case 4: //Chuyen trang truoc
+			case 4: //Chuyen trang truoc
 			{
 				if(CurAirplanePage == 1) break;
 				else{
@@ -407,7 +396,7 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 					break;
 				}
 			}
-			nextpage: case 5:	//Chuyen trang tiep
+			case 5:	//Chuyen trang tiep
 			{
 				if(CurAirplanePage >= TotalAirplanePage) break;
 				CurAirplanePage ++;
