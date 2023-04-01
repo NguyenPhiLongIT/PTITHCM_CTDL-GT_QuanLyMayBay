@@ -2,6 +2,7 @@
 
 #define MAXAIRPLANE 300
 #define MAXVE       100
+#define MINSEAT		20
 
 //Trang thai
 #define CONVE 1
@@ -28,8 +29,8 @@
 #define F12 123
 
 //Control characters
-#define PAGEUP 73
-#define PAGEDOWN 81
+#define PAGEUP 33
+#define PAGEDOWN 34
 #define END 35
 #define HOME 71
 #define UP 72
@@ -47,13 +48,13 @@ const int MaxItem = 9;
 // so luong may bay hien thi trong 1 trang
 #define NumberPerPage 20
 // Board Menu - bang liet ke ra danh sach
-#define X_Display 50
+#define X_Display 20
 #define Y_Display 4
 // Toa do de tao ra bang them thong tin
-#define X_Add 125
-#define Y_Add 21
+#define X_Add 107
+#define Y_Add 22
 // Toa do cua phan hien thi page/ total Page
-#define X_Page 110
+#define X_Page 90
 #define Y_Page 3
 // Toa do phan chuc nang
 #define X_Tutorial 5
@@ -62,20 +63,21 @@ const int MaxItem = 9;
 #define X_TitlePage 60
 #define Y_TitlePage 2
 // Toa do phan thong bao
-#define X_Notification 125
+#define X_Notification 105
 #define Y_Notification 32
 // Toa do thanh menu
 #define X_Menu 1
 #define Y_Menu 4
 //Toa do thanh thao tac
-#define X_ThaoTac 130
-#define Y_ThaoTac 6
+#define X_ThaoTac 107
+#define Y_ThaoTac 4
 //Chieu cao va chieu rong cua box
 #define Box_Height 2
 #define Box_Width 15
 //Toa do thong bao EditPlane
-#define X_EditPlane 147
-#define Y_EditPlane 9
+#define X_EditPlane 121
+#define Y_EditPlane 7
+
 
 //Mau sac
 #define BLACK 0
