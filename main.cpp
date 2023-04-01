@@ -2,6 +2,7 @@
 #include <string.h>
 
 using namespace std;
+
 #include "Date.h"
 #include "Mylibrary.h"
 #include "Constraint.h"
@@ -11,9 +12,8 @@ using namespace std;
 #include "UserInterface.h"
 #include "Passenger.h"
 #include "KeyValue.h"
+//#include "Process.h"
 
-
-void CreateForm(string content[], int StartIndex, int nContent, int length);
 
 void menu_xuli();
 
@@ -31,11 +31,16 @@ void menu_xuli() {
     TicketList ticketlist;
     InitTicketList(ticketlist);
     Ticket ticket;
-    InputListAirplane(list);
+//    Flight fli;
+//    NodeFli first;
+//    PNodeFli p;
+//    InitFlight(fli);
+//    InputListFlight(p);
+//    InputListAirplane(list);
+	if(!LoadAirplane(list));
 	
     system("cls");
     while (true) {
-        menuchinh:
         gotoxy(X_TitlePage-1,Y_TitlePage-1);
 	    cout << "HANG HANG KHONG PTITHCM";
         int tt = menu_dong(X_Menu, Y_Menu,6, ContentMenu);
@@ -46,9 +51,11 @@ void menu_xuli() {
             {
                 MenuManageAirplane(list, air);
                 system("cls");
-                goto menuchinh;
+                break;
             }
             case 3: // Flight
+//            	MenuManageFlight(first, fli);
+//            	system("cls");
                 break;
             case 4: // Passenger
                 break;
