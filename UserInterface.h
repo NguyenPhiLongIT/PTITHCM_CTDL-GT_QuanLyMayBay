@@ -166,11 +166,11 @@ void Display(string content[], int nContent) 	// ve bang
 	{
 		//ve thanh ngang ben tren so 1
 		gotoxy(i, Y_Display);
-		cout << char(178);
+		cout << char(186);
 
 		// ve thanh ngang ben tren so 2
 		gotoxy(i, Y_Display + 2);
-		cout << char(178);
+		cout << char(186);
 
 		//ve thanh ngang ben duoi
 		gotoxy(i, Y_Display + 25);
