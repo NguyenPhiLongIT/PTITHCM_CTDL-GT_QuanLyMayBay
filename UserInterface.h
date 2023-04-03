@@ -12,12 +12,19 @@ using namespace std;
 
 // Xuat bang thong tin
 int xKeyDisplay[10] = {20,35,55,70,85,100,115,130,145,160};
+//Airplane
 string ContentAirplane[5] = { "Plane ID", "Plane Type", "Column", "Row", "Seat"};
-string ContentFlight[6] = { "Flight ID", "Plane ID", "Destination", "Date and Time", "Tickets", "Status"};
-string ContentTicket[4] = {"Passenger ID", "Column", "Row", "Seat"};
-string ContentMenu[6] = {"Home", "Plane", "Flight", "Passenger", "Ticket", "Exit"};
 string ContentThaoTac[6] = {"Insert", "Delete", "Edit", "Previous Page", "Next Page", "Back"};
 string ContentEditAirplane[6] = {"All", "Plane ID", "Plane Type", "Column", "Row", "Back"};
+//Flight
+string ContentFlight[6] = { "Flight ID", "Plane ID", "Destination", "Date and Time", "Tickets", "Status"};
+//Ticket
+string ContentTicket_Input[2] = {"PassengerID","Seat"};
+string ContentTicket_Output[4] = {"FlightID", "Date", "Seat", "Status"};
+string ContentTicket_ThaoTac[5] = {"Order", "Cancel", "Previous Page", "Next Page", "Back"};
+//Menu
+string ContentMenu[6] = {"Home", "Plane", "Flight", "Passenger", "Ticket", "Exit"};
+
 
 
 
