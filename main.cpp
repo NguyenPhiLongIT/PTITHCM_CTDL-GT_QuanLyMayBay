@@ -28,8 +28,7 @@ void menu_xuli() {
     ListAir list;
     InitListAirplane(list);
     Airplane air;
-    TicketList ticketlist;
-    InitTicketList(ticketlist);
+    ListTicket listticket;
     Ticket ticket;
 //    Flight fli;
 //    NodeFli first;
@@ -61,10 +60,11 @@ void menu_xuli() {
                 break;
             case 5: // Ticket
             {
-//                MenuManagaTicket(ticketlist,ticket);
-//                system("cls");
-//                goto menuchinh;
-					break;
+            	air = *list.nodes[2]; //lay may bay thu 3 de test
+            	InitListTicket(listticket,air); //khoi tao danh sach ve cho may bay
+                MenuManageTicket(air, listticket, ticket);
+                system("cls");
+		break;
             }
             default: //Exit
                 return;
