@@ -96,10 +96,8 @@ bool CancelTicket(Airplane Air, ListTicket &ListTicket, Ticket Ticket) {
 
 int CheckSeat(Airplane Air, ListTicket ListTicket, Ticket Ticket) {
     int vitri = ConvertMSVtoNumber(Ticket.seat, Air.col);
-    if (vitri >= ListTicket.size_max || vitri < 0) {
-        Notification("Vi tri nay khong ton tai");
-        return -1;
-    } else {
+    if (vitri >= ListTicket.size_max || vitri < 0) return -1;
+    else {
         if (ListTicket.DSV[vitri].statusTicket == 1) return 0;
         else return 1;
     }
