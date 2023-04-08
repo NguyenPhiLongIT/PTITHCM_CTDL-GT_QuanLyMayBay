@@ -30,14 +30,17 @@ void menu_xuli() {
     Airplane air;
     ListTicket listticket;
     Ticket ticket;
-//    Flight fli;
-//    NodeFli first;
-//    PNodeFli p;
+    Flight fli;
+    PNodeFli first;
+    InitListFlight(first);
 //    InitFlight(fli);
-//    InputListFlight(p);
+//    InputListFlight(first);
+//	InputFlight(fli);
+//	InsertFlight(first, fli);
 //    InputListAirplane(list);
 	if(!LoadAirplane(list));
-	
+//	if(!LoadFlight(first));
+
     system("cls");
     while (true) {
         gotoxy(X_TitlePage-1,Y_TitlePage-1);
@@ -54,7 +57,8 @@ void menu_xuli() {
             }
             case 3: // Flight
 //            	MenuManageFlight(first, fli);
-//            	system("cls");
+				ChangeFlightMenuManagerPage(first);
+            	system("cls");
                 break;
             case 4: // Passenger
                 break;
