@@ -5,10 +5,10 @@
 #define MINSEAT		20
 
 //Trang thai
-#define CONVE 1
-#define HETVE 2
-#define HOANTAT 3
-#define HUYCHUYEN 0
+#define HUYCHUYEN 1
+#define CONVE 2
+#define HETVE 3
+#define HOANTAT 4
 
 #define BACKSPACE 8
 #define TAB 9
