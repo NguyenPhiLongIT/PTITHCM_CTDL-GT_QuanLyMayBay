@@ -11,13 +11,13 @@ using namespace std;
 #include "KeyValue.h"
 
 // Xuat bang thong tin
-int xKeyDisplay[10] = {20,35,55,70,85,100,115,130,145,160};
+int xKeyDisplay[10] = {20,35,55,70,88,102,115,130,145,160};
 //Airplane
 string ContentAirplane[5] = { "Plane ID", "Plane Type", "Column", "Row", "Seat"};
 string ContentThaoTac[6] = {"Insert", "Delete", "Edit", "Previous Page", "Next Page", "Back"};
 string ContentEditAirplane[6] = {"All", "Plane ID", "Plane Type", "Column", "Row", "Back"};
 //Flight
-string ContentFlight[6] = { "Flight ID", "Plane ID", "Destination", "Date and Time", "Tickets", "Status"};
+string ContentFlight[5] = { "Flight ID", "Destination", "Plane ID", "Date and Time", "Status"};
 //Ticket
 string ContentTicket_Input[2] = {"PassengerID","Seat"};
 string ContentTicket_Output[4] = {"FlightID", "Date", "Seat", "Status"};
