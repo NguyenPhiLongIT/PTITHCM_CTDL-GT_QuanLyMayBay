@@ -64,7 +64,7 @@ const int MaxItem = 9;
 #define Y_TitlePage 2
 // Toa do phan thong bao
 #define X_Notification 105
-#define Y_Notification 32
+#define Y_Notification 34
 // Toa do thanh menu
 #define X_Menu 1
 #define Y_Menu 4
