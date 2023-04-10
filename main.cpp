@@ -34,18 +34,15 @@ void menu_xuli() {
     
     PNodeFli dscb = NULL;
     Flight cb_tmp;
-    InputFlight(cb_tmp);
-    InsertListFlight(dscb,cb_tmp);
+//    InputFlight(cb_tmp);
+//    InsertListFlight(dscb,cb_tmp);
     
-    //if(!LoadFlight(dscb));
-    
-	gotoxy(1,50); cout << "Hello";
+    if(!LoadFlight(dscb));
 	if(!LoadAirplane(list));
 	
-	system("pause");
-	
-    system("cls");
+    //system("cls");
     while (true) {
+    	Clear();
         gotoxy(X_TitlePage-1,Y_TitlePage-1);
 	    cout << "HANG HANG KHONG PTITHCM";
         int tt = menu_dong(X_Menu, Y_Menu,6, ContentMenu);
@@ -55,13 +52,11 @@ void menu_xuli() {
             case 2: //Airplane
             {
                 MenuManageAirplane(list, air);
-                system("cls");
                 break;
             }
             case 3: // Flight
             	MenuManageFlight(dscb);
 				ChangeFlightMenuManagerPage(dscb);
-            	system("cls");
                 break;
             case 4: // Passenger
                 break;
@@ -70,7 +65,6 @@ void menu_xuli() {
             	air = *list.nodes[2]; //lay may bay thu 3 de test
             	InitListTicket(listticket,air); //khoi tao danh sach ve cho may bay
                 MenuManageTicket(air, listticket, ticket);
-                system("cls");
 		break;
             }
             default: //Exit
