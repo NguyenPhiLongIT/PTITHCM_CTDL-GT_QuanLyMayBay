@@ -136,16 +136,18 @@ void SetBGColor(WORD color)
 void Clear()
 {
 	SetBGColor(0);
+    HANDLE hConsoleOutput;
     DWORD written;
     COORD coord;
     CONSOLE_SCREEN_BUFFER_INFO info;
+    hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    coord = {0, 0};
+
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
-    coord.X = 0;
-    coord.Y = 0;
     FillConsoleOutputCharacter(
         GetStdHandle(STD_OUTPUT_HANDLE),
         ' ',
-        info.dwSize.X - info.dwCursorPosition.X * info.dwCursorPosition.Y,
+        info.dwSize.X * info.dwSize.Y,
         coord,
         &written
     );
