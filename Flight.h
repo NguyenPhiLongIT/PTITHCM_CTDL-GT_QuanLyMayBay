@@ -38,27 +38,47 @@ int CurFlightPage = 1;
 int TotalFlightPage = 0;
 extern string ContentFlight[5];
 
-void InitFlight(Flight &flight);
-PNodeFli CreateFlight(Flight &flight);
-void InputFlight(Flight &flight);
-void InsertListFlight(PNodeFli &first, Flight flight);
-int size(PNodeFli &first);
-void ShowFlight(Flight fli, int position);
-void ShowListFlightOnePage(PNodeFli first, int startIndex);
-void ChangeFlightMenuManagerPage(PNodeFli first);
-void MenuManageFlight(PNodeFli &first);
-bool LoadFlight(PNodeFli &First);
-bool SaveFlight(PNodeFli First);
-PNodeFli FindFlight(PNodeFli &first, const char *id);
-PNodeFli FindFlightByIdPlane(PNodeFli &first, const char *id);
-int FindIndexFlight(PNodeFli first, const char *id);
-int FindDestination(PNodeFli first, const char *arrival);
-bool FlightDataIsEmpty(Flight &flight);
-bool CancleFlight(PNodeFli &first);
+void InitFlight(Flight &);
+bool FlightDataIsEmpty(Flight &);
+int size(PNodeFli &);
+
+PNodeFli CreateFlight(Flight &);
+void InsertListFlight(PNodeFli &, Flight);
+bool CancleFlight(PNodeFli &);
+PNodeFli FindFlight(PNodeFli &, const char *);
+PNodeFli FindFlightByIdPlane(PNodeFli &, const char *);
+int FindIndexFlight(PNodeFli, const char *);
+int FindDestination(PNodeFli, const char *);
+
+void InputFlight(Flight &);
+void ShowFlight(Flight, int);
+void ShowListFlightOnePage(PNodeFli, int);
+void ChangeFlightMenuManagerPage(PNodeFli);
+void MenuManageFlight(PNodeFli &);
+
+bool LoadFlight(PNodeFli &);
+bool SaveFlight(PNodeFli);
+
 
 //Khoi tao chuyen bay
 void InitFlight(Flight &flight) {
 	flight.status = CONVE;	
+}
+
+bool FlightDataIsEmpty(Flight &flight)
+{
+	return 
+		strlen(flight.idAir) == 0 ||
+		strlen(flight.arrivalAir) == 0;
+}
+
+//So luong chuyen bay co trong danh sach
+int size(PNodeFli &first) {
+	int count = 0;
+	if (first == NULL) return count;
+	PNodeFli p;
+	for (p = first; p!= NULL; p=p->pNext) count++;
+	return count;
 }
 
 //Tao Node chuyen bay
@@ -67,18 +87,6 @@ PNodeFli CreateFlight(Flight &flight) {
 	tmp->data = flight;
 	tmp->pNext = NULL;
 	return tmp;
-}
-
-//Khung nhap
-void InputFlight(Flight &flight){
-	ShowCursor(true);
-	CreateForm(ContentFlight, 0, 5, 32);
-    gotoxy(X_Add+10,Y_Add);       	strcpy(flight.idFlight, Input(sizeof(flight.idFlight), ID));
-    gotoxy(X_Add+11,Y_Add+3);     	strcpy(flight.arrivalAir, Input(sizeof(flight.arrivalAir), Text));
-    gotoxy(X_Add+10,Y_Add+6);     	strcpy(flight.idAir, Input(sizeof(flight.idAir), ID));
-    gotoxy(X_Add+13,Y_Add+9);		InputDate(&flight.date); 
-//    gotoxy(X_Add+10,Y_Add+12);		char t[2]; strcpy(t, Input(sizeof(t), Number)); flight.listTicket.size_max = atoi(t);
-	gotoxy(X_Add+10,Y_Add+12);   	char s[2]; strcpy(s, Input(sizeof(s), Number)); flight.status = atoi(s);
 }
 
 //Them chuyen bay vao ds
@@ -92,13 +100,86 @@ void InsertListFlight(PNodeFli &first, Flight flight) {
 	}
 }
 
-//So luong chuyen bay co trong danh sach
-int size(PNodeFli &first) {
-	int count = 0;
-	if (first == NULL) return count;
-	PNodeFli p;
-	for (p = first; p!= NULL; p=p->pNext) count++;
-	return count;
+bool CancleFlight(PNodeFli &first)
+{
+	if (first->data.status == CONVE || first->data.status == HETVE)
+	{
+		first->data.status = HUYCHUYEN;
+		return true;
+	}
+	return false;
+}
+
+PNodeFli FindFlight(PNodeFli &first, const char *id)
+{
+	if (first == NULL)
+		return NULL;
+	for (PNodeFli p = first; p != NULL; p = p->pNext)
+		if (strcmp(p->data.idFlight, id) == 0)
+			return p;
+	return NULL;
+}
+
+PNodeFli FindFlightByIdPlane(PNodeFli &first, const char *id)
+{
+	if (first == NULL)
+		return NULL;
+	for (PNodeFli p = first; p != NULL; p = p->pNext)
+	{
+		if (strcmp(p->data.idAir, id) == 0)
+			return p;
+	}
+	return NULL;
+}
+
+int FindIndexFlight(PNodeFli first, const char *id)
+{
+	int index = 0;
+	for (PNodeFli p = first; p != NULL; p = p->pNext)
+	{
+		if (strcmp(p->data.idFlight, id) == 0)
+		{
+			return index;
+		}
+		index++;
+	}
+	return -1;
+}
+
+int FindDestination(PNodeFli first, const char *arrival)
+{
+	int index = 0;
+	for (PNodeFli p = first; p != NULL; p = p->pNext)
+	{
+		if (strcmp(p->data.arrivalAir, arrival) == 0)
+		{
+			return index;
+		}
+		index++;
+	}
+	return -1;
+}
+
+//void AutoUpdateFlightStatus(PNodeFli &first)
+//{
+//	for( PNodeFli p = first; p != NULL ; p = p->pNext)
+//	{
+//		if( IsValidDate(&p->data.date) == false )
+//			//// 1: con ve, 2: het ve, 3: hoan tat, 4: huy chuyen; 
+//			p->data.status = 3;
+//	}
+//}
+
+//Khung nhap
+void InputFlight(Flight &flight){
+	ShowCursor(true);
+	CreateForm(ContentFlight, 0, 5, 32);
+    gotoxy(X_Add+10,Y_Add);       	strcpy(flight.idFlight, Input(sizeof(flight.idFlight), ID));
+    gotoxy(X_Add+11,Y_Add+3);     	strcpy(flight.arrivalAir, Input(sizeof(flight.arrivalAir), Text));
+    gotoxy(X_Add+10,Y_Add+6);     	strcpy(flight.idAir, Input(sizeof(flight.idAir), ID));
+    gotoxy(X_Add+13,Y_Add+9);		InputDate(&flight.date); 
+//    gotoxy(X_Add+10,Y_Add+12);		char t[2]; strcpy(t, Input(sizeof(t), Number)); flight.listTicket.size_max = atoi(t);
+	gotoxy(X_Add+10,Y_Add+12);   	char s[2]; strcpy(s, Input(sizeof(s), Number)); flight.status = atoi(s);
 }
 
 //Hien thi thong tin 1 chuyen bay
@@ -112,17 +193,15 @@ void ShowFlight(Flight fli, int position)
     cout << left << setw(10) << fli.idAir;
     gotoxy(xKeyDisplay[3] + 3, Y_Display + position +3);
     PrintDate(&fli.date);
-//    gotoxy(xKeyDisplay[4] + 3, Y_Display + position +3);
-//    cout << left << setw(10) << fli.listTicket.size_max;
     gotoxy(xKeyDisplay[4] + 3, Y_Display + position + 3);
     switch(fli.status){
     	case 1: cout << "Huy chuyen";
     		break;
-    	case 2: cout << "Con ve		";
+    	case 2: cout << "Con ve";
     		break;
-    	case 3: cout << "Het ve		";
+    	case 3: cout << "Het ve";
     		break;
-    	case 4: cout << "Hoan tat	";
+    	case 4: cout << "Hoan tat";
     		break;
     	default: break;
 	}
@@ -167,7 +246,6 @@ void ChangeFlightMenuManagerPage(PNodeFli first)
 //Menu thao tac voi chuyen bay
 void MenuManageFlight(PNodeFli &first){
 //	ShowCursor(false);
-//	system("cls");
 	CurFlightPage = 1;
 	TotalFlightPage = (int)ceil((double)size(first)/NumberPerPage); 	//ceil : lam tron 
 	
@@ -186,21 +264,18 @@ void MenuManageFlight(PNodeFli &first){
 		switch(signal) {
 			case 1: // Insert
 			{
+				if(CurFlightPage == 0) CurFlightPage = 1;
 				InputFlight(cb_tmp);
 				InsertListFlight(first, cb_tmp);
-//				if(CurFlightPage == 0) CurFlightPage = 1;
-//				gotoxy(X_Add, Y_Add-1);
-//				InputListFlight(first);
-//				
+			
 //				if(SaveFlight(first)){
 //					Notification("Them thanh cong");
 //				}
-//				
-			TotalFlightPage = (int)ceil((double)size(first)/NumberPerPage);
+		
+				TotalFlightPage = (int)ceil((double)size(first)/NumberPerPage);
 				RemoveForm(0, 5, 32);
 				ShowListFlightOnePage(first, (CurFlightPage-1)*NumberPerPage);
-//				ShowCursor(false);
-//				goto menu;
+				ShowCursor(false);
 				break;
 			}
 			case 2: //Delete
@@ -322,81 +397,4 @@ bool SaveFlight(PNodeFli First)
 
     file.close();
     return true;
-}
-
-PNodeFli FindFlight(PNodeFli &first, const char *id)
-{
-	if (first == NULL)
-		return NULL;
-	for (PNodeFli p = first; p != NULL; p = p->pNext)
-		if (strcmp(p->data.idFlight, id) == 0)
-			return p;
-	return NULL;
-}
-
-PNodeFli FindFlightByIdPlane(PNodeFli &first, const char *id)
-{
-	if (first == NULL)
-		return NULL;
-	for (PNodeFli p = first; p != NULL; p = p->pNext)
-	{
-		if (strcmp(p->data.idAir, id) == 0)
-			return p;
-	}
-	return NULL;
-}
-
-int FindIndexFlight(PNodeFli first, const char *id)
-{
-	int index = 0;
-	for (PNodeFli p = first; p != NULL; p = p->pNext)
-	{
-		if (strcmp(p->data.idFlight, id) == 0)
-		{
-			return index;
-		}
-		index++;
-	}
-	return -1;
-}
-
-int FindDestination(PNodeFli first, const char *arrival)
-{
-	int index = 0;
-	for (PNodeFli p = first; p != NULL; p = p->pNext)
-	{
-		if (strcmp(p->data.arrivalAir, arrival) == 0)
-		{
-			return index;
-		}
-		index++;
-	}
-	return -1;
-}
-
-//void AutoUpdateFlightStatus(PNodeFli &first)
-//{
-//	for( PNodeFli p = first; p != NULL ; p = p->pNext)
-//	{
-//		if( IsValidDate(&p->data.date) == false )
-//			//// 1: con ve, 2: het ve, 3: hoan tat, 4: huy chuyen; 
-//			p->data.status = 3;
-//	}
-//}
-
-bool FlightDataIsEmpty(Flight &flight)
-{
-	return 
-		strlen(flight.idAir) == 0 ||
-		strlen(flight.arrivalAir) == 0;
-}
-
-bool CancleFlight(PNodeFli &first)
-{
-	if (first->data.status == CONVE || first->data.status == HETVE)
-	{
-		first->data.status = HUYCHUYEN;
-		return true;
-	}
-	return false;
 }
