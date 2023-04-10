@@ -130,6 +130,7 @@ void InputListAirplane(ListAir &list){
 
 void ShowAirplane(PAirplane pAir, int position)
 {
+//	int xKeyDisplay[10] = {20,35,55,70,88,102,115,130,145,160};
 	
 	gotoxy(xKeyDisplay[0] + 3, Y_Display + position +3);
     cout << left << setw(8) << pAir->idAir;
@@ -226,7 +227,6 @@ void EditAirplane(string nd, ListAir list, Airplane air, int signal, int xp, int
 		default: break;
 	}
 	RemoveRow(X_Add, Y_Add, nd, 27);
-	system("color 0E");
 	ShowListAirplaneOnePage(list, (CurAirplanePage-1) * NumberPerPage);
 	thanh_sang(xp, yp, 13, 2, BLUE_LIGHT, (string)list.nodes[i]->idAir);
 }
@@ -266,7 +266,6 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 					if(SaveAirplane(list)) Notification("Them thanh cong");
 				}
 
-				system("color 0E");
 				TotalAirplanePage = (int)ceil((double)list.size/NumberPerPage);
 				RemoveForm(0, 4, 27);
 				ShowListAirplaneOnePage(list, (CurAirplanePage-1)*NumberPerPage);
@@ -286,7 +285,6 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 				else {
 					if(SaveAirplane(list)) Notification("Xoa thanh cong");
 				}
-				system("color 0E");
 				RemoveRow(X_Add, Y_Add, ContentAirplane[0], 27);
 				TotalAirplanePage = (int)ceil((double)list.size / NumberPerPage);
 				if (ListAirIsNull(list))  { //neu nhu danh sach khong co phan tu, trang 0/0
