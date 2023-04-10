@@ -130,7 +130,6 @@ void InputListAirplane(ListAir &list){
 
 void ShowAirplane(PAirplane pAir, int position)
 {
-	int xKeyDisplay[10] = {20,35,55,70,85,100,115,130,145,160};
 	
 	gotoxy(xKeyDisplay[0] + 3, Y_Display + position +3);
     cout << left << setw(8) << pAir->idAir;
