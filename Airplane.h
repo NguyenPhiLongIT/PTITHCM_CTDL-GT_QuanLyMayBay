@@ -377,7 +377,6 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 							}
 						} 
 						else if (c == ESC) {
-							thanh_sang(xp,yp,13,2,BLACK,(string)list.nodes[i]->idAir);
 							break; //thoat khoi vong lap while(true)
 						} 
 					}
