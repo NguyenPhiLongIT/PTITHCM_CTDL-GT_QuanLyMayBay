@@ -3,6 +3,10 @@
 #include <ctime>
 #include <string.h>
 
+#include "Mylibrary.h"
+#include "Constraint.h"
+#include "UserInterface.h"
+
 typedef struct _Date{
     int second;
     int minute;
@@ -15,6 +19,8 @@ typedef struct _Date{
 PDate GetCurTime();
 bool IsLeapYear(PDate);
 int CompareDate(PDate, PDate);
+void InputDate(PDate pDate);
+void PrintDate(PDate date);
 
 PDate GetCurTime(){
     PDate pDate = new Date;
@@ -52,8 +58,8 @@ bool IsLeapYear(PDate date){
         || (date->year%4 == 0 && date->year%100 != 0);
 }
 /*
-So sánh 2 ngày nhập vào chính xác theo giây
-Nếu không có tham số thứ 2 thì so sánh ngày nhập vào với ngày hiện tại của hệ thống
+So sÃ¡nh 2 ngÃ y nháº­p vÃ o chÃ­nh xÃ¡c theo giÃ¢y
+Náº¿u khÃ´ng cÃ³ tham sá»‘ thá»© 2 thÃ¬ so sÃ¡nh ngÃ y nháº­p vÃ o vá»›i ngÃ y hiá»‡n táº¡i cá»§a há»‡ thá»‘ng
 */
 int CompareDate(PDate date1, PDate date2 = GetCurTime()){
     int SumSecond1 = date1->hour*3600+date1->minute*60+date1->second;
@@ -67,5 +73,30 @@ void FormatDate(PDate pDate){
 
 void PrintDate(PDate date){
     std :: cout << date->day << "/" << date->month << "/" << date->year
-        << " " << date->second << ":" << date->minute << ":" << date->hour;
+        << " " << date->minute << ":" << date->hour;
+}
+
+void InputDate(PDate pDate)
+{
+    char hour[2], minute[2];
+    char day[2], month[2], year[4]; 
+    int x = wherex();
+    int y = wherey();
+    bool isValidDate;
+
+    do{
+        gotoxy(x,y);    std::cout <<"  :   -   /  /    .";
+
+        gotoxy(x, y);    strcpy(hour, Input(sizeof(hour), Number));      pDate->hour = atoi(hour);
+        gotoxy(x+3,y);   strcpy(minute, Input(sizeof(minute), Number));  pDate->minute = atoi(minute);
+        gotoxy(x+8,y);   strcpy(day, Input(sizeof(day), Number));        pDate->day = atoi(day); 
+        gotoxy(x+11,y);  strcpy(month, Input(sizeof(month), Number));    pDate->month = atoi(month);
+        gotoxy(x+14,y);  strcpy(year, Input(sizeof(year), Number));      pDate->year = atoi(year);
+
+        isValidDate = IsValidDate(pDate);
+        if(!isValidDate)
+        {
+            Notification("Thoi gian khong hop le!");
+        }
+    }while(!isValidDate);
 }
