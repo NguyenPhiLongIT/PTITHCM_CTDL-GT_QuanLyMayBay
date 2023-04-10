@@ -72,8 +72,8 @@ void FormatDate(PDate pDate){
 }
 
 void PrintDate(PDate date){
-    std :: cout << date->day << "/" << date->month << "/" << date->year
-        << " " << date->minute << ":" << date->hour;
+    std :: cout << date->hour << ":" << date->minute << " " <<
+		date->day << "/" << date->month << "/" << date->year;
 }
 
 void InputDate(PDate pDate)
