@@ -82,10 +82,13 @@ void InputDate(PDate pDate)
     char day[2], month[2], year[4]; 
     int x = wherex();
     int y = wherey();
-    bool isValidDate;
+    bool isValidDate = false;
 
-    do{
-        gotoxy(x,y);    std::cout <<"  :   -   /  /    .";
+    while(!isValidDate)
+    {
+        ShowCursor(true);
+        gotoxy(x,y);    
+        std::cout <<"  :   -   /  /    .";
 
         gotoxy(x, y);    strcpy(hour, Input(sizeof(hour), Number));      pDate->hour = atoi(hour);
         gotoxy(x+3,y);   strcpy(minute, Input(sizeof(minute), Number));  pDate->minute = atoi(minute);
@@ -94,9 +97,11 @@ void InputDate(PDate pDate)
         gotoxy(x+14,y);  strcpy(year, Input(sizeof(year), Number));      pDate->year = atoi(year);
 
         isValidDate = IsValidDate(pDate);
-        if(!isValidDate)
+        if(isValidDate == false)
         {
             Notification("Thoi gian khong hop le!");
+            // gotoxy(X_Notification,Y_Notification);
+            // std::cout << "Thoi gian khong hop le!" << std::endl;
         }
-    }while(!isValidDate);
+    }
 }
