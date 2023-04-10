@@ -1,6 +1,11 @@
 #pragma once
 
+#include <fstream>
+#include <cstring>
+#include <conio.h>
 #include <iostream>
+#include <math.h>
+#include <iomanip>
 
 using namespace std;
 
@@ -33,6 +38,24 @@ int CurFlightPage = 1;
 int TotalFlightPage = 0;
 extern string ContentFlight[5];
 
+void InitFlight(Flight &flight);
+PNodeFli CreateFlight(Flight &flight);
+void InputFlight(Flight &flight);
+void InsertListFlight(PNodeFli &first, Flight flight);
+int size(PNodeFli &first);
+void ShowFlight(Flight fli, int position);
+void ShowListFlightOnePage(PNodeFli first, int startIndex);
+void ChangeFlightMenuManagerPage(PNodeFli first);
+void MenuManageFlight(PNodeFli &first);
+bool LoadFlight(PNodeFli &First);
+bool SaveFlight(PNodeFli First);
+PNodeFli FindFlight(PNodeFli &first, const char *id);
+PNodeFli FindFlightByIdPlane(PNodeFli &first, const char *id);
+int FindIndexFlight(PNodeFli first, const char *id);
+int FindDestination(PNodeFli first, const char *arrival);
+bool FlightDataIsEmpty(Flight &flight);
+bool CancleFlight(PNodeFli &first);
+
 //Khoi tao chuyen bay
 void InitFlight(Flight &flight) {
 	flight.status = CONVE;	
@@ -49,7 +72,7 @@ PNodeFli CreateFlight(Flight &flight) {
 //Khung nhap
 void InputFlight(Flight &flight){
 	ShowCursor(true);
-	CreateForm(ContentFlight, 0, 5, 27);
+	CreateForm(ContentFlight, 0, 5, 32);
     gotoxy(X_Add+10,Y_Add);       	strcpy(flight.idFlight, Input(sizeof(flight.idFlight), ID));
     gotoxy(X_Add+11,Y_Add+3);     	strcpy(flight.arrivalAir, Input(sizeof(flight.arrivalAir), Text));
     gotoxy(X_Add+10,Y_Add+6);     	strcpy(flight.idAir, Input(sizeof(flight.idAir), ID));
@@ -73,7 +96,8 @@ void InsertListFlight(PNodeFli &first, Flight flight) {
 int size(PNodeFli &first) {
 	int count = 0;
 	if (first == NULL) return count;
-	for (PNodeFli p = first; p!= NULL; p=p->pNext) count++;
+	PNodeFli p;
+	for (p = first; p!= NULL; p=p->pNext) count++;
 	return count;
 }
 
@@ -172,9 +196,8 @@ void MenuManageFlight(PNodeFli &first){
 //					Notification("Them thanh cong");
 //				}
 //				
-//				system("color 0E");
 			TotalFlightPage = (int)ceil((double)size(first)/NumberPerPage);
-//				RemoveForm(0, 6, 27);
+				RemoveForm(0, 5, 32);
 				ShowListFlightOnePage(first, (CurFlightPage-1)*NumberPerPage);
 //				ShowCursor(false);
 //				goto menu;
@@ -205,14 +228,14 @@ void MenuManageFlight(PNodeFli &first){
 bool LoadFlight(PNodeFli &First)
 {
     ifstream file("DSCB.TXT", ios_base::in);
+    char str[1000];
 
     if (!file.is_open())
         return false;
-
-    while (!file.eof())
+	
+	while(!file.eof())
     {
         PNodeFli pNodeFli = new NodeFli;
-        char str[1000];
         file.getline(pNodeFli->data.idFlight, sizeof(pNodeFli->data.idFlight), ';');
         file.getline(pNodeFli->data.arrivalAir, sizeof(pNodeFli->data.arrivalAir), ';');
         file.getline(pNodeFli->data.idAir, sizeof(pNodeFli->data.idAir), ';');
