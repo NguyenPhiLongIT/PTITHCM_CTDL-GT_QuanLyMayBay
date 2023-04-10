@@ -30,6 +30,8 @@ string ContentMenu[6] = {"Home", "Plane", "Flight", "Passenger", "Ticket", "Exit
 
 
 void box(int x, int y, int w, int h, string nd) {
+	WORD curColor;
+	GetColor(curColor);
 	SetBGColor(BLACK);
 	for (int iy = y + 1; iy < y+h; iy++) {
 		for (int ix = x + 1; ix < x + w; ix++) {
@@ -61,10 +63,10 @@ void box(int x, int y, int w, int h, string nd) {
 	gotoxy(x+w,y); cout << char(191);
 	gotoxy(x,y+h); cout << char(192);
 	gotoxy(x+w,y+h); cout << char(217);
+	SetColor(curColor);
 }
 
 void remove_box(int x, int y, int w, int h) {
-	SetColor(BLACK);
 	for (int iy = y; iy <= y+h; iy++) {
 		for (int ix = x; ix <= x + w; ix++) {
 			gotoxy(ix,iy);
@@ -84,7 +86,10 @@ void Notification(string s) {
 }
 
 void n_box(int x, int y, int soluong, string noidung[]) {
+	WORD curColor;
+	GetColor(curColor);
 	for (int i = 0; i < soluong; i++) {
+		SetColor(YELLOW);
 		box(x, y + i*Box_Height, Box_Width, Box_Height, noidung[i]);
 		if (i != 0) {
 			gotoxy(x, y + i*Box_Height);
@@ -93,9 +98,12 @@ void n_box(int x, int y, int soluong, string noidung[]) {
 			cout << char(180);
 		}
 	}
+	SetColor(curColor);
 }
 
 void thanh_sang(int x, int y, int w, int h, int b_color, string nd) {
+	WORD curColor;
+	GetColor(curColor);
 	ShowCursor(false);
 	SetBGColor(b_color);
 	for (int iy = y + 1; iy < y + h; iy++) {
@@ -108,6 +116,7 @@ void thanh_sang(int x, int y, int w, int h, int b_color, string nd) {
 	gotoxy(x+1,y+1);
 	cout << nd;
 	SetBGColor(BLACK);
+	SetColor(curColor);
 }
 
 int menu_dong(int x, int y, int sl, string nd[]) {
@@ -141,6 +150,7 @@ int menu_dong(int x, int y, int sl, string nd[]) {
 				if (yp == y + Box_Height*(sl-1)) thanh_sang(xp,yp,Box_Width,Box_Height,BLACK,nd[i]);
 				return i+1;
 			} else if (c == ESC) {
+				thanh_sang(xp,yp,Box_Width,Box_Height,BLACK,nd[i]);
 				return -1;
 			}
 		}
@@ -149,7 +159,6 @@ int menu_dong(int x, int y, int sl, string nd[]) {
 
 void Display(string content[], int nContent) 	// ve bang
 {
-	system("color 0E");
 	SetColor(11);
 	SetBGColor(0);
 	//show key - the hien ra noi dung cua cac cot
