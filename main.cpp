@@ -34,13 +34,10 @@ void menu_xuli() {
     
     PNodeFli dscb = NULL;
     Flight cb_tmp;
-//    InputFlight(cb_tmp);
-//    InsertListFlight(dscb,cb_tmp);
     
     if(!LoadFlight(dscb));
 	if(!LoadAirplane(list));
 	
-    //system("cls");
     while (true) {
     	Clear();
         gotoxy(X_TitlePage-1,Y_TitlePage-1);
@@ -56,7 +53,6 @@ void menu_xuli() {
             }
             case 3: // Flight
             	MenuManageFlight(dscb);
-				ChangeFlightMenuManagerPage(dscb);
                 break;
             case 4: // Passenger
                 break;
