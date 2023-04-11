@@ -135,7 +135,7 @@ void ShowAirplane(PAirplane pAir, int position)
 	gotoxy(xKeyDisplay[0] + 3, Y_Display + position +3);
     cout << left << setw(8) << pAir->idAir;
     gotoxy(xKeyDisplay[1] + 3, Y_Display + position +3);
-    cout << left << setw(12) << pAir->typeAir;
+    cout << left << setw(14) << pAir->typeAir;
     gotoxy(xKeyDisplay[2] + 3, Y_Display + position +3);
     cout << left << setw(4) << pAir->col;
     gotoxy(xKeyDisplay[3] + 3, Y_Display + position +3);
@@ -149,10 +149,14 @@ void ShowListAirplaneOnePage(ListAir list, int startIndex)
 	gotoxy(21,3);
 	cout << " So luong may bay : " << list.size;
 	int i;
+	WORD curColor;
+	GetColor(curColor);
+	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
 	for(i = 0 ; i + startIndex < list.size && i < NumberPerPage; i++)
 	{
-		ShowAirplane(list.nodes[i+startIndex], i); 
-	} 
+		ShowAirplane(list.nodes[i+startIndex], i); 	
+	}
+	SetColor(curColor);
 	RemoveExceedMember(i, 5);
 	gotoxy(X_Page,Y_Page);
 	cout <<" Trang " << CurAirplanePage <<"/"<< TotalAirplanePage; 
@@ -337,6 +341,7 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 									i++;
 								} else if (yp == max && CurAirplanePage < TotalAirplanePage) { //neu dang o phan tu cuoi ma nhay xuong se qua trang sau
 									CurAirplanePage ++;
+									thanh_sang(xp,yp,13,2,BLACK,(string)list.nodes[i]->idAir); //fix loi hien thi khi chuyen trang
 									ChangeAirplaneMenuManagerPage(list);
 									goto edit;
 								}	
@@ -375,8 +380,10 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 								thanh_sang(xp,yp,13,2,BLUE_LIGHT,(string)list.nodes[i]->idAir);
 								break;
 							}
-						} 
-						else if (c == ESC) {
+						} else if (c == ESC) {
+							thanh_sang(xp,yp,13,2,BLACK,(string)list.nodes[i]->idAir);
+							//phai co cau lenh tren de neu khi dang lua chon phan tu de edit ma khong muon edit nua
+							//thi khi bam esc se khong bi loi hien thi thanh sang
 							break; //thoat khoi vong lap while(true)
 						} 
 					}
