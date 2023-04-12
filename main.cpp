@@ -30,8 +30,6 @@ void menu_xuli() {
     Airplane air;
     ListTicket listticket;
     Ticket ticket;
-    
-    
     PNodeFli dscb = NULL;
     Flight cb_tmp;
     
@@ -48,16 +46,19 @@ void menu_xuli() {
                 break;
             case 2: //Airplane
             {
+            	remove_box(X_Menu, Y_Menu, 20, 12);
                 MenuManageAirplane(list, air);
                 break;
             }
             case 3: // Flight
+            	remove_box(X_Menu, Y_Menu, 20, 12);
             	MenuManageFlight(dscb);
                 break;
             case 4: // Passenger
                 break;
             case 5: // Ticket
             {
+            	remove_box(X_Menu, Y_Menu, 20, 12);
             	air = *list.nodes[2]; //lay may bay thu 3 de test
             	InitListTicket(listticket,air); //khoi tao danh sach ve cho may bay
                 MenuManageTicket(air, listticket, ticket);
