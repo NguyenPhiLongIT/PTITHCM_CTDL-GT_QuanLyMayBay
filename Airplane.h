@@ -129,9 +129,7 @@ void InputListAirplane(ListAir &list){
 }
 
 void ShowAirplane(PAirplane pAir, int position)
-{
-//	int xKeyDisplay[10] = {20,35,55,70,88,102,115,130,145,160};
-	
+{	
 	gotoxy(xKeyDisplay[0] + 3, Y_Display + position +3);
     cout << left << setw(8) << pAir->idAir;
     gotoxy(xKeyDisplay[1] + 3, Y_Display + position +3);
@@ -146,7 +144,7 @@ void ShowAirplane(PAirplane pAir, int position)
 
 void ShowListAirplaneOnePage(ListAir list, int startIndex)
 {
-	gotoxy(21,3);
+	gotoxy(3,3);
 	cout << " So luong may bay : " << list.size;
 	int i;
 	WORD curColor;
@@ -154,8 +152,8 @@ void ShowListAirplaneOnePage(ListAir list, int startIndex)
 	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
 	for(i = 0 ; i + startIndex < list.size && i < NumberPerPage; i++)
 	{
-		ShowAirplane(list.nodes[i+startIndex], i); 	
-	}
+		ShowAirplane(list.nodes[i+startIndex], i); 
+	} 
 	SetColor(curColor);
 	RemoveExceedMember(i, 5);
 	gotoxy(X_Page,Y_Page);
@@ -232,7 +230,6 @@ void EditAirplane(string nd, ListAir list, Airplane air, int signal, int xp, int
 	}
 	RemoveRow(X_Add, Y_Add, nd, 27);
 	ShowListAirplaneOnePage(list, (CurAirplanePage-1) * NumberPerPage);
-	thanh_sang(xp, yp, 13, 2, BLUE_LIGHT, (string)list.nodes[i]->idAir);
 }
 void MenuManageAirplane(ListAir &list, Airplane air){
 	ShowCursor(false);
@@ -312,10 +309,10 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 				while (true) {
 					if (kt == true) {
 						gotoxy(xcu,ycu);
-						thanh_sang(xcu,ycu,13,2,BLACK,(string)list.nodes[j]->idAir);
+						thanh_sang(xcu,ycu,16,2,BLACK,(string)list.nodes[j]->idAir);
 						j = i;
 						xcu = xp; ycu = yp;
-						thanh_sang(xp,yp,13,2,BLUE_LIGHT,(string)list.nodes[i]->idAir);
+						thanh_sang(xp,yp,16,2,BLUE_LIGHT,(string)list.nodes[i]->idAir);
 						kt = false;
 					}
 					if (_kbhit()) {
@@ -341,14 +338,14 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 									i++;
 								} else if (yp == max && CurAirplanePage < TotalAirplanePage) { //neu dang o phan tu cuoi ma nhay xuong se qua trang sau
 									CurAirplanePage ++;
-									thanh_sang(xp,yp,13,2,BLACK,(string)list.nodes[i]->idAir); //fix loi hien thi khi chuyen trang
+									thanh_sang(xp,yp,16,2,BLACK,(string)list.nodes[i]->idAir); //fix loi hien thi khi chuyen trang
 									ChangeAirplaneMenuManagerPage(list);
 									goto edit;
 								}	
 							}
 						} else if (c == ENTER) {
-							box(X_EditPlane+2, Y_EditPlane-2, 30, 2, "Ban muon thay doi phan nao?");
-							thanh_sang(xp,yp,13,2,BLUE_LIGHT,(string)list.nodes[i]->idAir);
+//							box(X_EditPlane+2, Y_EditPlane-2, 30, 2, "Ban muon thay doi phan nao?");
+							thanh_sang(xp,yp,16,2,BLUE_LIGHT,(string)list.nodes[i]->idAir);
 							int signalEdit;
 							while(true){
 								signalEdit = menu_dong(X_EditPlane+5, Y_EditPlane+1, 6, ContentEditAirplane);
@@ -375,13 +372,14 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 									}
 									default: break;
 								}
-								remove_box(X_EditPlane+2, Y_EditPlane-2, 30, 2);
+//								remove_box(X_EditPlane+2, Y_EditPlane-2, 30, 2);
 								remove_box(X_EditPlane+5, Y_EditPlane+1, 20, 12);
-								thanh_sang(xp,yp,13,2,BLUE_LIGHT,(string)list.nodes[i]->idAir);
+								thanh_sang(xp,yp,16,2,BLUE_LIGHT,(string)list.nodes[i]->idAir);
 								break;
 							}
-						} else if (c == ESC) {
-							thanh_sang(xp,yp,13,2,BLACK,(string)list.nodes[i]->idAir);
+						} 
+						else if (c == ESC) {
+							thanh_sang(xp,yp,16,2,BLACK,(string)list.nodes[i]->idAir);
 							//phai co cau lenh tren de neu khi dang lua chon phan tu de edit ma khong muon edit nua
 							//thi khi bam esc se khong bi loi hien thi thanh sang
 							break; //thoat khoi vong lap while(true)
