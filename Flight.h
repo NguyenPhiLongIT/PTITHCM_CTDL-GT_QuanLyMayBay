@@ -36,7 +36,7 @@ typedef struct _NodeFli
 int CurPosFlight = 0;
 int CurFlightPage = 1;
 int TotalFlightPage = 0;
-extern string ContentFlight[5];
+extern string ContentFlight[6];
 
 void InitFlight(Flight &);
 bool FlightDataIsEmpty(Flight &);
@@ -44,11 +44,13 @@ int size(PNodeFli &);
 
 PNodeFli CreateFlight(Flight &);
 void InsertListFlight(PNodeFli &, Flight);
-bool CancleFlight(PNodeFli &);
+int CancleFlight(PNodeFli &);
 PNodeFli FindFlight(PNodeFli &, const char *);
 PNodeFli FindFlightByIdPlane(PNodeFli &, const char *);
 int FindIndexFlight(PNodeFli, const char *);
 int FindDestination(PNodeFli, const char *);
+void AutoUpdateFlightStatus(PNodeFli &);
+int EditDateTime(PNodeFli &, Date);
 
 void InputFlight(Flight &);
 void ShowFlight(Flight, int);
@@ -100,21 +102,21 @@ void InsertListFlight(PNodeFli &first, Flight flight) {
 	}
 }
 
-bool CancleFlight(PNodeFli &first)
+int CancleFlight(PNodeFli &first)
 {
 	if (first->data.status == CONVE || first->data.status == HETVE)
 	{
 		first->data.status = HUYCHUYEN;
-		return true;
+		return 1;
 	}
-	return false;
+	return 0;
 }
 
 PNodeFli FindFlight(PNodeFli &first, const char *id)
 {
-	if (first == NULL)
-		return NULL;
-	for (PNodeFli p = first; p != NULL; p = p->pNext)
+	if (first == NULL) return NULL;
+	PNodeFli p;
+	for (p = first; p != NULL; p = p->pNext)
 		if (strcmp(p->data.idFlight, id) == 0)
 			return p;
 	return NULL;
@@ -160,26 +162,34 @@ int FindDestination(PNodeFli first, const char *arrival)
 	return -1;
 }
 
-//void AutoUpdateFlightStatus(PNodeFli &first)
-//{
-//	for( PNodeFli p = first; p != NULL ; p = p->pNext)
-//	{
-//		if( IsValidDate(&p->data.date) == false )
-//			//// 1: con ve, 2: het ve, 3: hoan tat, 4: huy chuyen; 
-//			p->data.status = 3;
-//	}
-//}
+void AutoUpdateFlightStatus(PNodeFli &first)
+{
+	for( PNodeFli p = first; p != NULL ; p = p->pNext)
+	{
+		if( IsValidDate(&p->data.date) == false )
+			//0: huy chuyen, 1: con ve, 2: het ve, 3: hoant tat 
+			p->data.status = 2;
+	}
+}
+
+int EditDateTime(PNodeFli &first, Date date){
+	if(IsValidDate(&date)){
+		first->data.date = date;
+		return 1;
+	}
+	return 0;
+}
 
 //Khung nhap
 void InputFlight(Flight &flight){
 	ShowCursor(true);
-	CreateForm(ContentFlight, 0, 5, 32);
+	CreateForm(ContentFlight, 0, 6, 32);
     gotoxy(X_Add+10,Y_Add);       	strcpy(flight.idFlight, Input(sizeof(flight.idFlight), ID));
     gotoxy(X_Add+11,Y_Add+3);     	strcpy(flight.arrivalAir, Input(sizeof(flight.arrivalAir), Text));
     gotoxy(X_Add+10,Y_Add+6);     	strcpy(flight.idAir, Input(sizeof(flight.idAir), ID));
     gotoxy(X_Add+13,Y_Add+9);		InputDate(&flight.date); 
-//    gotoxy(X_Add+10,Y_Add+12);		char t[2]; strcpy(t, Input(sizeof(t), Number)); flight.listTicket.size_max = atoi(t);
-	gotoxy(X_Add+10,Y_Add+12);   	char s[2]; strcpy(s, Input(sizeof(s), Number)); flight.status = atoi(s);
+    gotoxy(X_Add+14,Y_Add+12);		char t[2]; strcpy(t, Input(sizeof(t), Number)); flight.listTicket.size_max = atoi(t);
+	gotoxy(X_Add+10,Y_Add+15);   	char s[2]; strcpy(s, Input(sizeof(s), Number)); flight.status = atoi(s);
 }
 
 //Hien thi thong tin 1 chuyen bay
@@ -188,20 +198,22 @@ void ShowFlight(Flight fli, int position)
 	gotoxy(xKeyDisplay[0] + 3, Y_Display + position +3);
     cout << left << setw(10) << fli.idFlight;
     gotoxy(xKeyDisplay[1] + 3, Y_Display + position +3);
-    cout << left << setw(10) << fli.arrivalAir;
+    cout << left << setw(12) << fli.arrivalAir;
     gotoxy(xKeyDisplay[2] + 3, Y_Display + position +3);
     cout << left << setw(10) << fli.idAir;
     gotoxy(xKeyDisplay[3] + 3, Y_Display + position +3);
     PrintDate(&fli.date);
     gotoxy(xKeyDisplay[4] + 3, Y_Display + position + 3);
+    cout << left << setw(10) << fli.listTicket.size_max;
+    gotoxy(xKeyDisplay[5] + 3, Y_Display + position + 3);
     switch(fli.status){
-    	case 1: cout << "Huy chuyen";
+    	case 0: cout << "Huy	  ";
     		break;
-    	case 2: cout << "Con ve";
+    	case 1: cout << "Con ve   ";
     		break;
-    	case 3: cout << "Het ve";
+    	case 2: cout << "Het ve   ";
     		break;
-    	case 4: cout << "Hoan tat";
+    	case 3: cout << "Hoan tat ";
     		break;
     	default: break;
 	}
@@ -210,10 +222,13 @@ void ShowFlight(Flight fli, int position)
 //Hien thi 1 trang gom nhieu chuyen bay
 void ShowListFlightOnePage(PNodeFli first, int startIndex)
 {
-	gotoxy(21,3);
+	gotoxy(3,3);
 	cout << " So luong chuyen bay : " << size(first);
 	if(first == NULL) return;
 	
+	WORD curColor;
+	GetColor(curColor);
+	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
 	int count = -1;
 //	AutoUpdateFlightStatus(first);
 	for(PNodeFli p = first; p != NULL; p = p->pNext)
@@ -255,43 +270,93 @@ void MenuManageFlight(PNodeFli &first){
 	gotoxy(X_TitlePage,Y_TitlePage);
 	cout << "QUAN LY CHUYEN BAY";
 	
-	Flight cb_tmp;
+	Flight fli;
 	int signal;
 	while(true)
 	{
 		menu:
-		signal = menu_dong(X_ThaoTac,Y_ThaoTac,6,ContentThaoTac);
+		signal = menu_dong(X_ThaoTac,Y_ThaoTac,6,ContentFlight_ThaoTac);
 		switch(signal) {
 			case 1: // Insert
 			{
 				if(CurFlightPage == 0) CurFlightPage = 1;
-				InputFlight(cb_tmp);
-				InsertListFlight(first, cb_tmp);
+				InputFlight(fli);
+				InsertListFlight(first, fli);
 			
 //				if(SaveFlight(first)){
-//					Notification("Them thanh cong");
+					Notification("Them thanh cong");
 //				}
 		
 				TotalFlightPage = (int)ceil((double)size(first)/NumberPerPage);
-				RemoveForm(0, 5, 32);
+				RemoveForm(0, 6, 32);
 				ShowListFlightOnePage(first, (CurFlightPage-1)*NumberPerPage);
 				ShowCursor(false);
 				break;
 			}
-			case 2: //Delete
+			edit: case 2: //Edit date time
 			{
+				ShowCursor(true);
+				if(first == NULL) {
+					Notification("Danh sach rong");
+					break;
+				}
+				
+				CreateRow(X_Add, Y_Add, ContentFlight[0], 27);
+				gotoxy(X_Add+10,Y_Add);       	strcpy(fli.idFlight, Input(sizeof(fli.idFlight), ID));
+				PNodeFli p = FindFlight(first, fli.idFlight);
+				if(p->data.status == CONVE || p->data.status == HETVE){
+					RemoveRow(X_Add, Y_Add, ContentFlight[0], 27);
+					CreateRow(X_Add, Y_Add, ContentFlight[3], 32);
+					gotoxy(X_Add+13,Y_Add);		InputDate(&fli.date); 
+					if(EditDateTime(p, fli.date)){
+						Notification("Chinh sua thanh cong");
+					}
+				}
+				else Notification("Khong the hieu chinh ngay gio");
+				
+				RemoveRow(X_Add, Y_Add, ContentFlight[3], 44);
+				ShowListFlightOnePage(first, (CurFlightPage-1)*NumberPerPage);
+				ShowCursor(false);
 				break;		
 			}
-			case 3: //Edit
+			case 3: //Cancle flight
 			{
+				ShowCursor(true);
+				if(first == NULL) {
+					Notification("Danh sach rong");
+					break;
+				}
+				
+				CreateRow(X_Add, Y_Add, ContentFlight[0], 27);
+				gotoxy(X_Add+10,Y_Add);       	strcpy(fli.idFlight, Input(sizeof(fli.idFlight), ID));
+				PNodeFli p = FindFlight(first, fli.idFlight);
+				if(CancleFlight(p)){
+					Notification("Da huy chuyen");
+				}
+				else{
+					Notification("Chuyen bay khong con hoat dong! Khong the huy chuyen");
+				}
+				RemoveRow(X_Add, Y_Add, ContentFlight[0], 27);
+				ShowListFlightOnePage(first, (CurFlightPage-1)*NumberPerPage);
+				ShowCursor(false);
 				break;
 			}
 			case 4: //Chuyen trang truoc
 			{
+				if(CurFlightPage == 1) break;
+				else{
+					CurFlightPage--;
+					ChangeFlightMenuManagerPage(first);
+				}
 				break;
 			}
 			case 5:	//Chuyen trang tiep
 			{
+				if(CurFlightPage >= TotalFlightPage) break;
+				else{
+					CurFlightPage++;
+					ChangeFlightMenuManagerPage(first);
+				}
 				break;
 			}
 			default: return;
