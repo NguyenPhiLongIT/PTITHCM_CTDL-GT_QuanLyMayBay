@@ -38,7 +38,7 @@ int CurFlightPage = 1;
 int TotalFlightPage = 0;
 extern string ContentFlight[6];
 
-void InitFlight(Flight &);
+void InitFlight(Flight &, ListAir);
 bool FlightDataIsEmpty(Flight &);
 int size(PNodeFli &);
 
@@ -52,19 +52,25 @@ int FindDestination(PNodeFli, const char *);
 void AutoUpdateFlightStatus(PNodeFli &);
 int EditDateTime(PNodeFli &, Date);
 
-void InputFlight(Flight &);
+void InputFlight(Flight &, ListAir);
 void ShowFlight(Flight, int);
 void ShowListFlightOnePage(PNodeFli, int);
 void ChangeFlightMenuManagerPage(PNodeFli);
-void MenuManageFlight(PNodeFli &);
+void MenuManageFlight(PNodeFli &, ListAir);
 
 bool LoadFlight(PNodeFli &);
 bool SaveFlight(PNodeFli);
 
 
 //Khoi tao chuyen bay
-void InitFlight(Flight &flight) {
-	flight.status = CONVE;	
+void InitFlight(Flight &flight, ListAir dsmb) {
+	flight.status = CONVE;
+	flight.listTicket.size_datve = 0;
+	int result = IndexAirplane(dsmb,flight.idAir);
+	flight.listTicket.size_max = dsmb.nodes[result]->col*dsmb.nodes[result]->row;
+	for (int i = 0; i < flight.listTicket.size_max; i++) {
+		flight.listTicket.DSV[i].statusTicket = 0;
+	}
 }
 
 bool FlightDataIsEmpty(Flight &flight)
@@ -181,15 +187,16 @@ int EditDateTime(PNodeFli &first, Date date){
 }
 
 //Khung nhap
-void InputFlight(Flight &flight){
+void InputFlight(Flight &flight, ListAir dsmb){
 	ShowCursor(true);
-	CreateForm(ContentFlight, 0, 6, 32);
+	CreateForm(ContentFlight, 0, 4, 32);
     gotoxy(X_Add+10,Y_Add);       	strcpy(flight.idFlight, Input(sizeof(flight.idFlight), ID));
     gotoxy(X_Add+11,Y_Add+3);     	strcpy(flight.arrivalAir, Input(sizeof(flight.arrivalAir), Text));
     gotoxy(X_Add+10,Y_Add+6);     	strcpy(flight.idAir, Input(sizeof(flight.idAir), ID));
     gotoxy(X_Add+13,Y_Add+9);		InputDate(&flight.date); 
-    gotoxy(X_Add+14,Y_Add+12);		char t[2]; strcpy(t, Input(sizeof(t), Number)); flight.listTicket.size_max = atoi(t);
-	gotoxy(X_Add+10,Y_Add+15);   	char s[2]; strcpy(s, Input(sizeof(s), Number)); flight.status = atoi(s);
+    InitFlight(flight,dsmb);
+//    gotoxy(X_Add+14,Y_Add+12);		char t[2]; strcpy(t, Input(sizeof(t), Number)); flight.listTicket.size_max = atoi(t);
+//	gotoxy(X_Add+10,Y_Add+15);   	char s[2]; strcpy(s, Input(sizeof(s), Number)); flight.status = atoi(s);
 }
 
 //Hien thi thong tin 1 chuyen bay
@@ -204,7 +211,7 @@ void ShowFlight(Flight fli, int position)
     gotoxy(xKeyDisplay[3] + 3, Y_Display + position +3);
     PrintDate(&fli.date);
     gotoxy(xKeyDisplay[4] + 3, Y_Display + position + 3);
-    cout << left << setw(10) << fli.listTicket.size_max;
+    cout << fli.listTicket.size_datve << "/" << left << setw(10) <<  fli.listTicket.size_max;
     gotoxy(xKeyDisplay[5] + 3, Y_Display + position + 3);
     switch(fli.status){
     	case 0: cout << "Huy	  ";
@@ -259,7 +266,7 @@ void ChangeFlightMenuManagerPage(PNodeFli first)
 }
 
 //Menu thao tac voi chuyen bay
-void MenuManageFlight(PNodeFli &first){
+void MenuManageFlight(PNodeFli &first, ListAir dsmb){
 //	ShowCursor(false);
 	CurFlightPage = 1;
 	TotalFlightPage = (int)ceil((double)size(first)/NumberPerPage); 	//ceil : lam tron 
@@ -280,7 +287,7 @@ void MenuManageFlight(PNodeFli &first){
 			case 1: // Insert
 			{
 				if(CurFlightPage == 0) CurFlightPage = 1;
-				InputFlight(fli);
+				InputFlight(fli,dsmb);
 				InsertListFlight(first, fli);
 			
 //				if(SaveFlight(first)){
