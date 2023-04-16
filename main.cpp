@@ -52,7 +52,7 @@ void menu_xuli() {
             }
             case 3: // Flight
             	remove_box(X_Menu, Y_Menu, 20, 12);
-            	MenuManageFlight(dscb);
+            	MenuManageFlight(dscb,list);
                 break;
             case 4: // Passenger
                 break;
