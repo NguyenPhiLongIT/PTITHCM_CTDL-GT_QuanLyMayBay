@@ -127,12 +127,12 @@ void InputAirplane(ListAir &list, Airplane &air, bool Edit = false){
 					if(position > -1 && Edit == false ) {
 						Notification("ID da ton tai");	
 					}
-					if(position < 0 && Edit == true){
+					if(position < 0 && Edit == true && (strlen(air.idAir) != 0)){
 						Notification("ID khong ton tai");
 					}
 					if(
 						(position > -1 && Edit == true) ||
-						(position < 0 && Edit == false)
+						(position < 0 && Edit == false && (strlen(air.idAir) != 0)) 
 					) break;
 				}while(true);
 				
@@ -140,7 +140,10 @@ void InputAirplane(ListAir &list, Airplane &air, bool Edit = false){
 					CreateForm(ContentAirplane,0,4,27);
 					gotoxy(X_Add+10,Y_Add);
 					strcpy(air.idAir, Input(sizeof(air.idAir), ID));
-					if (IndexAirplane(list, air.idAir) > -1 ) {
+					if(strlen(air.idAir) == 0) {
+						Notification("Vui long khong bo trong");
+					}
+					else if (IndexAirplane(list, air.idAir) > -1) {
 						Notification("ID da ton tai");
 					} else {
 						break;
