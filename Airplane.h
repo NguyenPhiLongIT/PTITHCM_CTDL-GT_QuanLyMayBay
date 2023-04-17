@@ -39,7 +39,7 @@ int IndexAirplane(ListAir &, const char*);
 bool AirplaneDataIsEmpty(Airplane &);
 
 bool InsertListAir(ListAir &, Airplane &);
-void InputAirplane(ListAir &, Airplane &, bool);
+void InputAirplane(ListAir &, Airplane &, bool, bool);
 void InputListAirplane(ListAir &list);
 bool RemoveAirplane(ListAir &, int);
 void ShowAirplane(PAirplane, int);
@@ -108,10 +108,10 @@ bool RemoveAirplane(ListAir &ListAir, int position)
     return true;
 }
 
-void InputAirplane(ListAir &list, Airplane &air, bool Edit = false){
+void InputAirplane(ListAir &list, Airplane &air, bool Edit = false, bool Delete = false){
 	int ordinal = 0;	// thu tu nhap	
-	int position = -1;
-	if(Edit == false) CreateForm(ContentAirplane,0,4,27);
+	int position = -1;	// vi tri may bay
+	if(Edit == false && Delete == false) CreateForm(ContentAirplane,0,4,27);
 	while(true){
 		ShowCursor(true);
 		switch(ordinal){
@@ -120,26 +120,30 @@ void InputAirplane(ListAir &list, Airplane &air, bool Edit = false){
 				do{
 					CreateRow(X_Add, Y_Add, ContentAirplane[0], 27);
 					gotoxy(X_Add+10,Y_Add);       	strcpy(air.idAir, Input(sizeof(air.idAir), ID));
+					position = IndexAirplane(list, air.idAir);
 					if(strlen(air.idAir) == 0) {
 						Notification("Vui long khong bo trong");
-					}
-					position = IndexAirplane(list, air.idAir);
-					if(position > -1 && Edit == false ) {
+					}			
+					if(position > -1 && Edit == false && Delete == false) {
 						Notification("ID da ton tai");	
 					}
-					if(position < 0 && Edit == true && (strlen(air.idAir) != 0)){
+					if(position < 0 && (Edit == true || Delete == true) && (strlen(air.idAir) != 0)){
 						Notification("ID khong ton tai");
+					}
+					if(position > -1 && Delete == true){
+						RemoveAirplane(list, position);
+						RemoveRow(X_Add, Y_Add, ContentAirplane[0], 27);
+						return;
 					}
 					if(
 						(position > -1 && Edit == true) ||
-						(position < 0 && Edit == false && (strlen(air.idAir) != 0)) 
-					) break;
+						(position < 0 && Edit == false && Delete ==  false && (strlen(air.idAir) != 0)) 
+					)break;
 				}while(true);
 				
 				while (Edit == true) {
 					CreateForm(ContentAirplane,0,4,27);
-					gotoxy(X_Add+10,Y_Add);
-					strcpy(air.idAir, Input(sizeof(air.idAir), ID));
+					gotoxy(X_Add+10,Y_Add);	strcpy(air.idAir, Input(sizeof(air.idAir), ID));
 					if(strlen(air.idAir) == 0) {
 						Notification("Vui long khong bo trong");
 					}
@@ -185,18 +189,17 @@ void InputAirplane(ListAir &list, Airplane &air, bool Edit = false){
 				break;
 			}
 			case 4:{	
-				//Them moi
-				if(Edit == false) {
-					InsertListAir(list, air);
-				}	
-				
 				//Chinh sua
-				else 
-				{
+				if(Edit) {
 					strcpy(list.nodes[position]->idAir, air.idAir);
 					strcpy(list.nodes[position]->typeAir, air.typeAir);
 					list.nodes[position]->col = air.col;
 					list.nodes[position]->row = air.row;
+				}
+				//Them moi
+				else 
+				{
+					InsertListAir(list, air);
 				}
 				RemoveForm(0, 4, 27);
 			}
@@ -285,13 +288,8 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 					Notification("Danh sach rong, khong the xoa");
 					break;
 				}
-				CreateRow(X_Add, Y_Add, ContentAirplane[0], 27);
-				gotoxy(X_Add+10,Y_Add); strcpy(air.idAir, Input(sizeof(air.idAir), ID));
-				if (!RemoveAirplane(list, IndexAirplane(list, air.idAir ))) Notification("ID khong ton tai");
-				else {
-					if(SaveAirplane(list)) Notification("Xoa thanh cong");
-				}
-				RemoveRow(X_Add, Y_Add, ContentAirplane[0], 27);
+				InputAirplane(list, air, false, true);
+				if(SaveAirplane(list)) Notification("Xoa thanh cong");
 				TotalAirplanePage = (int)ceil((double)list.size / NumberPerPage);
 				if (ListAirIsNull(list))  { //neu nhu danh sach khong co phan tu, trang 0/0
 					CurAirplanePage = 0;
@@ -310,7 +308,7 @@ void MenuManageAirplane(ListAir &list, Airplane air){
 					break;
 				}
 								
-				InputAirplane(list, air, true);
+				InputAirplane(list, air, true, false);
 				if(SaveAirplane(list)) Notification("Chinh sua thanh cong");
 				TotalAirplanePage = (int)ceil((double)list.size/NumberPerPage);
 				ShowListAirplaneOnePage(list, (CurAirplanePage-1)*NumberPerPage);
