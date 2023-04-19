@@ -84,9 +84,11 @@ bool FlightDataIsEmpty(Flight &flight)
 int size(PNodeFli &first) {
 	int count = 0;
 	if (first == NULL) return count;
-	PNodeFli p;
-	for (p = first; p!= NULL; p=p->pNext) count++;
-	return count;
+	else{
+		PNodeFli p;
+		for (p = first; p!= NULL; p=p->pNext) count++;
+		return count;
+	}
 }
 
 //Tao Node chuyen bay
@@ -99,12 +101,17 @@ PNodeFli CreateFlight(Flight &flight) {
 
 //Them chuyen bay vao ds
 void InsertListFlight(PNodeFli &first, Flight flight) {
-	PNodeFli tmp = CreateFlight(flight);
-	if (first == NULL) first = tmp;
-	else {
-		PNodeFli p;
-		for (p = first; p->pNext != NULL; p = p->pNext);
-		p->pNext = tmp;
+
+	PNodeFli p, t, s;		//t la nut truoc, s la nut sau
+	p = CreateFlight(flight);
+	for(s = first; s != NULL && s->data.idFlight > flight.idFlight; t=s, s = s->pNext);
+	if(s == first){		//Them nut vao dau ds
+		p->pNext = first;
+		first = p;
+	}
+	else{
+		p->pNext = s;
+		t->pNext = p;
 	}
 }
 
@@ -376,54 +383,54 @@ bool LoadFlight(PNodeFli &First)
 {
     ifstream file("DSCB.TXT", ios_base::in);
     char str[1000];
+    Ticket *pTicket;
+    PNodeFli pNodeFli;
 
     if (!file.is_open())
         return false;
 	
 	while(!file.eof())
     {
-        PNodeFli pNodeFli = new NodeFli;
+        pNodeFli = new NodeFli;
         file.getline(pNodeFli->data.idFlight, sizeof(pNodeFli->data.idFlight), ';');
         file.getline(pNodeFli->data.arrivalAir, sizeof(pNodeFli->data.arrivalAir), ';');
         file.getline(pNodeFli->data.idAir, sizeof(pNodeFli->data.idAir), ';');
+        
+        file.getline(str, sizeof(str), ':');
+        pNodeFli->data.date.hour = atoi(str);
+		file.getline(str, sizeof(str), ';');
+        pNodeFli->data.date.minute = atoi(str);
+        
         file.getline(str, sizeof(str), '/');
         pNodeFli->data.date.day = atoi(str);
         file.getline(str, sizeof(str), '/');
         pNodeFli->data.date.month = atoi(str);
-        file.getline(str, sizeof(str), ',');
-        pNodeFli->data.date.year = atoi(str);
-        file.getline(str, sizeof(str), ':');
-        pNodeFli->data.date.second = atoi(str);
-        file.getline(str, sizeof(str), ':');
-        pNodeFli->data.date.minute = atoi(str);
         file.getline(str, sizeof(str), ';');
-        pNodeFli->data.date.hour = atoi(str);
+        pNodeFli->data.date.year = atoi(str);
         file.getline(str, sizeof(str));
         pNodeFli->data.status = atoi(str);
 
 //        file.getline(str, sizeof(str), ';');
-//        pNodeFli->data.ticketList.size = atoi(str);
-//        for (int i = 0; i < pNodeFli->data.ticketList.size; i++)
-//        {
-//            PTicket pTicket = new Ticket;
-//
-//            file.getline(pTicket->idPass, sizeof(pTicket->idPass), ';');
-//            file.getline(str, sizeof(str), ';');
-//            pTicket->col = atoi(str);
-//            file.getline(str, sizeof(str), ';');
-//            pTicket->col = atoi(str);
-//            if (i == pNodeFli->data.ticketList.size - 1)
-//            {
-//                file.getline(str, sizeof(str));
-//            }
-//            else
-//            {
-//                file.getline(str, sizeof(str), ';');
-//            }
-//            pTicket->statusTicket = atoi(str);
-//
-//            pNodeFli->data.ticketList.DSV[pNodeFli->data.ticketList.size++] = pTicket;
-//        }
+//        pNodeFli->data.listTicket.size_max = atoi(str);
+//        file.get(str, sizeof(str), ';');
+//        pNodeFli->data.listTicket.size_datve = atoi(str);
+       	
+        for (int i = 0; i < pNodeFli->data.listTicket.size_max; i++)
+        {
+            pTicket = new Ticket;
+
+            file.getline(pTicket->idPass, sizeof(pTicket->idPass), ';');
+            file.getline(pTicket->seat, sizeof(pTicket->seat), ';');
+            if(i <= pNodeFli->data.listTicket.size_max-1){
+            	file.getline(str, sizeof(pTicket->statusTicket), ';');
+			}else{
+				file.getline(str, sizeof(pTicket->statusTicket));
+			}
+            pTicket->statusTicket = atoi(str);
+
+            pNodeFli->data.listTicket.DSV[i] = *pTicket;
+            delete pTicket;
+        }
         InsertListFlight(First, pNodeFli->data);
     }
     file.close();
