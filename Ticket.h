@@ -28,10 +28,9 @@ typedef struct _ListTicket {
 
 int CurPage, TotalPage;
 extern string ContentTicket_Input[2];
-extern string ContentTicket_Output[4];
+extern string ContentTicket_Output[3];
 extern string ContentTicket_ThaoTac[5];
 
-void InitListTicket(ListTicket &ListTicket, Airplane Air);
 bool ListTicketIsFull(ListTicket ListTicket);
 bool ListTicketIsNull(ListTicket ListTicket);
 void InputTicket(Ticket &Ticket);
@@ -43,14 +42,6 @@ void ShowListTicketOnePage(ListTicket ListTicket, int startIndex);
 void MenuManageTicket(Airplane Air, ListTicket &ListTicket, Ticket Ticket);
 
 //----------------------------------------------------------------//
-
-void InitListTicket(ListTicket &ListTicket, Airplane Air) {
-    ListTicket.size_max = Air.col*Air.row;
-    ListTicket.size_datve = 0;
-    for (int i = 0; i < ListTicket.size_max; i++) {
-        ListTicket.DSV[i].statusTicket = 0;
-    }
-}
 
 bool ListTicketIsFull(ListTicket ListTicket) {
     return ListTicket.size_datve == ListTicket.size_max;
@@ -107,23 +98,27 @@ bool CheckCMND() {
 }
 
 void ShowTicket(Ticket Ticket, int position) {
-    int xKeyDisplay[10] = {20,35,55,70,85,100,115,130,145,160};
     if (Ticket.statusTicket != 0) {
-    	gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
-    	cout << left << setw(8) << "";
-    	gotoxy(xKeyDisplay[1] + 3, Y_Display + position + 3);
-    	cout << left << setw(8) << "";
-        gotoxy(xKeyDisplay[2] + 3, Y_Display + position + 3);
+//    	gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
+//    	cout << left << setw(8) << "";
+        gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
         cout << left << setw(8) << Ticket.seat;
-        gotoxy(xKeyDisplay[3] + 3, Y_Display + position + 3);
+        gotoxy(xKeyDisplay[1] + 3, Y_Display + position + 3);
         if(Ticket.statusTicket == 1) cout << left << setw(3) << "Da dat";
         else cout << left << setw(3) << "Da huy";
+    	gotoxy(xKeyDisplay[2] + 3, Y_Display + position + 3);
+    	cout << left << setw(8) << Ticket.idPas;
     }
 }
 
 void ShowListTicketOnePage(ListTicket ListTicket, int startIndex) {
-    gotoxy(21,3);
+    gotoxy(3,3);
     cout << "Ve: " << ListTicket.size_datve << "/" << ListTicket.size_max;
+    
+    WORD curColor;
+	GetColor(curColor);
+	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
+    
     int i; int j = 0;
     for (i = 0; i + startIndex < ListTicket.size_max; i++) {
         if (ListTicket.DSV[i+startIndex].statusTicket != 0) {
@@ -132,22 +127,21 @@ void ShowListTicketOnePage(ListTicket ListTicket, int startIndex) {
             cout << endl;
         }
     }
+    SetColor(curColor);
     RemoveExceedMember(i,5);
     gotoxy(X_Page,Y_Page);
     cout << "Trang " << CurPage << "/" << TotalPage;
 }
 
-void MenuManageTicket(Airplane Air, ListTicket &ListTicket, Ticket Ticket) {
+void MenuManageTicket(Airplane Air, ListTicket &ListTicket) {
     ShowCursor(false);
 	CurPage = !ListTicketIsNull(ListTicket);
 	TotalPage = (int)ceil((double)ListTicket.size_max/NumberPerPage); 	//ceil : lam tron 
 	
 	Display(ContentTicket_Output, sizeof(ContentTicket_Output)/sizeof(string));
-	ShowListTicketOnePage(ListTicket, 0);
+	ShowListTicketOnePage(ListTicket, 0);	
 	
-	gotoxy(X_TitlePage,Y_TitlePage);
-	cout << "QUAN LY VE";
-	
+	Ticket ticket_tmp;
 	int signal;
 
     while (true) {
@@ -160,21 +154,20 @@ void MenuManageTicket(Airplane Air, ListTicket &ListTicket, Ticket Ticket) {
                     Notification("Da het ve");
                     break;
                 }
-                gotoxy(X_Add, Y_Add-1);
-                InputTicket(Ticket);
+                //gotoxy(X_Add, Y_Add-1);
+                InputTicket(ticket_tmp);
                 RemoveForm(0,4,27);
-                if (CheckSeat(Air,ListTicket,Ticket) == -1) {
+                if (CheckSeat(Air,ListTicket,ticket_tmp) == -1) {
                     Notification("Vi tri nay khong ton tai");
             		break;
-                } else if (CheckSeat(Air,ListTicket,Ticket) == 0) {
+                } else if (CheckSeat(Air,ListTicket,ticket_tmp) == 0) {
                 	Notification("Vi tri nay da co nguoi dat");
                 	break;
 				}
                 else {
-                    InsertListTicket(Air,ListTicket,Ticket);
+                    InsertListTicket(Air,ListTicket,ticket_tmp);
                     Notification("Them thanh cong");
                 } 
-                system("color 0E");
                 ShowListTicketOnePage(ListTicket, (CurPage-1)*NumberPerPage);
                 ShowCursor(false);
                 break;
@@ -185,32 +178,27 @@ void MenuManageTicket(Airplane Air, ListTicket &ListTicket, Ticket Ticket) {
                     Notification("Khong con ve de xoa");
                     break;
                 }
-                gotoxy(X_Add,Y_Add-1);
-                InputTicket(Ticket);
+                //gotoxy(X_Add,Y_Add-1);
+                InputTicket(ticket_tmp);
                 RemoveForm(0,4,27);
-                if (CheckSeat(Air,ListTicket,Ticket) == -1) {
+                if (CheckSeat(Air,ListTicket,ticket_tmp) == -1) {
                     Notification("Vi tri nay khong ton tai");
                     break;
-                } else if (CheckSeat(Air,ListTicket,Ticket) == 1) {
+                } else if (CheckSeat(Air,ListTicket,ticket_tmp) == 1) {
                     Notification("Vi tri nay chua duoc dat");
                     break;
                 } else {
-                    CancelTicket(Air,ListTicket,Ticket);
+                    CancelTicket(Air,ListTicket,ticket_tmp);
                     Notification("Huy ve thanh cong");
                 }
-                system("color 0E");
                 ShowListTicketOnePage(ListTicket,(CurPage - 1)/NumberPerPage);
                 break;
             }
-            case 3: //Edit
+            case 3: //Previous Page
             {
                 break;
             }
-            case 4: //Previous Page
-            {
-                break;
-            }
-            case 5: //Next Page 
+            case 4: //Next Page
             {
                 break;
             }
