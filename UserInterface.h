@@ -21,7 +21,7 @@ string ContentFlight[6] = { "Flight ID", "Destination", "Plane ID", "Date and Ti
 string ContentFlight_ThaoTac[6] = {"Insert", "Edit DateTime", "Cancle Flight", "Previous Page", "Next Page", "Back"};
 //Ticket
 string ContentTicket_Input[2] = {"PassengerID","Seat"};
-string ContentTicket_Output[4] = {"FlightID", "Date", "Seat", "Status"};
+string ContentTicket_Output[3] = {"Seat", "Status", "PassengerID"};
 string ContentTicket_ThaoTac[5] = {"Order", "Cancel", "Previous Page", "Next Page", "Back"};
 //Menu
 string ContentMenu[6] = {"Home", "Plane", "Flight", "Passenger", "Ticket", "Exit"};
