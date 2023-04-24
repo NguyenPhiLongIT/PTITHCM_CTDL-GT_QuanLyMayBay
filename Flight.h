@@ -257,7 +257,8 @@ void ShowListFlightOnePage(PNodeFli first, int startIndex)
 			RemoveExceedMember(i+1, 6);
 			break;
 		}
-	} 
+	}
+	SetColor(curColor);
 	gotoxy(X_Page,Y_Page);
 	cout <<" Trang " << CurFlightPage <<"/"<< TotalFlightPage; 
 }
@@ -379,6 +380,43 @@ void MenuManageFlight(PNodeFli &first, ListAir dsmb){
 	}
 }
 
+
+
+//Menu thao tac voi danh sach ve
+void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
+	Flight cb_tmp;
+	Airplane mb_tmp;
+	PNodeFli pcb_tmp;
+	
+	if(dscb == NULL) {
+		Notification("Danh sach chua co chuyen bay nao!");
+		return;
+	}
+	
+	//Tao khung nhap va kiem tra dieu kien
+	do {
+		CreateRow(X_Add, Y_Add, ContentFlight[0], 32);
+		gotoxy(X_Add+10,Y_Add);       	strcpy(cb_tmp.idFlight, Input(sizeof(cb_tmp.idFlight), ID));
+		pcb_tmp = FindFlight(dscb,cb_tmp.idFlight);
+		if (pcb_tmp == NULL) Notification("Chuyen bay khong ton tai");
+		else if (pcb_tmp->data.status == HETVE) Notification("Chuyen bay da het ve");
+		else if (pcb_tmp->data.status == HUYCHUYEN) Notification("Chuyen bay da bi huy");
+		else if (pcb_tmp->data.status == HOANTAT) Notification("Chuyen bay da hoan tat");
+		else break;
+	} while (true);
+	
+	RemoveRow(X_Add, Y_Add, ContentFlight[0], 32);
+	
+	//Luu vi tri may bay cua chuyen bay do
+	int result = IndexAirplane(dsmb,pcb_tmp->data.idAir);
+	mb_tmp = *dsmb.nodes[result];
+	
+	//Thuc hien thao tac voi danh sach ve
+	gotoxy(X_TitlePage-10,Y_TitlePage);
+	cout << "MA CHUYEN BAY: " << pcb_tmp->data.idFlight << " - DIA DIEM: " << pcb_tmp->data.arrivalAir << " - THOI GiAN: "; PrintDate(&pcb_tmp->data.date);
+	MenuManageTicket(mb_tmp, pcb_tmp->data.listTicket);
+}
+
 bool LoadFlight(PNodeFli &First)
 {
     ifstream file("DSCB.TXT", ios_base::in);
@@ -419,7 +457,7 @@ bool LoadFlight(PNodeFli &First)
         {
             pTicket = new Ticket;
 
-            file.getline(pTicket->idPass, sizeof(pTicket->idPass), ';');
+            file.getline(pTicket->idPas, sizeof(pTicket->idPas), ';');
             file.getline(pTicket->seat, sizeof(pTicket->seat), ';');
             if(i <= pNodeFli->data.listTicket.size_max-1){
             	file.getline(str, sizeof(pTicket->statusTicket), ';');
