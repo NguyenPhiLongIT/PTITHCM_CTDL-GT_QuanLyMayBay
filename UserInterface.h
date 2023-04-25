@@ -23,6 +23,9 @@ string ContentFlight_ThaoTac[6] = {"Insert", "Edit DateTime", "Cancle Flight", "
 string ContentTicket_Input[2] = {"PassengerID","Seat"};
 string ContentTicket_Output[3] = {"Seat", "Status", "PassengerID"};
 string ContentTicket_ThaoTac[5] = {"Order", "Cancel", "Previous Page", "Next Page", "Back"};
+//Passenger
+string ContentPass[4] = {"ID", "FirstName", "LastName", "Sex"};
+string ContentPass_ThaoTac[6] = {"Insert", "Delete", "Edit", "Previous Page", "Next Page", "Back"};
 //Menu
 string ContentMenu[6] = {"Home", "Plane", "Flight", "Passenger", "Ticket", "Exit"};
 
@@ -84,6 +87,7 @@ void Notification(string s) {
 	Sleep(1200);
 	while(_kbhit()) _getch(); //khong nhan phim trong thoi gian ngu
 	remove_box(X_Notification,Y_Notification+1,n+1,2);
+	ShowCursor(true);
 }
 
 void n_box(int x, int y, int soluong, string noidung[]) {
@@ -214,10 +218,10 @@ void RemoveExceedMember(int count,int nContent)
 void CreateRow(int x, int y, string content, int length)
 {
 	gotoxy(x - 2, y - 1);
-	cout << char(176) << setw(length) << setfill(char(176)) << char(176) << char(176);
+	cout << char(254) << setw(length) << setfill(char(254)) << char(254) << char(254);
 
 	gotoxy(x - 2, y);
-	cout << char(176) << content << setw(length - content.length() + 1) << setfill(' ') << char(176);
+	cout << char(186) << content << setw(length - content.length() + 1) << setfill(' ') << char(186);
 }
 
 //Xoa 1 hang
