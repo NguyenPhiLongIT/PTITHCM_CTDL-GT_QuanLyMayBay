@@ -54,8 +54,8 @@ bool ListTicketIsNull(ListTicket ListTicket) {
 void InputTicket(Ticket &Ticket) {
     ShowCursor(true);
     CreateForm(ContentTicket_Input,0,2,27);
-    gotoxy(X_Add+10,Y_Add); strcpy(Ticket.idPas, Input(10,ID));
-    gotoxy(X_Add+10,Y_Add+3); strcpy(Ticket.seat, Input(sizeof(Ticket.seat), ID));
+    gotoxy(X_Add+12,Y_Add); strcpy(Ticket.idPas, Input(10,ID));
+    gotoxy(X_Add+12,Y_Add+3); strcpy(Ticket.seat, Input(sizeof(Ticket.seat), ID));
 }
 
 int ConvertMSVtoNumber(const char msv[3], int column) {
