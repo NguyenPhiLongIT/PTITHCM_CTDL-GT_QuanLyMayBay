@@ -104,7 +104,8 @@ void InsertListFlight(PNodeFli &first, Flight flight) {
 
 	PNodeFli p, t, s;		//t la nut truoc, s la nut sau
 	p = CreateFlight(flight);
-	for(s = first; s != NULL && s->data.idFlight > flight.idFlight; t=s, s = s->pNext);
+	for(s = first; s != NULL && strcmp(s->data.idFlight,flight.idFlight) < 0; t=s, s = s->pNext);
+	//for(s = first; s != NULL && s->data.idFlight > flight.idFlight; t=s, s = s->pNext);
 	if(s == first){		//Them nut vao dau ds
 		p->pNext = first;
 		first = p;
