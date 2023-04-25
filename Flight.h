@@ -299,9 +299,9 @@ void MenuManageFlight(PNodeFli &first, ListAir dsmb){
 				InputFlight(fli,dsmb);
 				InsertListFlight(first, fli);
 			
-//				if(SaveFlight(first)){
+				if(SaveFlight(first)){
 					Notification("Them thanh cong");
-//				}
+				}
 		
 				TotalFlightPage = (int)ceil((double)size(first)/NumberPerPage);
 				RemoveForm(0, 6, 32);
@@ -394,6 +394,8 @@ void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
 		return;
 	}
 	
+	
+	
 	//Tao khung nhap va kiem tra dieu kien
 	do {
 		CreateRow(X_Add, Y_Add, ContentFlight[0], 32);
@@ -421,9 +423,8 @@ void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
 bool LoadFlight(PNodeFli &First)
 {
     ifstream file("DSCB.TXT", ios_base::in);
-    char str[1000];
-    Ticket *pTicket;
-    PNodeFli pNodeFli;
+    string str;
+    PNodeFli pNodeFli = NULL;
 
     if (!file.is_open())
         return false;
@@ -431,44 +432,31 @@ bool LoadFlight(PNodeFli &First)
 	while(!file.eof())
     {
         pNodeFli = new NodeFli;
-        file.getline(pNodeFli->data.idFlight, sizeof(pNodeFli->data.idFlight), ';');
-        file.getline(pNodeFli->data.arrivalAir, sizeof(pNodeFli->data.arrivalAir), ';');
-        file.getline(pNodeFli->data.idAir, sizeof(pNodeFli->data.idAir), ';');
+        getline(file, str, ';');	strcpy(pNodeFli->data.idFlight, str.c_str());
+        getline(file, str, ';');	strcpy(pNodeFli->data.arrivalAir, str.c_str());
+        getline(file, str, ';');	strcpy(pNodeFli->data.idAir, str.c_str());
         
-        file.getline(str, sizeof(str), ':');
-        pNodeFli->data.date.hour = atoi(str);
-		file.getline(str, sizeof(str), ';');
-        pNodeFli->data.date.minute = atoi(str);
+        getline(file, str, ':');	pNodeFli->data.date.hour = atoi(str.c_str());
+		getline(file, str, ';');    pNodeFli->data.date.minute = atoi(str.c_str());
         
-        file.getline(str, sizeof(str), '/');
-        pNodeFli->data.date.day = atoi(str);
-        file.getline(str, sizeof(str), '/');
-        pNodeFli->data.date.month = atoi(str);
-        file.getline(str, sizeof(str), ';');
-        pNodeFli->data.date.year = atoi(str);
-        file.getline(str, sizeof(str));
-        pNodeFli->data.status = atoi(str);
+        getline(file, str, '/');    pNodeFli->data.date.day = atoi(str.c_str());
+        getline(file, str, '/');    pNodeFli->data.date.month = atoi(str.c_str());
+        getline(file, str, ';');    pNodeFli->data.date.year = atoi(str.c_str());
+        getline(file, str, ';');	pNodeFli->data.status = atoi(str.c_str());
 
-//        file.getline(str, sizeof(str), ';');
-//        pNodeFli->data.listTicket.size_max = atoi(str);
-//        file.get(str, sizeof(str), ';');
-//        pNodeFli->data.listTicket.size_datve = atoi(str);
+        getline(file, str, ';');	pNodeFli->data.listTicket.size_max = atoi(str.c_str());
+        getline(file, str, ';');    pNodeFli->data.listTicket.size_datve = atoi(str.c_str());
        	
-        for (int i = 0; i < pNodeFli->data.listTicket.size_max; i++)
+        for (int i = 0; i < pNodeFli->data.listTicket.size_datve; i++)
         {
-            pTicket = new Ticket;
-
-            file.getline(pTicket->idPas, sizeof(pTicket->idPas), ';');
-            file.getline(pTicket->seat, sizeof(pTicket->seat), ';');
-            if(i <= pNodeFli->data.listTicket.size_max-1){
-            	file.getline(str, sizeof(pTicket->statusTicket), ';');
+            getline(file, str, ';');	strcpy(pNodeFli->data.listTicket.DSV[i].idPas, str.c_str());
+            getline(file, str, ';');	strcpy(pNodeFli->data.listTicket.DSV[i].seat, str.c_str());
+            if(i != pNodeFli->data.listTicket.size_datve-1){
+            	getline(file, str, ';');
 			}else{
-				file.getline(str, sizeof(pTicket->statusTicket));
+				getline(file, str);
 			}
-            pTicket->statusTicket = atoi(str);
-
-            pNodeFli->data.listTicket.DSV[i] = *pTicket;
-            delete pTicket;
+            pNodeFli->data.listTicket.DSV[i].statusTicket = atoi(str.c_str());
         }
         InsertListFlight(First, pNodeFli->data);
     }
@@ -488,29 +476,29 @@ bool SaveFlight(PNodeFli First)
         file << First->data.idFlight << ";"
              << First->data.arrivalAir << ";"
              << First->data.idAir << ";"
+             << First->data.date.hour << ":"
+             << First->data.date.minute << ";"
              << First->data.date.day << "/"
              << First->data.date.month << "/"
-             << First->data.date.year << ","
-             << First->data.date.second << ":"
-             << First->data.date.minute << ":"
-             << First->data.date.hour << ";"
-             << First->data.status << ";";
-//        for (int i = 0; i < First->data.ticketList.size; i++)
-//        {
-//            file << First->data.ticketList.DSV[i]->idPass << ";"
-//                 << First->data.ticketList.DSV[i]->col << ";"
-//                 << First->data.ticketList.DSV[i]->row << ";"
-//                 << First->data.ticketList.DSV[i]->statusTicket;
-//            if (i == First->data.ticketList.size - 1)
-//            {
-//                file << endl;
-//            }
-//            else
-//            {
-//                file << ";";
-//            }
-//        }
-//        First = First->pNext;
+             << First->data.date.year << ";"
+             << First->data.status << ";"
+             << First->data.listTicket.size_max << ";"
+             << First->data.listTicket.size_datve << ";";
+        for (int i = 0; i < First->data.listTicket.size_datve; i++)
+        {
+            file << First->data.listTicket.DSV[i].idPas << ";"
+                 << First->data.listTicket.DSV[i].seat << ";"
+                 << First->data.listTicket.DSV[i].statusTicket;
+            if (i == First->data.listTicket.size_datve - 1)
+            {
+                file << endl;
+            }
+            else
+            {
+                file << ";";
+            }
+        }
+        First = First->pNext;
     }
 
     file.close();
