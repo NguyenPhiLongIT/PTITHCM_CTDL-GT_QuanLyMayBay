@@ -20,6 +20,11 @@ typedef struct _PassNode
 	struct _PassNode *pRight;
 } PassNode, *PPassNode, *TreePass;
 
+int CurPosPass = 0;
+int CurPassPage = 1;
+int TotalPassPage = 0;
+extern string ContentFlight[6];
+
 void InitTreePass(TreePass &rootPass);
 bool EmptyPass(TreePass &rootPass);
 PPassNode NewPassNode(Passenger &data);
@@ -111,15 +116,96 @@ PPassNode SearchPass(TreePass rootPass, char *idPass)
 	return NULL;
 }
 
-void ShowPass(const Passenger &pass)
+void ShowPass(const Passenger &pass, int position)
 {
-	cout << pass.id << endl;
-	cout << pass.firstName << endl;
-	cout << pass.lastName << endl;
-	cout << (pass.gender ? "Nam" : "Nu") << endl;
+	gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
+    cout << left << setw(8) << pass.id;
+    gotoxy(xKeyDisplay[1] + 3, Y_Display + position + 3);
+    cout << left << setw(3) << pass.firstName;
+    gotoxy(xKeyDisplay[2] + 3, Y_Display + position + 3);
+    cout << left << setw(8) << pass.lastName;
+    gotoxy(xKeyDisplay[3] + 3, Y_Display + position + 3);
+	cout << left << setw(8) << (pass.gender ? "Nam" : "Nu");
 }
 
-void ShowListPass(TreePass root)
+void ShowListPassOnePage(TreePass root, int startdex)
 {
+	gotoxy(3,3);
+	cout << " So luong khach hang : ";
 	
+	WORD curColor;
+	GetColor(curColor);
+	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
+	int count = -1;
+
+	
+	
+	SetColor(curColor);
+	gotoxy(X_Page,Y_Page);
+	cout <<" Trang " << CurPassPage <<"/"<< TotalPassPage; 
+}
+
+void ChangeFlightMenuManagerPage(TreePass root)
+{
+	gotoxy(X_TitlePage,Y_TitlePage);
+	cout << "QUAN LY CHUYEN BAY";
+
+	Display( ContentPass,sizeof(ContentPass)/sizeof(string) );
+	ShowListPassOnePage(root,(CurPassPage-1)*NumberPerPage);
+}
+
+void MenuManagePassenger(TreePass root){
+//	ShowCursor(false);
+	CurPassPage = 1;
+	//TotalPassPage = (int)ceil((double)size(root)/NumberPassPage); 	//ceil : lam tron 
+	
+	Display(ContentPass, sizeof(ContentPass)/sizeof(string));
+	ShowListPassOnePage(root, 0);
+	
+	gotoxy(X_TitlePage,Y_TitlePage);
+	cout << "QUAN LY HANH KHACH";
+	
+	Passenger pass;
+	int signal;
+	while(true)
+	{
+		menu:
+		signal = menu_dong(X_ThaoTac,Y_ThaoTac,6,ContentPass_ThaoTac);
+		switch(signal) {
+			case 1: // Insert
+			{
+				break;
+			}
+			edit: case 2: //Edit date time
+			{
+				
+				break;		
+			}
+			case 3: //Cancle flight
+			{
+				
+				break;
+			}
+			case 4: //Chuyen trang truoc
+			{
+				if(CurFlightPage == 1) break;
+				else{
+					CurFlightPage--;
+					ChangeFlightMenuManagerPage(root);
+				}
+				break;
+			}
+			case 5:	//Chuyen trang tiep
+			{
+				if(CurFlightPage >= TotalFlightPage) break;
+				else{
+					CurFlightPage++;
+					ChangeFlightMenuManagerPage(root);
+				}
+				break;
+			}
+			default: return;
+			
+		}
+	}
 }
