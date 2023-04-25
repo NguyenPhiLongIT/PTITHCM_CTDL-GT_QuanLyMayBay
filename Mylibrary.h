@@ -141,7 +141,8 @@ void Clear()
     COORD coord;
     CONSOLE_SCREEN_BUFFER_INFO info;
     hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-    coord = {0, 0};
+    coord.X = 0;
+    coord.Y = 0;
 
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
     FillConsoleOutputCharacter(
