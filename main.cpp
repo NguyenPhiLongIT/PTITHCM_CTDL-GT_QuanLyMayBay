@@ -58,11 +58,9 @@ void menu_xuli() {
                 break;
             case 5: // Ticket
             {
-            	remove_box(X_Menu, Y_Menu, 20, 12);
-            	air = *list.nodes[2]; //lay may bay thu 3 de test
-            	InitListTicket(listticket,air); //khoi tao danh sach ve cho may bay
-                MenuManageTicket(air, listticket, ticket);
-		break;
+	           	remove_box(X_Menu, Y_Menu, 20, 12);  	
+				MenuManageListTicket(list,dscb);
+				break;
             }
             default: //Exit
                 return;
