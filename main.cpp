@@ -28,10 +28,11 @@ void menu_xuli() {
     ListAir list;
     InitListAirplane(list);
     Airplane air;
-    ListTicket listticket;
-    Ticket ticket;
+    
     PNodeFli dscb = NULL;
     Flight cb_tmp;
+    
+    TreePass dskh;
     
     if(!LoadFlight(dscb));
 	if(!LoadAirplane(list));
@@ -55,6 +56,8 @@ void menu_xuli() {
             	MenuManageFlight(dscb,list);
                 break;
             case 4: // Passenger
+            	remove_box(X_Menu, Y_Menu, 20, 12);
+            	MenuManagePassenger(dskh);
                 break;
             case 5: // Ticket
             {
