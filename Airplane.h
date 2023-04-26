@@ -111,7 +111,7 @@ bool RemoveAirplane(ListAir &ListAir, int position)
 void InputAirplane(ListAir &list, Airplane &air, bool Edit = false, bool Delete = false){
 	int ordinal = 0;	// thu tu nhap	
 	int position = -1;	// vi tri may bay
-	if(Edit == false && Delete == false) CreateForm(ContentAirplane,0,4,27);
+	if(Edit == false && Delete == false) CreateForm(ContentAirplane_Input,0,3,27);
 	while(true){
 		ShowCursor(true);
 		switch(ordinal){
@@ -131,8 +131,8 @@ void InputAirplane(ListAir &list, Airplane &air, bool Edit = false, bool Delete 
 					}
 					if(position > -1 && Delete == true){
 						ShowCursor(false);
-						box(X_Notification,Y_Notification, 27, 3, "Ban co muon xoa khong? ");
-						gotoxy(X_Notification+1,Y_Notification+2); cout << "ESC: Huy - ENTER - Xoa";
+						box(X_Notification,Y_Notification, 27, 3, "Ban co chac muon xoa khong? ");
+						gotoxy(X_Notification+1,Y_Notification+2); cout << "ESC: Huy - ENTER: Xoa";
 						
 						char c = _getch();
 						RemoveRow(X_Add, Y_Add, ContentAirplane[0], 27);
@@ -152,7 +152,8 @@ void InputAirplane(ListAir &list, Airplane &air, bool Edit = false, bool Delete 
 				}while(true);
 				
 				while (Edit == true) {
-					CreateForm(ContentAirplane,0,4,27);
+					CreateForm(ContentAirplane_Input,0,3,27);
+					box(X_Add-3,Y_Add-4, 44, 2, "Phan nao khong muon chinh sua. Hay bo trong!");
 					gotoxy(X_Add+10,Y_Add);	strcpy(air.idAir, Input(sizeof(air.idAir), ID));
 					if (IndexAirplane(list, air.idAir) > -1) {
 						Notification("ID da ton tai");
@@ -164,19 +165,26 @@ void InputAirplane(ListAir &list, Airplane &air, bool Edit = false, bool Delete 
 				break;
 			}
 			case 1:{	//Nhap typeAir
-				gotoxy(X_Add+10,Y_Add+3);     	strcpy(air.typeAir, Input(sizeof(air.typeAir), Text));
+				gotoxy(X_Add+11,Y_Add+3);     	strcpy(air.typeAir, Input(sizeof(air.typeAir), Text));
+				if(strlen(air.typeAir) == 0 && Edit == false){
+					Notification("Vui long khong bo trong");
+					break;
+				}
 				ordinal++;
 				break;
 			}
 			case 2: { //Nhap col va row
-				do {
-				gotoxy(X_Add+10,Y_Add+6); cout << "              ";
-				gotoxy(X_Add+10,Y_Add+9); cout << "              ";
-				gotoxy(X_Add+10,Y_Add+6); 		char c[3]; strcpy(c, Input(sizeof(c), Number)); air.col = atoi(c);
-				gotoxy(X_Add+10,Y_Add+9);     	char r[3]; strcpy(r, Input(sizeof(r), Number)); air.row = atoi(r);
-				if(air.col*air.row >= MINSEAT) break;
-				Notification("So cho phai >= 20");
-				} while (air.col*air.row < MINSEAT);
+				gotoxy(X_Add+15,Y_Add+6); cout << "    x    ";
+				gotoxy(X_Add+15,Y_Add+6); 		char c[3]; strcpy(c, Input(sizeof(c), Number)); air.col = atoi(c);
+				gotoxy(X_Add+15+7,Y_Add+6);     	char r[3]; strcpy(r, Input(sizeof(r), Number)); air.row = atoi(r);
+				if((air.col < 1 || air.row < 1) && Edit == false) {
+					Notification("Vui long khong bo trong");
+					break;
+				}	
+				if((air.col >= 1 || air.row >= 1) && (air.col*air.row < MINSEAT)) {
+					Notification("So cho phai >= 20");	
+					break;
+				}
 				ordinal++;
 				break;
 			}
@@ -195,7 +203,8 @@ void InputAirplane(ListAir &list, Airplane &air, bool Edit = false, bool Delete 
 					InsertListAir(list, air);
 					if(SaveAirplane(list)) Notification("Them thanh cong");
 				}
-				RemoveForm(0, 4, 27);
+				RemoveForm(0, 3, 27);
+				remove_box(X_Add-3,Y_Add-4, 44, 2);
 			}
 			return;
 		}
