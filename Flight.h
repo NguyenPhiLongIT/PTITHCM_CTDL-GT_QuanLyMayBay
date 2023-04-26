@@ -450,11 +450,11 @@ bool LoadFlight(PNodeFli &First)
         getline(file, str, ';');	pNodeFli->data.listTicket.size_max = atoi(str.c_str());
         getline(file, str, ';');    pNodeFli->data.listTicket.size_datve = atoi(str.c_str());
        	
-        for (int i = 0; i < pNodeFli->data.listTicket.size_datve; i++)
+        for (int i = 0; i < pNodeFli->data.listTicket.size_max; i++)
         {
             getline(file, str, ';');	strcpy(pNodeFli->data.listTicket.DSV[i].idPas, str.c_str());
             getline(file, str, ';');	strcpy(pNodeFli->data.listTicket.DSV[i].seat, str.c_str());
-            if(i != pNodeFli->data.listTicket.size_datve-1){
+            if(i != pNodeFli->data.listTicket.size_max-1){
             	getline(file, str, ';');
 			}else{
 				getline(file, str);
@@ -487,12 +487,12 @@ bool SaveFlight(PNodeFli First)
              << First->data.status << ";"
              << First->data.listTicket.size_max << ";"
              << First->data.listTicket.size_datve << ";";
-        for (int i = 0; i < First->data.listTicket.size_datve; i++)
+        for (int i = 0; i < First->data.listTicket.size_max; i++)
         {
             file << First->data.listTicket.DSV[i].idPas << ";"
                  << First->data.listTicket.DSV[i].seat << ";"
                  << First->data.listTicket.DSV[i].statusTicket;
-            if (i == First->data.listTicket.size_datve - 1)
+            if (i == First->data.listTicket.size_max - 1 && First->pNext != NULL)
             {
                 file << endl;
             }
