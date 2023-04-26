@@ -15,7 +15,7 @@ int xKeyDisplay[8] = {1,19,37,55,74,92,110,127};
 //Airplane
 string ContentAirplane[5] = { "Plane ID", "Plane Type", "Column", "Row", "Seat"};
 string ContentThaoTac[6] = {"Insert", "Delete", "Edit", "Previous Page", "Next Page", "Back"};
-string ContentEditAirplane[6] = {"All", "Plane ID", "Plane Type", "Column", "Row", "Back"};
+string ContentAirplane_Input[3] = {"Plane ID", "Plane Type", "Column & Row"};
 //Flight
 string ContentFlight[6] = { "Flight ID", "Destination", "Plane ID", "Date and Time", "Number Tickets", "Status"};
 string ContentFlight_ThaoTac[6] = {"Insert", "Edit DateTime", "Cancle Flight", "Previous Page", "Next Page", "Back"};
