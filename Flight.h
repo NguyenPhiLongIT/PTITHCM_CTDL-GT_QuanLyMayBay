@@ -70,6 +70,8 @@ void InitFlight(Flight &flight, ListAir dsmb) {
 	flight.listTicket.size_max = dsmb.nodes[result]->col*dsmb.nodes[result]->row;
 	for (int i = 0; i < flight.listTicket.size_max; i++) {
 		flight.listTicket.DSV[i].statusTicket = 0;
+		memset(flight.listTicket.DSV[i].idPas,0,sizeof(flight.listTicket.DSV[i].idPas));
+		memset(flight.listTicket.DSV[i].seat,0,sizeof(flight.listTicket.DSV[i].seat));
 	}
 }
 
@@ -418,6 +420,7 @@ void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
 	gotoxy(X_TitlePage-10,Y_TitlePage);
 	cout << "MA CHUYEN BAY: " << pcb_tmp->data.idFlight << " - DIA DIEM: " << pcb_tmp->data.arrivalAir << " - THOI GiAN: "; PrintDate(&pcb_tmp->data.date);
 	MenuManageTicket(mb_tmp, pcb_tmp->data.listTicket);
+	if(!SaveFlight(dscb)) Notification("Da luu");
 }
 
 bool LoadFlight(PNodeFli &First)
