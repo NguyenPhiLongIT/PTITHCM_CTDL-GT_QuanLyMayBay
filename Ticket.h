@@ -98,17 +98,14 @@ bool CheckCMND() {
 }
 
 void ShowTicket(Ticket Ticket, int position) {
-    if (Ticket.statusTicket != 0) {
-//    	gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
-//    	cout << left << setw(8) << "";
         gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
         cout << left << setw(8) << Ticket.seat;
         gotoxy(xKeyDisplay[1] + 3, Y_Display + position + 3);
         if(Ticket.statusTicket == 1) cout << left << setw(3) << "Da dat";
+        else if (Ticket.statusTicket == 0) cout << left << setw(3) << "Con ve";
         else cout << left << setw(3) << "Da huy";
     	gotoxy(xKeyDisplay[2] + 3, Y_Display + position + 3);
     	cout << left << setw(8) << Ticket.idPas;
-    }
 }
 
 void ShowListTicketOnePage(ListTicket ListTicket, int startIndex) {
