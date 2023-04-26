@@ -52,7 +52,7 @@ int FindDestination(PNodeFli, const char *);
 void AutoUpdateFlightStatus(PNodeFli &);
 int EditDateTime(PNodeFli &, Date);
 
-void InputFlight(Flight &, ListAir);
+void InputFlight(PNodeFli &, Flight &, ListAir , bool );
 void ShowFlight(Flight, int);
 void ShowListFlightOnePage(PNodeFli, int);
 void ChangeFlightMenuManagerPage(PNodeFli);
@@ -184,7 +184,7 @@ void AutoUpdateFlightStatus(PNodeFli &first)
 	{
 		if( IsValidDate(&p->data.date) == false )
 			//0: huy chuyen, 1: con ve, 2: het ve, 3: hoant tat 
-			p->data.status = 2;
+			p->data.status = 3;
 	}
 }
 
@@ -197,16 +197,105 @@ int EditDateTime(PNodeFli &first, Date date){
 }
 
 //Khung nhap
-void InputFlight(Flight &flight, ListAir dsmb){
+void InputFlight(PNodeFli &first, Flight &flight, ListAir dsmb, bool Edit = false){
 	ShowCursor(true);
-	CreateForm(ContentFlight, 0, 4, 32);
-    gotoxy(X_Add+10,Y_Add);       	strcpy(flight.idFlight, Input(sizeof(flight.idFlight), ID));
-    gotoxy(X_Add+11,Y_Add+3);     	strcpy(flight.arrivalAir, Input(sizeof(flight.arrivalAir), Text));
-    gotoxy(X_Add+10,Y_Add+6);     	strcpy(flight.idAir, Input(sizeof(flight.idAir), ID));
-    gotoxy(X_Add+13,Y_Add+9);		InputDate(&flight.date); 
-    InitFlight(flight,dsmb);
-//    gotoxy(X_Add+14,Y_Add+12);		char t[2]; strcpy(t, Input(sizeof(t), Number)); flight.listTicket.size_max = atoi(t);
-//	gotoxy(X_Add+10,Y_Add+15);   	char s[2]; strcpy(s, Input(sizeof(s), Number)); flight.status = atoi(s);
+	int ordinal = 0;	//thu tu nhap
+	int position = -1;	//vi tri chuyen bay
+	if(Edit == false) CreateForm(ContentFlight, 0, 4, 32);
+	while(true){
+		switch(ordinal){
+			case 0:{	//Nhap idFlight
+				do{
+					CreateRow(X_Add, Y_Add, ContentFlight[0], 27);
+					gotoxy(X_Add+10,Y_Add);       	strcpy(flight.idFlight, Input(sizeof(flight.idFlight), ID));
+					position = FindIndexFlight(first, flight.idFlight);
+					if(strlen(flight.idFlight) == 0){
+						Notification("Vui long khong bo trong");
+					}
+					if(position > -1 && Edit == false){
+						Notification("ID chuyen bay da ton tai");
+					}
+					if(position < 0 && Edit == true && strlen(flight.idFlight) != 0){
+						Notification("ID chuyen bay khong ton tai");
+					}
+					if(
+						(position > -1 && Edit == true) 
+						||
+						(position < 0 && Edit == false && (strlen(flight.idFlight) != 0))
+					) break;
+				}
+				while(true);
+				
+				while (Edit == true) {
+					PNodeFli p = FindFlight(first, flight.idFlight);
+					if(p->data.status == CONVE || p->data.status == HETVE){
+						CreateRow(X_Add, Y_Add, ContentFlight[3], 32);
+						gotoxy(X_Add+13,Y_Add);		InputDate(&flight.date);
+						RemoveRow(X_Add, Y_Add, ContentFlight[3], 44); 
+						if(EditDateTime(p, flight.date)){
+							if(SaveFlight(first)){
+								Notification("Chinh sua thanh cong");
+								return;
+							}
+						}
+					}
+					else {
+						Notification("Khong the hieu chinh ngay gio");
+						RemoveRow(X_Add, Y_Add, ContentFlight[0], 27);
+						return;
+					}
+				}
+				  
+				ordinal++;
+				break;
+			}
+			case 1:{	//Nhap arrivalAir
+				gotoxy(X_Add+11,Y_Add+3);     	strcpy(flight.arrivalAir, Input(sizeof(flight.arrivalAir), Text));
+				if(strlen(flight.arrivalAir) == 0){
+					Notification("Vui long khong bo trong");
+					break;
+				}
+				ordinal++;
+				break;
+			}
+			case 2:{	//Nhap idAir
+				gotoxy(X_Add+10,Y_Add+6); cout << "			";
+				gotoxy(X_Add+10,Y_Add+6);     	strcpy(flight.idAir, Input(sizeof(flight.idAir), ID));
+				position = IndexAirplane(dsmb, flight.idAir);
+				if(strlen(flight.idAir) == 0){
+					Notification("Vui long khong bo trong");
+					break;
+				}
+				if(position < 0){
+					Notification("ID may bay khong ton tai");
+					break;
+				}
+				ordinal++;
+				break;
+			}
+			case 3:{	//Nhap DateTime
+				gotoxy(X_Add+13,Y_Add+9);		InputDate(&flight.date); 
+				ordinal++;
+				break;
+			}
+			case 4:{
+				InitFlight(flight,dsmb);
+				ordinal++;
+				break;
+			}
+			case 5:{
+				if(Edit == false){
+					InsertListFlight(first, flight);
+					if(SaveFlight(first)){
+						Notification("Them thanh cong");
+					}
+				}
+				RemoveForm(0, 4, 32);
+			}
+			return;
+		}
+	}
+	ShowCursor(false);
 }
 
 //Hien thi thong tin 1 chuyen bay
@@ -298,15 +387,9 @@ void MenuManageFlight(PNodeFli &first, ListAir dsmb){
 			case 1: // Insert
 			{
 				if(CurFlightPage == 0) CurFlightPage = 1;
-				InputFlight(fli,dsmb);
-				InsertListFlight(first, fli);
-			
-				if(SaveFlight(first)){
-					Notification("Them thanh cong");
-				}
-		
+				InputFlight(first, fli, dsmb);
+
 				TotalFlightPage = (int)ceil((double)size(first)/NumberPerPage);
-				RemoveForm(0, 6, 32);
 				ShowListFlightOnePage(first, (CurFlightPage-1)*NumberPerPage);
 				ShowCursor(false);
 				break;
@@ -318,21 +401,7 @@ void MenuManageFlight(PNodeFli &first, ListAir dsmb){
 					Notification("Danh sach rong");
 					break;
 				}
-				
-				CreateRow(X_Add, Y_Add, ContentFlight[0], 27);
-				gotoxy(X_Add+10,Y_Add);       	strcpy(fli.idFlight, Input(sizeof(fli.idFlight), ID));
-				PNodeFli p = FindFlight(first, fli.idFlight);
-				if(p->data.status == CONVE || p->data.status == HETVE){
-					RemoveRow(X_Add, Y_Add, ContentFlight[0], 27);
-					CreateRow(X_Add, Y_Add, ContentFlight[3], 32);
-					gotoxy(X_Add+13,Y_Add);		InputDate(&fli.date); 
-					if(EditDateTime(p, fli.date)){
-						Notification("Chinh sua thanh cong");
-					}
-				}
-				else Notification("Khong the hieu chinh ngay gio");
-				
-				RemoveRow(X_Add, Y_Add, ContentFlight[3], 44);
+				InputFlight(first, fli, dsmb, true);
 				ShowListFlightOnePage(first, (CurFlightPage-1)*NumberPerPage);
 				ShowCursor(false);
 				break;		
