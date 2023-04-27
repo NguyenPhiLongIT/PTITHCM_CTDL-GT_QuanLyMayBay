@@ -85,12 +85,9 @@ bool FlightDataIsEmpty(Flight &flight)
 //So luong chuyen bay co trong danh sach
 int size(PNodeFli &first) {
 	int count = 0;
-	if (first == NULL) return count;
-	else{
-		PNodeFli p;
-		for (p = first; p!= NULL; p=p->pNext) count++;
-		return count;
-	}
+	for (PNodeFli p = first; p!= NULL; p=p->pNext)
+		count++;
+	return count;
 }
 
 //Tao Node chuyen bay
