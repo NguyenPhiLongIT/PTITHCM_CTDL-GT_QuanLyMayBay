@@ -68,11 +68,7 @@ void InitFlight(Flight &flight, ListAir dsmb) {
 	flight.listTicket.size_datve = 0;
 	int result = IndexAirplane(dsmb,flight.idAir);
 	flight.listTicket.size_max = dsmb.nodes[result]->col*dsmb.nodes[result]->row;
-	for (int i = 0; i < flight.listTicket.size_max; i++) {
-		flight.listTicket.DSV[i].statusTicket = 0;
-		memset(flight.listTicket.DSV[i].idPas,0,sizeof(flight.listTicket.DSV[i].idPas));
-		memset(flight.listTicket.DSV[i].seat,0,sizeof(flight.listTicket.DSV[i].seat));
-	}
+	InitListTicket(flight.listTicket);
 }
 
 bool FlightDataIsEmpty(Flight &flight)
