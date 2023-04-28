@@ -31,6 +31,7 @@ extern string ContentTicket_Input[2];
 extern string ContentTicket_Output[3];
 extern string ContentTicket_ThaoTac[5];
 
+void InitListTicket(ListTicket &listTicket);
 bool ListTicketIsFull(ListTicket ListTicket);
 bool ListTicketIsNull(ListTicket ListTicket);
 void InputTicket(Ticket &Ticket);
@@ -42,6 +43,14 @@ void ShowListTicketOnePage(ListTicket ListTicket, int startIndex);
 void MenuManageTicket(Airplane Air, ListTicket &ListTicket, Ticket Ticket);
 
 //----------------------------------------------------------------//
+
+void InitListTicket(ListTicket &listTicket){
+    for (int i = 0; i < listTicket.size_max; i++) {
+		listTicket.DSV[i].statusTicket = 0;
+		memset(listTicket.DSV[i].idPas,0,sizeof(listTicket.DSV[i].idPas));
+		memset(listTicket.DSV[i].seat,0,sizeof(listTicket.DSV[i].seat));
+	}
+}
 
 bool ListTicketIsFull(ListTicket ListTicket) {
     return ListTicket.size_datve == ListTicket.size_max;
