@@ -17,6 +17,7 @@ typedef struct _Date{
 }Date, *PDate;
 
 PDate GetCurTime();
+char *DateToString(PDate pDate);
 bool IsLeapYear(PDate);
 int CompareDate(PDate, PDate);
 void InputDate(PDate pDate);
@@ -35,6 +36,12 @@ PDate GetCurTime(){
     pDate->year      = pTime->tm_year  + 1900;
 
     return pDate;
+}
+
+char *DateToString(PDate pDate){
+    char *result = new char[20];
+    sprintf(result, "%.2d:%.2d %.2d/%.2d/%.4d", pDate->hour, pDate->minute, pDate->day, pDate->month, pDate->year);
+    return result;
 }
 
 bool IsValidDate(PDate date){
@@ -67,13 +74,10 @@ int CompareDate(PDate date1, PDate date2 = GetCurTime()){
     return SumSecond1 - SumSecond2;
 }
 
-void FormatDate(PDate pDate){
-    
-}
-
 void PrintDate(PDate date){
-    std :: cout << date->hour << ":" << date->minute << " " <<
-		date->day << "/" << date->month << "/" << date->year;
+	char *DateString = DateToString(pDate);
+    	cout << DateString;
+    	delete DateString;
 }
 
 void InputDate(PDate pDate)
