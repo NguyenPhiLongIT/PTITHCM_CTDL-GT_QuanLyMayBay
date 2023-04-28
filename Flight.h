@@ -38,28 +38,28 @@ int CurFlightPage = 1;
 int TotalFlightPage = 0;
 extern string ContentFlight[6];
 
-void InitFlight(Flight &, ListAir);
-bool FlightDataIsEmpty(Flight &);
-int size(PNodeFli &);
+void InitFlight(Flight &flight, ListAir listAir);
+bool FlightDataIsEmpty(Flight &flight);
+int size(PNodeFli &pNodeFli);
 
-PNodeFli CreateFlight(Flight &);
-void InsertListFlight(PNodeFli &, Flight);
-int CancleFlight(PNodeFli &);
-PNodeFli FindFlight(PNodeFli &, const char *);
-PNodeFli FindFlightByIdPlane(PNodeFli &, const char *);
-int FindIndexFlight(PNodeFli, const char *);
-int FindDestination(PNodeFli, const char *);
-void AutoUpdateFlightStatus(PNodeFli &);
-int EditDateTime(PNodeFli &, Date);
+PNodeFli CreateFlight(Flight &flight);
+void InsertListFlight(PNodeFli &first, Flight flight);
+bool CancleFlight(PNodeFli pNodeFli);
+PNodeFli FindFlight(PNodeFli &first, const char *idFli);
+PNodeFli FindFlightByIdPlane(PNodeFli &first, const char *idAir);
+int FindIndexFlight(PNodeFli first, const char *idFli);
+int FindDestination(PNodeFli first, const char *arrivalAir);
+void AutoUpdateFlightStatus(PNodeFli &pNodeFli);
+int EditDateTime(PNodeFli &pNodeFli, Date date);
 
-void InputFlight(PNodeFli &, Flight &, ListAir , bool );
-void ShowFlight(Flight, int);
-void ShowListFlightOnePage(PNodeFli, int);
-void ChangeFlightMenuManagerPage(PNodeFli);
-void MenuManageFlight(PNodeFli &, ListAir);
+void InputFlight(PNodeFli &pNodeFli, Flight &flight, ListAir listAir, bool );
+void ShowFlight(Flight &flight, int position);
+void ShowListFlightOnePage(PNodeFli first, int startIndex);
+void ChangeFlightMenuManagerPage(PNodeFli first);
+void MenuManageFlight(PNodeFli &first, ListAir listAir);
 
-bool LoadFlight(PNodeFli &);
-bool SaveFlight(PNodeFli);
+bool LoadFlight(PNodeFli &first);
+bool SaveFlight(PNodeFli first);
 
 
 //Khoi tao chuyen bay
@@ -111,11 +111,11 @@ void InsertListFlight(PNodeFli &first, Flight flight) {
 	}
 }
 
-int CancleFlight(PNodeFli &first)
+bool CancleFlight(PNodeFli pNodeFli)
 {
-	if (first->data.status == CONVE || first->data.status == HETVE)
+	if (pNodeFli->data.status == CONVE || pNodeFli->data.status == HETVE)
 	{
-		first->data.status = HUYCHUYEN;
+		pNodeFli->data.status = HUYCHUYEN;
 		return 1;
 	}
 	return 0;
