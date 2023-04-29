@@ -52,7 +52,7 @@ int FindDestination(PNodeFli first, const char *arrivalAir);
 void AutoUpdateFlightStatus(PNodeFli &pNodeFli);
 int EditDateTime(PNodeFli &pNodeFli, Date date);
 
-void InputFlight(PNodeFli &pNodeFli, Flight &flight, ListAir listAir, bool );
+void InputFlight(PNodeFli &pNodeFli, Flight &flight, ListAir listAir, bool , bool);
 void ShowFlight(Flight &flight, int position);
 void ShowListFlightOnePage(PNodeFli first, int startIndex);
 void ChangeFlightMenuManagerPage(PNodeFli first);
@@ -190,11 +190,11 @@ int EditDateTime(PNodeFli &first, Date date){
 }
 
 //Khung nhap
-void InputFlight(PNodeFli &first, Flight &flight, ListAir dsmb, bool Edit = false){
+void InputFlight(PNodeFli &first, Flight &flight, ListAir dsmb, bool Edit = false, bool Cancle = false){
 	ShowCursor(true);
 	int ordinal = 0;	//thu tu nhap
 	int position = -1;	//vi tri chuyen bay
-	if(Edit == false) CreateForm(ContentFlight, 0, 4, 32);
+	if(Edit == false && Cancle == false) CreateForm(ContentFlight, 0, 4, 32);
 	while(true){
 		switch(ordinal){
 			case 0:{	//Nhap idFlight
@@ -205,39 +205,58 @@ void InputFlight(PNodeFli &first, Flight &flight, ListAir dsmb, bool Edit = fals
 					if(strlen(flight.idFlight) == 0){
 						Notification("Vui long khong bo trong");
 					}
-					if(position > -1 && Edit == false){
+					if(position > -1 && Edit == false && Cancle == false){
 						Notification("ID chuyen bay da ton tai");
 					}
-					if(position < 0 && Edit == true && strlen(flight.idFlight) != 0){
+					if(position < 0 && (Edit == true || Cancle == true) && strlen(flight.idFlight) != 0){
 						Notification("ID chuyen bay khong ton tai");
+					}
+					if(position >-1 && Edit == true) {
+						PNodeFli p = FindFlight(first, flight.idFlight);
+						if(p->data.status == CONVE || p->data.status == HETVE){
+							CreateRow(X_Add, Y_Add, ContentFlight[3], 32);
+							gotoxy(X_Add+13,Y_Add);		InputDate(&flight.date);
+							RemoveRow(X_Add, Y_Add, ContentFlight[3], 44); 
+							if(EditDateTime(p, flight.date)){
+								if(SaveFlight(first)){
+									Notification("Chinh sua thanh cong");
+									return;
+								}
+							}
+						}
+						else {
+							Notification("Chuyen bay khong con hoat dong! Khong the hieu chinh ngay gio");
+							RemoveRow(X_Add, Y_Add, ContentFlight[0], 27);
+							return;
+						}
+					}
+					if(position > -1 && Cancle == true){
+						ShowCursor(false);
+						box(X_Notification,Y_Notification, 29, 3, "Ban co chac muon huy chuyen? ");
+						gotoxy(X_Notification+1,Y_Notification+2); cout << "ESC: Thoat - ENTER: Huy";
+						char c = _getch();
+						RemoveRow(X_Add, Y_Add, ContentFlight[0], 27);
+						remove_box(X_Notification,Y_Notification, 29, 3);
+						
+						if (c == ESC) Notification("Huy that bai!");
+						else if (c == ENTER) {
+							PNodeFli p = FindFlight(first, flight.idFlight);
+							if(CancleFlight(p)){
+								if(SaveFlight(first)) Notification("Huy thanh cong!");
+							}
+							else{
+								Notification("Chuyen bay khong con hoat dong! Khong the huy chuyen");
+							}
+						}					
+						return;
 					}
 					if(
 						(position > -1 && Edit == true) 
 						||
-						(position < 0 && Edit == false && (strlen(flight.idFlight) != 0))
+						(position < 0 && Edit == false && Cancle == false && (strlen(flight.idFlight) != 0))
 					) break;
 				}
 				while(true);
-				
-				while (Edit == true) {
-					PNodeFli p = FindFlight(first, flight.idFlight);
-					if(p->data.status == CONVE || p->data.status == HETVE){
-						CreateRow(X_Add, Y_Add, ContentFlight[3], 32);
-						gotoxy(X_Add+13,Y_Add);		InputDate(&flight.date);
-						RemoveRow(X_Add, Y_Add, ContentFlight[3], 44); 
-						if(EditDateTime(p, flight.date)){
-							if(SaveFlight(first)){
-								Notification("Chinh sua thanh cong");
-								return;
-							}
-						}
-					}
-					else {
-						Notification("Khong the hieu chinh ngay gio");
-						RemoveRow(X_Add, Y_Add, ContentFlight[0], 27);
-						return;
-					}
-				}
 				  
 				ordinal++;
 				break;
@@ -300,7 +319,7 @@ void ShowFlight(Flight fli, int position)
     cout << left << setw(12) << fli.arrivalAir;
     gotoxy(xKeyDisplay[2] + 3, Y_Display + position +3);
     cout << left << setw(10) << fli.idAir;
-    gotoxy(xKeyDisplay[3] + 3, Y_Display + position +3);
+    gotoxy(xKeyDisplay[3] + 2, Y_Display + position +3);
     PrintDate(&fli.date);
     gotoxy(xKeyDisplay[4] + 3, Y_Display + position + 3);
     cout << fli.listTicket.size_datve << "/" << left << setw(10) <<  fli.listTicket.size_max;
@@ -394,7 +413,7 @@ void MenuManageFlight(PNodeFli &first, ListAir dsmb){
 					Notification("Danh sach rong");
 					break;
 				}
-				InputFlight(first, fli, dsmb, true);
+				InputFlight(first, fli, dsmb, true, false);
 				ShowListFlightOnePage(first, (CurFlightPage-1)*NumberPerPage);
 				ShowCursor(false);
 				break;		
@@ -406,17 +425,7 @@ void MenuManageFlight(PNodeFli &first, ListAir dsmb){
 					Notification("Danh sach rong");
 					break;
 				}
-				
-				CreateRow(X_Add, Y_Add, ContentFlight[0], 27);
-				gotoxy(X_Add+10,Y_Add);       	strcpy(fli.idFlight, Input(sizeof(fli.idFlight), ID));
-				PNodeFli p = FindFlight(first, fli.idFlight);
-				if(CancleFlight(p)){
-					Notification("Da huy chuyen");
-				}
-				else{
-					Notification("Chuyen bay khong con hoat dong! Khong the huy chuyen");
-				}
-				RemoveRow(X_Add, Y_Add, ContentFlight[0], 27);
+				InputFlight(first, fli, dsmb, false, true);
 				ShowListFlightOnePage(first, (CurFlightPage-1)*NumberPerPage);
 				ShowCursor(false);
 				break;
