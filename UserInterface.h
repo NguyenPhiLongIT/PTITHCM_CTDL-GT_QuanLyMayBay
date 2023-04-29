@@ -11,7 +11,7 @@ using namespace std;
 #include "KeyValue.h"
 
 // Xuat bang thong tin
-int xKeyDisplay[8] = {1,19,37,55,74,92,110,127};
+int xKeyDisplay[8] = {1,19,37,55,75,93,111,127};
 //Airplane
 string ContentAirplane[5] = { "Plane ID", "Plane Type", "Column", "Row", "Seat"};
 string ContentThaoTac[6] = {"Insert", "Delete", "Edit", "Previous Page", "Next Page", "Back"};
@@ -208,7 +208,7 @@ void RemoveExceedMember(int count,int nContent)
 		{
 			for (int y = 0; y < nContent; y++)
 			{
-				gotoxy(xKeyDisplay[y] + 3, Y_Display + 3 + i); printf("%-15s"," ");
+				gotoxy(xKeyDisplay[y] + 2, Y_Display + 3 + i); printf("%-16s"," ");
 			}
 		}
 	}
