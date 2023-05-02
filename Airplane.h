@@ -181,7 +181,7 @@ void InputAirplane(ListAir &list, Airplane &air, bool Edit = false, bool Delete 
 					Notification("Vui long khong bo trong");
 					break;
 				}	
-				if((air.col >= 1 || air.row >= 1) && (air.col*air.row < MINSEAT)) {
+				if((air.col >= 0 || air.row >= 0) && (air.col*air.row < MINSEAT)) {
 					Notification("So cho phai >= 20");	
 					break;
 				}
