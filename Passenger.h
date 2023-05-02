@@ -28,11 +28,14 @@ extern string ContentFlight[6];
 void InitTreePass(TreePass &rootPass);
 bool EmptyPass(TreePass &rootPass);
 PPassNode NewPassNode(Passenger &data);
+void PreOrder(TreePass &rootPass, int &position);
+
 void InputPass(Passenger &pass);
 void InsertPass(TreePass &rootPass, Passenger &pass);
 PPassNode SearchPass(TreePass rootPass, char *idPass);
 
-void ShowPass(const Passenger &pass);
+
+void ShowPass(Passenger &pass, int position);
 void ShowListPass(TreePass root);
 
 void InitTreePass(TreePass &rootPass)
@@ -51,6 +54,14 @@ PPassNode NewPassNode(Passenger &data)
 	passNode->data = data;
 	passNode->pLeft = passNode->pRight = NULL;
 	return passNode;
+}
+
+void PreOrder(TreePass &rootPass, int &position){
+	if(rootPass == NULL) return;
+	ShowPass(rootPass->data, position);
+	++position;
+	PreOrder(rootPass->pLeft, position);
+	PreOrder(rootPass->pRight, position);
 }
 
 void InputPass(Passenger &pass)
@@ -116,7 +127,7 @@ PPassNode SearchPass(TreePass rootPass, char *idPass)
 	return NULL;
 }
 
-void ShowPass(const Passenger &pass, int position)
+void ShowPass(Passenger &pass, int position)
 {
 	gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
     cout << left << setw(8) << pass.id;
@@ -128,17 +139,18 @@ void ShowPass(const Passenger &pass, int position)
 	cout << left << setw(8) << (pass.gender ? "Nam" : "Nu");
 }
 
-void ShowListPassOnePage(TreePass root, int startdex)
+void ShowListPassOnePage(TreePass root, int startIndex)
 {
-	gotoxy(3,3);
-	cout << " So luong khach hang : ";
-	
 	WORD curColor;
 	GetColor(curColor);
 	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
-	int count = -1;
-
+	int position = startIndex;
 	
+	
+	gotoxy(3,3);
+	cout << " So luong hanh khach : " << position;
+	
+	PreOrder(root, position);
 	
 	SetColor(curColor);
 	gotoxy(X_Page,Y_Page);
