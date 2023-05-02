@@ -24,7 +24,7 @@ string ContentTicket_Input[2] = {"PassengerID","Seat"};
 string ContentTicket_Output[3] = {"Seat", "Status", "PassengerID"};
 string ContentTicket_ThaoTac[5] = {"Order", "Cancel", "Previous Page", "Next Page", "Back"};
 //Passenger
-string ContentPass[4] = {"ID", "FirstName", "LastName", "Sex"};
+string ContentPass[4] = {"ID", "FirstName", "LastName", "Gender"};
 string ContentPass_ThaoTac[6] = {"Insert", "Delete", "Edit", "Previous Page", "Next Page", "Back"};
 //Menu
 string ContentMenu[6] = {"Home", "Plane", "Flight", "Passenger", "Ticket", "Exit"};
@@ -251,5 +251,39 @@ void RemoveForm(int StartIndex,int nContent,int length) {
 	{
 		RemoveRow(X_Add, yAdd," ",length);
 		yAdd += 3;
+	}
+}
+
+//Xoa bang hien thi
+void RemoveTable(string content[], int nContent){
+	for (int i = 0; i < nContent; i++)
+	{
+		gotoxy(xKeyDisplay[i] + 3, Y_Display+1);
+		printf("%-16s"," ");
+	}
+
+	//ve cac duong thang de phan chia cac cot - kich thuoc toi da la 28 ve chieu dai
+	for (int j = Y_Display ; j <= Y_Display + 24; j++)
+	{
+		for (int i = 0; i < nContent+1; i++)
+		{
+			gotoxy(xKeyDisplay[i], j);	
+			printf("%-20s"," ");
+		}
+	}
+	//ve thanh ngang ben tren va duoi
+	for (int i = xKeyDisplay[0]; i <= xKeyDisplay[nContent]; i++)
+	{
+		//ve thanh ngang ben tren so 1
+		gotoxy(i, Y_Display-1);
+		cout << " ";
+
+		// ve thanh ngang ben tren so 2
+		gotoxy(i, Y_Display + 2);
+		cout << " ";
+
+		//ve thanh ngang ben duoi
+		gotoxy(i, Y_Display + 25);
+		cout << " ";
 	}
 }
