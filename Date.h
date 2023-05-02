@@ -64,15 +64,15 @@ bool IsValidDate(PDate date){
 	if(!IsRightDate(date)) return false;
 	
 	Date dateNow = GetCurTime();
-    // if(date->year < dateNow->year) return false;
-    // if ((date->year == dateNow->year) && (date->month < dateNow->month))  return false;
-    // if (date->year == dateNow->year && date->month == dateNow->month && date->day < dateNow->day) return false;
-	// if (date->year == dateNow->year && date->month == dateNow->month && date->day == dateNow->day 
-	// 	&& date->hour < dateNow->hour) return false;
-	// if (date->year == dateNow->year && date->month == dateNow->month && date->day == dateNow->day && date->hour == dateNow->hour 
-	// 	&& date->minute < dateNow->minute) return false;
-	// return true;
-    return (CompareDate(date, &dateNow) > 0);
+    if(date->year < dateNow.year) return false;
+    if ((date->year == dateNow.year) && (date->month < dateNow.month))  return false;
+    if (date->year == dateNow.year && date->month == dateNow.month && date->day < dateNow.day) return false;
+	if (date->year == dateNow.year && date->month == dateNow.month && date->day == dateNow.day 
+	 	&& date->hour < dateNow.hour) return false;
+	if (date->year == dateNow.year && date->month == dateNow.month && date->day == dateNow.day && date->hour == dateNow.hour 
+	 	&& date->minute < dateNow.minute) return false;
+	return true;
+//    return (CompareDate(date, &dateNow) > 0);
 }
 
 bool IsLeapYear(PDate pDate){
