@@ -286,4 +286,6 @@ void RemoveTable(string content[], int nContent){
 		gotoxy(i, Y_Display + 25);
 		cout << " ";
 	}
+	gotoxy(X_Page,Y_Page);
+	cout << "                    ";
 }
