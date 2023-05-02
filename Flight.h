@@ -68,7 +68,7 @@ void InitFlight(Flight &flight, ListAir dsmb) {
 	flight.listTicket.size_datve = 0;
 	int result = IndexAirplane(dsmb,flight.idAir);
 	flight.listTicket.size_max = dsmb.nodes[result]->col*dsmb.nodes[result]->row;
-	InitListTicket(flight.listTicket);
+	InitListTicket(flight.listTicket,*dsmb.nodes[result]);
 }
 
 bool FlightDataIsEmpty(Flight &flight)
@@ -510,35 +510,65 @@ void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
 	Flight cb_tmp;
 	Airplane mb_tmp;
 	PNodeFli pcb_tmp;
+	int signal;
 	
 	if(dscb == NULL) {
 		Notification("Danh sach chua co chuyen bay nao!");
 		return;
-	}	
-	//Tao khung nhap va kiem tra dieu kien
-	do {
-		CreateRow(X_Add, Y_Add, ContentFlight[0], 32);
-		gotoxy(X_Add+10,Y_Add);       	strcpy(cb_tmp.idFlight, Input(sizeof(cb_tmp.idFlight), ID));
-		pcb_tmp = FindFlight(dscb,cb_tmp.idFlight);
-		if (pcb_tmp == NULL) Notification("Chuyen bay khong ton tai");
-		else if (pcb_tmp->data.status == HETVE) Notification("Chuyen bay da het ve");
-		else if (pcb_tmp->data.status == HUYCHUYEN) Notification("Chuyen bay da bi huy");
-		else if (pcb_tmp->data.status == HOANTAT) Notification("Chuyen bay da hoan tat");
-		else break;
-	} while (true);
+	}
 	
-	RemoveRow(X_Add, Y_Add, ContentFlight[0], 32);
-	RemoveTable(ContentFlight,sizeof(ContentFlight)/sizeof(string));
+	while (true) {
+		signal = menu_dong(X_ThaoTac,Y_ThaoTac,5,ContentTicket_ThaoTac);
+		switch(signal) {
+			case 1: //Order
+            {
+            	do {
+					CreateRow(X_Add, Y_Add, ContentFlight[0], 32);
+					gotoxy(X_Add+10,Y_Add);       	strcpy(cb_tmp.idFlight, Input(sizeof(cb_tmp.idFlight), ID));
+					pcb_tmp = FindFlight(dscb,cb_tmp.idFlight);
+					if (pcb_tmp == NULL) Notification("Chuyen bay khong ton tai");
+					else if (pcb_tmp->data.status == HETVE) Notification("Chuyen bay da het ve");
+					else if (pcb_tmp->data.status == HUYCHUYEN) Notification("Chuyen bay da bi huy");
+					else if (pcb_tmp->data.status == HOANTAT) Notification("Chuyen bay da hoan tat");
+					else break;
+				} while (true);
+				
+				RemoveRow(X_Add, Y_Add, ContentFlight[0], 32);
+				RemoveTable(ContentFlight,sizeof(ContentFlight)/sizeof(string));
 	
-	//Luu vi tri may bay cua chuyen bay do
-	int result = IndexAirplane(dsmb,pcb_tmp->data.idAir);
-	mb_tmp = *dsmb.nodes[result];
+				//Luu vi tri may bay cua chuyen bay do
+				int result = IndexAirplane(dsmb,pcb_tmp->data.idAir);
+				mb_tmp = *dsmb.nodes[result];
 	
-	//Thuc hien thao tac voi danh sach ve
-	gotoxy(X_TitlePage-10,Y_TitlePage);
-	cout << "MA CHUYEN BAY: " << pcb_tmp->data.idFlight << " - DIA DIEM: " << pcb_tmp->data.arrivalAir << " - THOI GiAN: "; PrintDate(&pcb_tmp->data.date);
-	MenuManageTicket(mb_tmp, pcb_tmp->data.listTicket);
-	if(!SaveFlight(dscb)) Notification("Da luu");
+				//Thuc hien thao tac voi danh sach ve
+				gotoxy(X_TitlePage-10,Y_TitlePage);
+				cout << "MA CHUYEN BAY: " << pcb_tmp->data.idFlight << " - DIA DIEM: " << pcb_tmp->data.arrivalAir << " - THOI GiAN: "; PrintDate(&pcb_tmp->data.date);
+				MenuManageTicket(mb_tmp, pcb_tmp->data.listTicket);
+                break;
+            }
+            case 2: //Cancel
+            {
+                break;
+            }
+            case 3: //Previous Page
+            {
+            	if(CurFlightPage == 1) break;
+				else{
+					CurFlightPage --;
+					ChangeFlightMenuManagerPage(dscb);
+					break;
+				}
+            }
+            case 4: //Next Page
+            {
+            	if(CurFlightPage >= TotalFlightPage) break;
+				CurFlightPage ++;
+				ChangeFlightMenuManagerPage(dscb);
+                break;
+            }
+            default: return;
+        }
+	}
 }
 
 bool LoadFlight(PNodeFli &First)
