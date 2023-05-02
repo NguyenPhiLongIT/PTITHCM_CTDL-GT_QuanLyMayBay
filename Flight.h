@@ -86,6 +86,16 @@ int size(PNodeFli &first) {
 	return count;
 }
 
+//So luong chuyen bay con ve 
+int sizeTicketAvailable(PNodeFli &first){
+	int count = 0;
+	for(PNodeFli p = first; p != NULL; p = p->pNext){
+		if(p->data.status == CONVE)
+			count++;
+	}
+	return count;
+}
+
 //Tao Node chuyen bay
 PNodeFli CreateFlight(Flight &flight) {
 	PNodeFli tmp = new NodeFli;
@@ -173,11 +183,15 @@ int FindDestination(PNodeFli first, const char *arrival)
 
 void AutoUpdateFlightStatus(PNodeFli &first)
 {
-	for( PNodeFli p = first; p != NULL ; p = p->pNext)
+	for(PNodeFli p = first; p != NULL ; p = p->pNext)
 	{
-		if( IsValidDate(&p->data.date) == false )
-			//0: huy chuyen, 1: con ve, 2: het ve, 3: hoant tat 
+		//0: huy chuyen, 1: con ve, 2: het ve, 3: hoant tat 
+		if(IsValidDate(&p->data.date) == false){
 			p->data.status = 3;
+		}
+		else if(p->data.listTicket.size_datve == p->data.listTicket.size_max){
+			p->data.status = 2;
+		}			
 	}
 }
 
@@ -311,7 +325,7 @@ void InputFlight(PNodeFli &first, Flight &flight, ListAir dsmb, bool Edit = fals
 }
 
 //Hien thi thong tin 1 chuyen bay
-void ShowFlight(Flight fli, int position)
+void ShowFlight(Flight &fli, int position)
 {	
 	gotoxy(xKeyDisplay[0] + 3, Y_Display + position +3);
     cout << left << setw(10) << fli.idFlight;
@@ -348,7 +362,7 @@ void ShowListFlightOnePage(PNodeFli first, int startIndex)
 	GetColor(curColor);
 	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
 	int count = -1;
-//	AutoUpdateFlightStatus(first);
+	AutoUpdateFlightStatus(first);
 	for(PNodeFli p = first; p != NULL; p = p->pNext)
 	{
 		count++;
@@ -365,6 +379,36 @@ void ShowListFlightOnePage(PNodeFli first, int startIndex)
 	SetColor(curColor);
 	gotoxy(X_Page,Y_Page);
 	cout <<" Trang " << CurFlightPage <<"/"<< TotalFlightPage; 
+}
+
+//Hien thi danh sach chuyen bay con ve
+void ShowListFlightTicketAvailable(PNodeFli first, int startIndex){
+	gotoxy(3,3);
+	cout << " So luong chuyen bay : " << sizeTicketAvailable(first);
+	if(first == NULL) return;
+	
+	WORD curColor;
+	GetColor(curColor);
+	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
+	int count = -1;
+	for(PNodeFli p = first; p != NULL; p = p->pNext)
+	{
+		count++;
+		if(count == startIndex){
+			int i = -1;
+			while(p != NULL && i < NumberPerPage - 1){
+				if(p->data.status == CONVE){
+					ShowFlight(p->data, ++i);
+				}
+				p = p->pNext;
+			}
+			RemoveExceedMember(i+1, 6);
+			break;
+		}
+	}
+	SetColor(curColor);
+	gotoxy(X_Page,Y_Page);
+	cout <<" Trang " << CurFlightPage <<"/"<< TotalFlightPage;
 }
 
 //Chuyen trang
@@ -424,7 +468,7 @@ void MenuManageFlight(PNodeFli &first, ListAir dsmb){
 				if(first == NULL) {
 					Notification("Danh sach rong");
 					break;
-				}
+				}			
 				InputFlight(first, fli, dsmb, false, true);
 				ShowListFlightOnePage(first, (CurFlightPage-1)*NumberPerPage);
 				ShowCursor(false);
@@ -454,10 +498,15 @@ void MenuManageFlight(PNodeFli &first, ListAir dsmb){
 	}
 }
 
-
-
 //Menu thao tac voi danh sach ve
 void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
+	CurFlightPage = 1;
+	TotalFlightPage = (int)ceil((double)sizeTicketAvailable(dscb)/NumberPerPage); 	//ceil : lam tron
+	Display(ContentFlight,sizeof(ContentFlight)/sizeof(string));
+	ShowListFlightTicketAvailable(dscb, 0);
+	gotoxy(X_TitlePage-4,Y_TitlePage);
+	cout << "DANH SACH CAC CHUYEN BAY CON VE";
+	
 	Flight cb_tmp;
 	Airplane mb_tmp;
 	PNodeFli pcb_tmp;
@@ -465,10 +514,7 @@ void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
 	if(dscb == NULL) {
 		Notification("Danh sach chua co chuyen bay nao!");
 		return;
-	}
-	
-	
-	
+	}	
 	//Tao khung nhap va kiem tra dieu kien
 	do {
 		CreateRow(X_Add, Y_Add, ContentFlight[0], 32);
@@ -482,6 +528,7 @@ void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
 	} while (true);
 	
 	RemoveRow(X_Add, Y_Add, ContentFlight[0], 32);
+	RemoveTable(ContentFlight,sizeof(ContentFlight)/sizeof(string));
 	
 	//Luu vi tri may bay cua chuyen bay do
 	int result = IndexAirplane(dsmb,pcb_tmp->data.idAir);
