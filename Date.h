@@ -44,8 +44,8 @@ char *DateToString(PDate pDate){
     return result;
 }
 
-bool IsValidDate(PDate date){
-    int dayOfMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+bool IsRightDate(PDate date){
+	int dayOfMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     
     if(
         date->year < 0 ||
@@ -58,6 +58,20 @@ bool IsValidDate(PDate date){
             dayOfMonth[1] = 29;
     }
     return date->day < dayOfMonth[date->month-1];
+}
+
+bool IsValidDate(PDate date){
+	if(!IsRightDate(date)) return false;
+	
+	PDate dateNow = GetCurTime();
+    if(date->year < dateNow->year) return false;
+    if ((date->year == dateNow->year) && (date->month < dateNow->month))  return false;
+    if (date->year == dateNow->year && date->month == dateNow->month && date->day < dateNow->day) return false;
+	if (date->year == dateNow->year && date->month == dateNow->month && date->day == dateNow->day 
+		&& date->hour < dateNow->hour) return false;
+	if (date->year == dateNow->year && date->month == dateNow->month && date->day == dateNow->day && date->hour == dateNow->hour 
+		&& date->minute < dateNow->minute) return false;
+	return true;
 }
 
 bool IsLeapYear(PDate date){
@@ -75,7 +89,7 @@ int CompareDate(PDate date1, PDate date2 = GetCurTime()){
 }
 
 void PrintDate(PDate date){
-	char *DateString = DateToString(pDate);
+	char *DateString = DateToString(date);
     	cout << DateString;
     	delete DateString;
 }
