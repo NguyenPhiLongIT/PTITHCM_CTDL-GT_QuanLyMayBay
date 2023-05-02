@@ -15,7 +15,7 @@ using namespace std;
 #include "UserInterface.h"
 
 typedef struct _Ticket {
-    char idPas[16];
+    char idPas[13];
     char seat[5];
     int statusTicket; // 0: ve trong, 1: ve da duoc dat, 2: ve da huy
 } Ticket, PTicket;
@@ -31,7 +31,8 @@ extern string ContentTicket_Input[2];
 extern string ContentTicket_Output[3];
 extern string ContentTicket_ThaoTac[5];
 
-void InitListTicket(ListTicket &listTicket);
+void InitSeats(ListTicket &listTicket, Airplane Air);
+void InitListTicket(ListTicket &listTicket,Airplane Air);
 bool ListTicketIsFull(ListTicket ListTicket);
 bool ListTicketIsNull(ListTicket ListTicket);
 void InputTicket(Ticket &Ticket);
@@ -44,13 +45,23 @@ void MenuManageTicket(Airplane Air, ListTicket &ListTicket, Ticket Ticket);
 
 //----------------------------------------------------------------//
 
-void InitListTicket(ListTicket &listTicket){
+void InitSeats(ListTicket &listTicket, Airplane Air) {
+	for (int i = 0; i < Air.col; i++) {
+		for (int j = 0; j < Air.row; j++) {
+			sprintf(listTicket.DSV[Air.col*j+i].seat,"%c%.2d",i+'A',j+1);
+		}
+	}
+}
+
+void InitListTicket(ListTicket &listTicket,Airplane Air){
     for (int i = 0; i < listTicket.size_max; i++) {
 		listTicket.DSV[i].statusTicket = 0;
 		memset(listTicket.DSV[i].idPas,0,sizeof(listTicket.DSV[i].idPas));
-		memset(listTicket.DSV[i].seat,0,sizeof(listTicket.DSV[i].seat));
+		InitSeats(listTicket,Air);
 	}
 }
+
+
 
 bool ListTicketIsFull(ListTicket ListTicket) {
     return ListTicket.size_datve == ListTicket.size_max;
@@ -63,11 +74,11 @@ bool ListTicketIsNull(ListTicket ListTicket) {
 void InputTicket(Ticket &Ticket) {
     ShowCursor(true);
     CreateForm(ContentTicket_Input,0,2,27);
-    gotoxy(X_Add+12,Y_Add); strcpy(Ticket.idPas, Input(10,ID));
+    gotoxy(X_Add+12,Y_Add); strcpy(Ticket.idPas, Input(10,Number));
     gotoxy(X_Add+12,Y_Add+3); strcpy(Ticket.seat, Input(sizeof(Ticket.seat), ID));
 }
 
-int ConvertMSVtoNumber(const char msv[3], int column) {
+int ConvertMSVtoNumber(const char msv[3], int column) { 
     int col = (msv[0]-64);
     int row;
     if (msv[2] == '\0') row = msv[1]-48;
@@ -126,22 +137,26 @@ void ShowListTicketOnePage(ListTicket ListTicket, int startIndex) {
 	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
     
     int i; int j = 0;
-    for (i = 0; i + startIndex < ListTicket.size_max; i++) {
-        if (ListTicket.DSV[i+startIndex].statusTicket != 0) {
-            ShowTicket(ListTicket.DSV[i+startIndex],j);
-            j++;
-            cout << endl;
-        }
-    }
-    SetColor(curColor);
-    RemoveExceedMember(i,5);
+    
+    for(i = 0 ; i + startIndex < ListTicket.size_max && i < NumberPerPage; i++)
+	{
+		ShowTicket(ListTicket.DSV[i+startIndex],i); 
+	} 
+	SetColor(curColor);
+	RemoveExceedMember(i, 5);
     gotoxy(X_Page,Y_Page);
     cout << "Trang " << CurPage << "/" << TotalPage;
 }
 
+void ChangeTicketMenuManagerPage(ListTicket listTicket)
+{
+	Display( ContentTicket_Output,sizeof(ContentTicket_Output)/sizeof(string) );
+	ShowListTicketOnePage(listTicket,(CurPage-1)*NumberPerPage);
+}
+
 void MenuManageTicket(Airplane Air, ListTicket &ListTicket) {
     ShowCursor(false);
-	CurPage = !ListTicketIsNull(ListTicket);
+	CurPage = 1;
 	TotalPage = (int)ceil((double)ListTicket.size_max/NumberPerPage); 	//ceil : lam tron 
 	
 	Display(ContentTicket_Output, sizeof(ContentTicket_Output)/sizeof(string));
@@ -163,6 +178,13 @@ void MenuManageTicket(Airplane Air, ListTicket &ListTicket) {
                 //gotoxy(X_Add, Y_Add-1);
                 InputTicket(ticket_tmp);
                 RemoveForm(0,4,27);
+                int vitri = ConvertMSVtoNumber(ticket_tmp.seat,Air.col);
+                
+                if (ListTicket.DSV[vitri].statusTicket == 2) {
+                	Notification("Ve da huy. Khong the dat!");
+                	break;
+				}
+                
                 if (CheckSeat(Air,ListTicket,ticket_tmp) == -1) {
                     Notification("Vi tri nay khong ton tai");
             		break;
@@ -202,10 +224,18 @@ void MenuManageTicket(Airplane Air, ListTicket &ListTicket) {
             }
             case 3: //Previous Page
             {
-                break;
+            	if(CurPage == 1) break;
+				else{
+					CurPage --;
+					ChangeTicketMenuManagerPage(ListTicket);
+					break;
+				}
             }
             case 4: //Next Page
             {
+            	if(CurPage >= TotalPage) break;
+				CurPage ++;
+				ChangeTicketMenuManagerPage(ListTicket);
                 break;
             }
             default: return;
