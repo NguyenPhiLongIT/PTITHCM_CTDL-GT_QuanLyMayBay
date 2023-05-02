@@ -16,26 +16,26 @@ typedef struct _Date{
     int year;
 }Date, *PDate;
 
-PDate GetCurTime();
+Date GetCurTime();
 char *DateToString(PDate pDate);
-bool IsLeapYear(PDate);
-int CompareDate(PDate, PDate);
+bool IsLeapYear(PDate pDate);
+int CompareDate(PDate date1, PDate date2);
 void InputDate(PDate pDate);
 void PrintDate(PDate date);
 
-PDate GetCurTime(){
-    PDate pDate = new Date;
+Date GetCurTime(){
+    Date Date;
     time_t Time_cur = time(NULL);
     tm* pTime = localtime(&Time_cur);
 
-    pDate->second    = pTime->tm_sec         ;
-    pDate->minute    = pTime->tm_min         ;
-    pDate->hour      = pTime->tm_hour        ;
-    pDate->day       = pTime->tm_mday        ;
-    pDate->month     = pTime->tm_mon   + 1   ;
-    pDate->year      = pTime->tm_year  + 1900;
+    Date.second    = pTime->tm_sec         ;
+    Date.minute    = pTime->tm_min         ;
+    Date.hour      = pTime->tm_hour        ;
+    Date.day       = pTime->tm_mday        ;
+    Date.month     = pTime->tm_mon   + 1   ;
+    Date.year      = pTime->tm_year  + 1900;
 
-    return pDate;
+    return Date;
 }
 
 char *DateToString(PDate pDate){
@@ -63,26 +63,27 @@ bool IsRightDate(PDate date){
 bool IsValidDate(PDate date){
 	if(!IsRightDate(date)) return false;
 	
-	PDate dateNow = GetCurTime();
-    if(date->year < dateNow->year) return false;
-    if ((date->year == dateNow->year) && (date->month < dateNow->month))  return false;
-    if (date->year == dateNow->year && date->month == dateNow->month && date->day < dateNow->day) return false;
-	if (date->year == dateNow->year && date->month == dateNow->month && date->day == dateNow->day 
-		&& date->hour < dateNow->hour) return false;
-	if (date->year == dateNow->year && date->month == dateNow->month && date->day == dateNow->day && date->hour == dateNow->hour 
-		&& date->minute < dateNow->minute) return false;
-	return true;
+	Date dateNow = GetCurTime();
+    // if(date->year < dateNow->year) return false;
+    // if ((date->year == dateNow->year) && (date->month < dateNow->month))  return false;
+    // if (date->year == dateNow->year && date->month == dateNow->month && date->day < dateNow->day) return false;
+	// if (date->year == dateNow->year && date->month == dateNow->month && date->day == dateNow->day 
+	// 	&& date->hour < dateNow->hour) return false;
+	// if (date->year == dateNow->year && date->month == dateNow->month && date->day == dateNow->day && date->hour == dateNow->hour 
+	// 	&& date->minute < dateNow->minute) return false;
+	// return true;
+    return (CompareDate(date, &dateNow) > 0);
 }
 
-bool IsLeapYear(PDate date){
-    return (date->year%400 == 0) 
-        || (date->year%4 == 0 && date->year%100 != 0);
+bool IsLeapYear(PDate pDate){
+    return (pDate->year%400 == 0) 
+        || (pDate->year%4 == 0 && pDate->year%100 != 0);
 }
 /*
 So sÃ¡nh 2 ngÃ y nháº­p vÃ o chÃ­nh xÃ¡c theo giÃ¢y
 Náº¿u khÃ´ng cÃ³ tham sá»‘ thá»© 2 thÃ¬ so sÃ¡nh ngÃ y nháº­p vÃ o vá»›i ngÃ y hiá»‡n táº¡i cá»§a há»‡ thá»‘ng
 */
-int CompareDate(PDate date1, PDate date2 = GetCurTime()){
+int CompareDate(PDate date1, PDate date2){
     int SumSecond1 = date1->hour*3600+date1->minute*60+date1->second;
     int SumSecond2 = date2->hour*3600+date2->minute*60+date2->second;
     return SumSecond1 - SumSecond2;
