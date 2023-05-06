@@ -3,6 +3,10 @@
 #include <string.h>
 #include <fstream>
 
+#include "KeyValue.h"
+#include "UserInterface.h"
+#include "Stack_Queue.h"
+
 using namespace std;
 
 typedef struct _Passenger
@@ -29,6 +33,7 @@ void InitTreePass(TreePass &rootPass);
 bool EmptyPass(TreePass &rootPass);
 PPassNode NewPassNode(Passenger &data);
 void PreOrder(TreePass &rootPass, int &position);
+int countPass(TreePass &rootPass);
 
 void InputPass(Passenger &pass);
 void InsertPass(TreePass &rootPass, Passenger &pass);
@@ -37,6 +42,9 @@ PPassNode SearchPass(TreePass rootPass, char *idPass);
 
 void ShowPass(Passenger &pass, int position);
 void ShowListPass(TreePass root);
+
+bool LoadTreePass(TreePass &pass);
+bool SaveTreePass(TreePass pass);
 
 void InitTreePass(TreePass &rootPass)
 {
@@ -54,6 +62,13 @@ PPassNode NewPassNode(Passenger &data)
 	passNode->data = data;
 	passNode->pLeft = passNode->pRight = NULL;
 	return passNode;
+}
+
+int countPass(TreePass &rootPass)
+{
+	if(rootPass == NULL)	return 0;
+
+	return 1 + countPass(rootPass->pLeft) + countPass(rootPass->pRight);
 }
 
 void PreOrder(TreePass &rootPass, int &position){
@@ -220,4 +235,67 @@ void MenuManagePassenger(TreePass root){
 			
 		}
 	}
+}
+
+bool LoadTreePass(TreePass &root)
+{
+	ifstream file("DSHK.TXT", ios_base::in);
+	Passenger pass;
+
+	if(!file.is_open())
+		return false;
+	
+	while(!file.eof())
+	{
+		
+		file.getline(pass.id, sizeof(pass.id), ';');
+		if(strcmp(pass.id, "") != 0)
+		{
+			file.getline(pass.firstName, sizeof(pass.firstName), ';');
+			file.getline(pass.lastName, sizeof(pass.lastName), ';');
+			file >> pass.gender;
+			file.ignore();
+			InsertPass(root, pass);
+		}
+	}
+
+	file.close();
+	return true;
+}
+
+bool SaveTreePass(TreePass root)
+{
+	ofstream file("DSHK.TXT", ios_base::out);
+
+	if(!file.is_open())
+		return false;
+	
+	// PPassenger temp;
+	PPassenger temp;
+	PPassNode node;
+	Queue<Passenger> queue;
+	InitQueue(queue);
+	pushQueue(queue, root->data);
+
+	while (!emptyQueue(queue))
+	{
+		temp = frontQueue(queue);
+		popQueue(queue);
+		
+		file << temp->id << ";"
+			 << temp->firstName << ";"
+			 << temp->lastName << ";"	
+			 << temp->gender << endl;
+		node = (PPassNode)(temp);
+		if(node->pLeft != NULL){
+			pushQueue(queue, node->pLeft->data);
+		}
+		if(node->pRight != NULL){
+			pushQueue(queue, node->pRight->data);
+		}
+	}
+	
+
+	file.close();
+	return true;
 }
