@@ -23,7 +23,7 @@ typedef struct _Ticket {
 typedef struct _ListTicket {
     int size_datve; //so luong ve da dat
     int size_max; // tong so luong ve cua 1 may bay
-    Ticket DSV[MAXVE+1];
+    Ticket *DSV;
 } ListTicket, PListTicket;
 
 int CurPage, TotalPage;
@@ -54,6 +54,7 @@ void InitSeats(ListTicket &listTicket, Airplane Air) {
 }
 
 void InitListTicket(ListTicket &listTicket,Airplane Air){
+	listTicket.DSV = new Ticket[listTicket.size_max];
     for (int i = 0; i < listTicket.size_max; i++) {
 		listTicket.DSV[i].statusTicket = 0;
 		memset(listTicket.DSV[i].idPas,0,sizeof(listTicket.DSV[i].idPas));
@@ -170,12 +171,10 @@ void MenuManageTicket(Airplane Air, ListTicket &ListTicket) {
         switch(signal) {
             case 1: //Order
             {
-                if (CurPage == 0) CurPage = 1;
                 if (ListTicketIsFull(ListTicket)) {
                     Notification("Da het ve");
                     break;
                 }
-                //gotoxy(X_Add, Y_Add-1);
                 InputTicket(ticket_tmp);
                 RemoveForm(0,4,27);
                 int vitri = ConvertMSVtoNumber(ticket_tmp.seat,Air.col);
