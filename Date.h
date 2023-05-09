@@ -18,6 +18,7 @@ typedef struct _Date{
 
 Date GetCurTime();
 char *DateToString(PDate pDate);
+PDate StringToDate(char *str);
 bool IsLeapYear(PDate pDate);
 int CompareDate(PDate date1, PDate date2);
 void InputDate(PDate pDate);
@@ -42,6 +43,12 @@ char *DateToString(PDate pDate){
     char *result = new char[20];
     sprintf(result, "%.2d:%.2d %.2d/%.2d/%.4d", pDate->hour, pDate->minute, pDate->day, pDate->month, pDate->year);
     return result;
+}
+
+PDate StringToDate(char *str){
+    PDate pDate = new Date;
+    sscanf(str, "%d:%d %d/%d/%d", &pDate->hour, &pDate->minute, &pDate->day, &pDate->month, &pDate->year);
+    return pDate;
 }
 
 bool IsRightDate(PDate date){
@@ -79,9 +86,10 @@ bool IsLeapYear(PDate pDate){
     return (pDate->year%400 == 0) 
         || (pDate->year%4 == 0 && pDate->year%100 != 0);
 }
+
 /*
-So sÃ¡nh 2 ngÃ y nháº­p vÃ o chÃ­nh xÃ¡c theo giÃ¢y
-Náº¿u khÃ´ng cÃ³ tham sá»‘ thá»© 2 thÃ¬ so sÃ¡nh ngÃ y nháº­p vÃ o vá»›i ngÃ y hiá»‡n táº¡i cá»§a há»‡ thá»‘ng
+So sÃƒÂ¡nh 2 ngÃƒÂ y nhÃ¡ÂºÂ­p vÃƒÂ o chÃƒÂ­nh xÃƒÂ¡c theo giÃƒÂ¢y
+NÃ¡ÂºÂ¿u khÃƒÂ´ng cÃƒÂ³ tham sÃ¡Â»â€˜ thÃ¡Â»Â© 2 thÃƒÂ¬ so sÃƒÂ¡nh ngÃƒÂ y nhÃ¡ÂºÂ­p vÃƒÂ o vÃ¡Â»â€ºi ngÃƒÂ y hiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i cÃ¡Â»Â§a hÃ¡Â»â€¡ thÃ¡Â»â€˜ng
 */
 int CompareDate(PDate date1, PDate date2){
     int SumSecond1 = date1->hour*3600+date1->minute*60+date1->second;
