@@ -51,11 +51,12 @@ int FindIndexFlight(PNodeFli first, const char *idFli);
 int FindDestination(PNodeFli first, const char *arrivalAir);
 void AutoUpdateFlightStatus(PNodeFli &pNodeFli);
 int EditDateTime(PNodeFli &pNodeFli, Date date);
+bool CheckDate(PNodeFli first, PDate date);
 
 void InputFlight(PNodeFli &pNodeFli, Flight &flight, ListAir listAir, bool , bool);
 void ShowFlight(Flight &flight, int position);
-void ShowListFlightOnePage(PNodeFli first, int startIndex);
-void ChangeFlightMenuManagerPage(PNodeFli first);
+void ShowListFlightOnePage(PNodeFli first, int startIndex, bool);
+void ChangeFlightMenuManagerPage(PNodeFli first, bool);
 void MenuManageFlight(PNodeFli &first, ListAir listAir);
 
 bool LoadFlight(PNodeFli &first);
@@ -81,7 +82,7 @@ bool FlightDataIsEmpty(Flight &flight)
 //So luong chuyen bay co trong danh sach
 int size(PNodeFli &first) {
 	int count = 0;
-	for (PNodeFli p = first; p!= NULL; p=p->pNext)
+		for (PNodeFli p = first; p!= NULL; p=p->pNext)
 		count++;
 	return count;
 }
@@ -91,6 +92,16 @@ int sizeTicketAvailable(PNodeFli &first){
 	int count = 0;
 	for(PNodeFli p = first; p != NULL; p = p->pNext){
 		if(p->data.status == CONVE)
+			count++;
+	}
+	return count;
+}
+
+//So luong chuyen bay theo thoi gian va dia diem
+int sizeDateDes(PNodeFli &first, Date date, const char* arrival) {
+	int count = 0;
+	for(PNodeFli p = first; p != NULL; p = p->pNext){
+		if(CheckDate(p, &date) && strcmp(p->data.arrivalAir, arrival) == 0 && p->data.status == CONVE)
 			count++;
 	}
 	return count;
@@ -179,6 +190,54 @@ int FindDestination(PNodeFli first, const char *arrival)
 		index++;
 	}
 	return -1;
+}
+
+bool CheckDate(PNodeFli first, PDate date) {
+	PNodeFli p =
+	if(	first->data.date.year == date->year &&
+	   	first->data.date.month == date->month &&
+		first->data.date.day == date->day)
+	{
+		return true;
+	}
+	return false;
+}
+
+void ListFlightDateAndDes(PNodeFli first, Date date, const char* arrival, int startIndex){
+	Display( ContentFlight,sizeof(ContentFlight)/sizeof(string) );
+	gotoxy(3,3); cout << " So luong chuyen bay : " << sizeDateDes(first,date,arrival);
+	
+	if(first == NULL) return;
+	
+	WORD curColor;
+	GetColor(curColor);
+	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
+	int count = -1;
+	AutoUpdateFlightStatus(first);
+
+	for(PNodeFli p = first; p != NULL; p = p->pNext)
+	{
+		count++;
+		if(count == startIndex){
+			int i = -1;
+			while(p != NULL && i < NumberPerPage - 1){
+				if(CheckDate(p, &date) && strcmp(p->data.arrivalAir, arrival) == 0 && p->data.status == CONVE){
+					ShowFlight(p->data, ++i);
+				}
+				p = p->pNext;
+			}
+			RemoveExceedMember(i+1, 6);
+			break;
+		}
+	}
+	
+	SetColor(curColor);
+	gotoxy(X_Page,Y_Page);
+	cout <<" Trang " << CurFlightPage <<"/"<< TotalFlightPage; 
+}
+
+void ChangeListFlightDateAndDesPage(PNodeFli first, Date date, const char* arrival) {
+	ListFlightDateAndDes(first, date, arrival, (CurFlightPage-1)*NumberPerPage);
 }
 
 void AutoUpdateFlightStatus(PNodeFli &first)
@@ -352,10 +411,15 @@ void ShowFlight(Flight &fli, int position)
 }
 
 //Hien thi 1 trang gom nhieu chuyen bay
-void ShowListFlightOnePage(PNodeFli first, int startIndex)
+void ShowListFlightOnePage(PNodeFli first, int startIndex, bool ticketAvailable = false)
 {
 	gotoxy(3,3);
-	cout << " So luong chuyen bay : " << size(first);
+	if(ticketAvailable) {
+		cout << " So luong chuyen bay : " << sizeTicketAvailable(first);
+	} else {
+		cout << " So luong chuyen bay : " << size(first);
+	}
+	
 	if(first == NULL) return;
 	
 	WORD curColor;
@@ -369,7 +433,12 @@ void ShowListFlightOnePage(PNodeFli first, int startIndex)
 		if(count == startIndex){
 			int i = -1;
 			while(p != NULL && i < NumberPerPage - 1){
-				ShowFlight(p->data, ++i);
+				if(p->data.status == CONVE && ticketAvailable == true){
+					ShowFlight(p->data, ++i);
+				}
+				else if(ticketAvailable == false){
+					ShowFlight(p->data, ++i);
+				}
 				p = p->pNext;
 			}
 			RemoveExceedMember(i+1, 6);
@@ -381,44 +450,14 @@ void ShowListFlightOnePage(PNodeFli first, int startIndex)
 	cout <<" Trang " << CurFlightPage <<"/"<< TotalFlightPage; 
 }
 
-//Hien thi danh sach chuyen bay con ve
-void ShowListFlightTicketAvailable(PNodeFli first, int startIndex){
-	gotoxy(3,3);
-	cout << " So luong chuyen bay : " << sizeTicketAvailable(first);
-	if(first == NULL) return;
-	
-	WORD curColor;
-	GetColor(curColor);
-	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
-	int count = -1;
-	for(PNodeFli p = first; p != NULL; p = p->pNext)
-	{
-		count++;
-		if(count == startIndex){
-			int i = -1;
-			while(p != NULL && i < NumberPerPage - 1){
-				if(p->data.status == CONVE){
-					ShowFlight(p->data, ++i);
-				}
-				p = p->pNext;
-			}
-			RemoveExceedMember(i+1, 6);
-			break;
-		}
-	}
-	SetColor(curColor);
-	gotoxy(X_Page,Y_Page);
-	cout <<" Trang " << CurFlightPage <<"/"<< TotalFlightPage;
-}
-
 //Chuyen trang
-void ChangeFlightMenuManagerPage(PNodeFli first)
+void ChangeFlightMenuManagerPage(PNodeFli first, bool ticketAvailable = false)
 {
 	gotoxy(X_TitlePage,Y_TitlePage);
 	cout << "QUAN LY CHUYEN BAY";
 
 	Display( ContentFlight,sizeof(ContentFlight)/sizeof(string) );
-	ShowListFlightOnePage(first,(CurFlightPage-1)*NumberPerPage);
+	ShowListFlightOnePage(first,(CurFlightPage-1)*NumberPerPage,ticketAvailable);
 }
 
 //Menu thao tac voi chuyen bay
@@ -503,13 +542,15 @@ void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
 	CurFlightPage = 1;
 	TotalFlightPage = (int)ceil((double)sizeTicketAvailable(dscb)/NumberPerPage); 	//ceil : lam tron
 	Display(ContentFlight,sizeof(ContentFlight)/sizeof(string));
-	ShowListFlightTicketAvailable(dscb, 0);
+	ShowListFlightOnePage(dscb, 0, true);
 	gotoxy(X_TitlePage-4,Y_TitlePage);
 	cout << "DANH SACH CAC CHUYEN BAY CON VE";
 	
 	Flight cb_tmp;
 	Airplane mb_tmp;
 	PNodeFli pcb_tmp;
+	Date date;
+	bool check = false;
 	int signal;
 	
 	if(dscb == NULL) {
@@ -544,10 +585,27 @@ void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
 				gotoxy(X_TitlePage-10,Y_TitlePage);
 				cout << "MA CHUYEN BAY: " << pcb_tmp->data.idFlight << " - DIA DIEM: " << pcb_tmp->data.arrivalAir << " - THOI GiAN: "; PrintDate(&pcb_tmp->data.date);
 				MenuManageTicket(mb_tmp, pcb_tmp->data.listTicket);
-                break;
+                return;
             }
             case 2: //Cancel
             {
+				CreateRow(X_Add, Y_Add, ContentFlight[1], 32); 
+				CreateRow(X_Add, Y_Add+3, ContentFlight[3], 32);
+				gotoxy(X_Add+12,Y_Add);     	strcpy(cb_tmp.arrivalAir, Input(sizeof(cb_tmp.arrivalAir), Text));	
+				gotoxy(X_Add+14,Y_Add+3); 		InputDate(&date);
+					
+				
+				RemoveRow(X_Add, Y_Add, ContentFlight[1], 32);
+				RemoveRow(X_Add, Y_Add+3, ContentFlight[3], 46);
+				if(FindDestination(dscb, cb_tmp.arrivalAir) < 0 || CheckDate(dscb, &date) == false) {
+					Notification("Khong co chuyen bay nao");
+					break;
+				}
+				RemoveTable(ContentFlight,sizeof(ContentFlight)/sizeof(string));
+				CurFlightPage = 1;
+				TotalFlightPage = (int)ceil((double)sizeDateDes(dscb,date,cb_tmp.arrivalAir)/NumberPerPage);
+				ListFlightDateAndDes(dscb, date, cb_tmp.arrivalAir,0);
+				check = true;
                 break;
             }
             case 3: //Previous Page
@@ -555,7 +613,8 @@ void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
             	if(CurFlightPage == 1) break;
 				else{
 					CurFlightPage --;
-					ChangeFlightMenuManagerPage(dscb);
+					if(check) ChangeListFlightDateAndDesPage(dscb, date, cb_tmp.arrivalAir);
+					else ChangeFlightMenuManagerPage(dscb, true);
 					break;
 				}
             }
@@ -563,7 +622,8 @@ void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
             {
             	if(CurFlightPage >= TotalFlightPage) break;
 				CurFlightPage ++;
-				ChangeFlightMenuManagerPage(dscb);
+				if(check) ChangeListFlightDateAndDesPage(dscb, date, cb_tmp.arrivalAir);
+				else ChangeFlightMenuManagerPage(dscb, true);
                 break;
             }
             default: return;
@@ -598,6 +658,7 @@ bool LoadFlight(PNodeFli &First)
         getline(file, str, ';');	pNodeFli->data.listTicket.size_max = atoi(str.c_str());
         getline(file, str, ';');    pNodeFli->data.listTicket.size_datve = atoi(str.c_str());
        	
+       	pNodeFli->data.listTicket.DSV = new Ticket[pNodeFli->data.listTicket.size_max];
         for (int i = 0; i < pNodeFli->data.listTicket.size_max; i++)
         {
             getline(file, str, ';');	strcpy(pNodeFli->data.listTicket.DSV[i].idPas, str.c_str());
@@ -635,6 +696,7 @@ bool SaveFlight(PNodeFli First)
              << First->data.status << ";"
              << First->data.listTicket.size_max << ";"
              << First->data.listTicket.size_datve << ";";
+        
         for (int i = 0; i < First->data.listTicket.size_max; i++)
         {
             file << First->data.listTicket.DSV[i].idPas << ";"
