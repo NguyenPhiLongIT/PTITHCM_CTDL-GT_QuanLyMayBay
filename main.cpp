@@ -32,10 +32,13 @@ void menu_xuli() {
     PNodeFli dscb = NULL;
     Flight cb_tmp;
     
-    TreePass dskh;
+    TreePass rootPass = NULL;
+    Passenger pass;
     
     if(!LoadFlight(dscb));
 	if(!LoadAirplane(list));
+	if(!LoadTreePass(rootPass));
+//	InputPass(rootPass, pass);
 	
     while (true) {
     	Clear();
@@ -57,7 +60,7 @@ void menu_xuli() {
                 break;
             case 4: // Passenger
             	remove_box(X_Menu, Y_Menu, 20, 12);
-            	MenuManagePassenger(dskh);
+            	MenuManagePassenger(rootPass, pass);
                 break;
             case 5: // Ticket
             {
