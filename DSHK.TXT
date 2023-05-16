@@ -1,0 +1,7 @@
+111;Nguyen;Nguyen;0
+222;Nguyen;Thuy;1
+333;Nguyen;Konstan;1
+444;Nguyen;Paul;0
+555;Nguyen;Henrry;1
+666;Nguyen;Justin;0
+
