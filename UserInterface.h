@@ -22,14 +22,13 @@ string ContentFlight_ThaoTac[6] = {"Insert", "Edit DateTime", "Cancle Flight", "
 //Ticket
 string ContentTicket_Input[2] = {"PassengerID","Seat"};
 string ContentTicket_Output[3] = {"Seat", "Status", "PassengerID"};
-string ContentTicket_ThaoTac[5] = {"Order", "Cancel", "Previous Page", "Next Page", "Back"};
+string ContentTicket_ThaoTac[5] = {"Book Ticket", "Filter", "Previous Page", "Next Page", "Back"};
 //Passenger
 string ContentPass[4] = {"ID", "FirstName", "LastName", "Gender"};
-string ContentPass_ThaoTac[6] = {"Insert", "Delete", "Edit", "Previous Page", "Next Page", "Back"};
+string ContentPass_ThaoTac[3] = {"Insert", "Next Page", "Back"};
+string ContentGender[2] = {"Nam", "Nu"};
 //Menu
 string ContentMenu[6] = {"Home", "Plane", "Flight", "Passenger", "Ticket", "Exit"};
-
-
 
 
 
