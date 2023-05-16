@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "KeyValue.h"
+#include "Constraint.h"
 #include "UserInterface.h"
 #include "Stack_Queue.h"
 
@@ -14,7 +15,7 @@ typedef struct _Passenger
 	char id[13];
 	char firstName[31];
 	char lastName[11];
-	bool gender; // 1 la nam , 0 la nu
+	bool gender; // 0 la nam , 1 la nu
 } Passenger, *PPassenger;
 
 typedef struct _PassNode
@@ -35,7 +36,7 @@ PPassNode NewPassNode(Passenger &data);
 void PreOrder(TreePass &rootPass, int &position);
 int countPass(TreePass &rootPass);
 
-void InputPass(Passenger &pass);
+void InputPass(TreePass &rootPass, Passenger &pass);
 void InsertPass(TreePass &rootPass, Passenger &pass);
 PPassNode SearchPass(TreePass rootPass, char *idPass);
 
@@ -79,16 +80,65 @@ void PreOrder(TreePass &rootPass, int &position){
 	PreOrder(rootPass->pRight, position);
 }
 
-void InputPass(Passenger &pass)
+void ChooseGender(bool &gender){
+	int signal = menu_dong(X_Add+14,Y_Add+9,2,ContentGender);
+	gender = --signal;	
+}
+
+void InputPass(TreePass &rootPass, Passenger &pass)
 {
-	cout << "CCCD: ";
-	cin >> pass.id;
-	cout << "Ho: ";
-	gets(pass.firstName);
-	cout << "Ten: ";
-	gets(pass.lastName);
-	cout << "Phai(0:Nu - 1:Nam): ";
-	cin >> pass.gender;
+	ShowCursor(true);
+	int ordinal = 0;	//thu tu nhap
+	int position = -1;	//vi tri hanh khach
+	CreateForm(ContentPass, 0, 4, 27);
+	while(true){
+		switch(ordinal){
+			case 0:{	//Nhap CCCD
+				gotoxy(X_Add+10,Y_Add);       	strcpy(pass.id, Input(sizeof(pass.id), ID));
+				
+				if(strlen(pass.id) == 0){
+					Notification("Vui long khong bo trong");
+					break;
+				}
+				if(SearchPass(rootPass, pass.id)){
+					Notification("CMND da ton tai");
+					break;
+				}
+				ordinal++;
+				break;
+			}
+			case 1:{	//Nhap Ho
+				gotoxy(X_Add+10,Y_Add+3);       strcpy(pass.firstName, Input(sizeof(pass.firstName), Text));
+				if(strlen(pass.firstName) == 0){
+					Notification("Vui long khong bo trong");
+					break;
+				}
+				ordinal++;
+				break;
+			}
+			case 2:{	//Nhap Ten
+				gotoxy(X_Add+10,Y_Add+6);     	strcpy(pass.lastName, Input(sizeof(pass.lastName), Text));
+				if(strlen(pass.lastName) == 0){
+					Notification("Vui long khong bo trong");
+					break;
+				}
+				ordinal++;
+				break;
+			}
+			case 3:{	//Nhap gioi tinh
+				gotoxy(X_Add+13,Y_Add+9);
+				ChooseGender(pass.gender);
+				ordinal++;
+				break;
+			}
+			case 4:{
+				InsertPass(rootPass, pass);
+				RemoveForm(0, 4, 27);
+			}
+			return;
+		}
+		ShowCursor(false);
+	}
 }
 
 void InsertPass(TreePass &rootPass, Passenger &pass)
@@ -147,11 +197,11 @@ void ShowPass(Passenger &pass, int position)
 	gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
     cout << left << setw(8) << pass.id;
     gotoxy(xKeyDisplay[1] + 3, Y_Display + position + 3);
-    cout << left << setw(3) << pass.firstName;
+    cout << left << setw(8) << pass.firstName;
     gotoxy(xKeyDisplay[2] + 3, Y_Display + position + 3);
     cout << left << setw(8) << pass.lastName;
     gotoxy(xKeyDisplay[3] + 3, Y_Display + position + 3);
-	cout << left << setw(8) << (pass.gender ? "Nam" : "Nu");
+	cout << left << setw(8) << (pass.gender ? "Nu" : "Nam");
 }
 
 void ShowListPassOnePage(TreePass root, int startIndex)
@@ -165,69 +215,87 @@ void ShowListPassOnePage(TreePass root, int startIndex)
 	gotoxy(3,3);
 	cout << " So luong hanh khach : " << position;
 	
-	PreOrder(root, position);
+	PPassenger temp;
+	PPassNode node;
+	Queue<Passenger> queue;
+	InitQueue(queue);
+	pushQueue(queue, root->data);
+
+	while (!emptyQueue(queue))
+	{
+		temp = frontQueue(queue);
+		popQueue(queue);
+		
+		ShowPass(*temp, position);
+		++position;
+		
+		node = (PPassNode)(temp);
+		if(node->pLeft != NULL){
+			pushQueue(queue, node->pLeft->data);
+		}
+		if(node->pRight != NULL){
+			pushQueue(queue, node->pRight->data);
+		}
+		if(position >= NumberPerPage){
+			break;
+		}
+	}
 	
 	SetColor(curColor);
 	gotoxy(X_Page,Y_Page);
 	cout <<" Trang " << CurPassPage <<"/"<< TotalPassPage; 
 }
 
-void ChangeFlightMenuManagerPage(TreePass root)
+void ChangePassMenuManagerPage(TreePass root)
 {
 	gotoxy(X_TitlePage,Y_TitlePage);
-	cout << "QUAN LY CHUYEN BAY";
+	cout << "QUAN LY HANH KHACH";
 
 	Display( ContentPass,sizeof(ContentPass)/sizeof(string) );
 	ShowListPassOnePage(root,(CurPassPage-1)*NumberPerPage);
 }
 
-void MenuManagePassenger(TreePass root){
-//	ShowCursor(false);
+void MenuManagePassenger(TreePass &rootPass, Passenger pass){
 	CurPassPage = 1;
-	//TotalPassPage = (int)ceil((double)size(root)/NumberPassPage); 	//ceil : lam tron 
+//	TotalPassPage = (int)ceil((double)countPass(rootPass)/NumberPassPage); 	//ceil : lam tron 
 	
 	Display(ContentPass, sizeof(ContentPass)/sizeof(string));
-	ShowListPassOnePage(root, 0);
+	ShowListPassOnePage(rootPass, 0);
 	
 	gotoxy(X_TitlePage,Y_TitlePage);
 	cout << "QUAN LY HANH KHACH";
 	
-	Passenger pass;
 	int signal;
 	while(true)
 	{
-		menu:
-		signal = menu_dong(X_ThaoTac,Y_ThaoTac,6,ContentPass_ThaoTac);
+		signal = menu_dong(X_ThaoTac,Y_ThaoTac,3,ContentPass_ThaoTac);
+		gotoxy(50,50); cout << "HAHAHAHA";
 		switch(signal) {
 			case 1: // Insert
 			{
+				if(CurPassPage == 0) CurPassPage = 1;
+				InputPass(rootPass, pass);
+
+//				TotalPassPage = (int)ceil((double)size(first)/NumberPerPage);
+				ShowListPassOnePage(rootPass, (CurPassPage-1)*NumberPerPage);
+				ShowCursor(false);
 				break;
 			}
-			edit: case 2: //Edit date time
+			case 2: //Chuyen trang truoc
 			{
-				
-				break;		
-			}
-			case 3: //Cancle flight
-			{
-				
-				break;
-			}
-			case 4: //Chuyen trang truoc
-			{
-				if(CurFlightPage == 1) break;
+				if(CurPassPage == 1) break;
 				else{
-					CurFlightPage--;
-					ChangeFlightMenuManagerPage(root);
+					CurPassPage--;
+					ChangePassMenuManagerPage(rootPass);
 				}
 				break;
 			}
-			case 5:	//Chuyen trang tiep
+			case 3:	//Chuyen trang tiep
 			{
-				if(CurFlightPage >= TotalFlightPage) break;
+				if(CurPassPage >= TotalPassPage) break;
 				else{
-					CurFlightPage++;
-					ChangeFlightMenuManagerPage(root);
+					CurPassPage++;
+					ChangePassMenuManagerPage(rootPass);
 				}
 				break;
 			}
@@ -240,6 +308,7 @@ void MenuManagePassenger(TreePass root){
 bool LoadTreePass(TreePass &root)
 {
 	ifstream file("DSHK.TXT", ios_base::in);
+	char str[10];
 	Passenger pass;
 
 	if(!file.is_open())
@@ -253,8 +322,10 @@ bool LoadTreePass(TreePass &root)
 		{
 			file.getline(pass.firstName, sizeof(pass.firstName), ';');
 			file.getline(pass.lastName, sizeof(pass.lastName), ';');
-			file >> pass.gender;
-			file.ignore();
+//			file >> pass.gender;
+//			file.ignore();
+			file.getline(str,sizeof(str));
+			pass.gender = atoi(str);
 			InsertPass(root, pass);
 		}
 	}
@@ -270,7 +341,6 @@ bool SaveTreePass(TreePass root)
 	if(!file.is_open())
 		return false;
 	
-	// PPassenger temp;
 	PPassenger temp;
 	PPassNode node;
 	Queue<Passenger> queue;
