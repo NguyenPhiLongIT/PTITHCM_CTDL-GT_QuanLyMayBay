@@ -13,6 +13,7 @@ using namespace std;
 #include "KeyValue.h"
 #include "Constraint.h"
 #include "UserInterface.h"
+#include "Passenger.h"
 
 typedef struct _Ticket {
     char idPas[13];
@@ -21,64 +22,66 @@ typedef struct _Ticket {
 } Ticket, PTicket;
 
 typedef struct _ListTicket {
-    int size_datve; //so luong ve da dat
-    int size_max; // tong so luong ve cua 1 may bay
+    int sizeBooked; //so luong ve da dat
+    int sizeTotal; // tong so luong ve cua 1 may bay
     Ticket *DSV;
 } ListTicket, PListTicket;
 
-int CurPage, TotalPage;
-extern string ContentTicket_Input[2];
-extern string ContentTicket_Output[3];
-extern string ContentTicket_ThaoTac[5];
-
-void InitSeats(ListTicket &listTicket, Airplane Air);
-void InitListTicket(ListTicket &listTicket,Airplane Air);
-bool ListTicketIsFull(ListTicket ListTicket);
-bool ListTicketIsNull(ListTicket ListTicket);
-void InputTicket(Ticket &Ticket);
+void InitSeats(ListTicket &listTicket, Airplane air);
+void InitListTicket(ListTicket &listTicket,Airplane air);
+bool ListTicketIsFull(ListTicket listTicket);
+bool ListTicketIsNull(ListTicket listTicket);
+void InputTicket(Ticket &ticket);
 int ConvertMSVtoNumber(const char msv[3], int column);
-int CheckSeat(Airplane Air, ListTicket ListTicket, Ticket Ticket);
-bool InsertListTicket(Airplane Air, ListTicket &ListTicket, Ticket Ticket);
-void ShowTicket(Ticket Ticket, int position);
-void ShowListTicketOnePage(ListTicket ListTicket, int startIndex);
-void MenuManageTicket(Airplane Air, ListTicket &ListTicket, Ticket Ticket);
+bool CancelTicket(Airplane air, ListTicket &listTicket, Ticket ticket);
+int CheckSeat(Airplane air, ListTicket listTicket, Ticket ticket);
+bool CheckCMND(ListTicket listTicket, Ticket ticket);
+bool InsertListTicket(Airplane air, ListTicket &listTicket, Ticket ticket);
+void ShowTicket(Ticket ticket, int position);
+void ShowListTicketOnePage(ListTicket listTicket, int startIndex);
+void ChangeTicketMenuManagerPage(ListTicket listTicket);
+void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass rootPass);
 
 //----------------------------------------------------------------//
 
-void InitSeats(ListTicket &listTicket, Airplane Air) {
-	for (int i = 0; i < Air.col; i++) {
-		for (int j = 0; j < Air.row; j++) {
-			sprintf(listTicket.DSV[Air.col*j+i].seat,"%c%.2d",i+'A',j+1);
+//Khoi tao cho ngoi
+void InitSeats(ListTicket &listTicket, Airplane air) {
+	for (int i = 0; i < air.col; i++) {
+		for (int j = 0; j < air.row; j++) {
+			sprintf(listTicket.DSV[air.col*j+i].seat,"%c%.2d",i+'A',j+1);
 		}
 	}
 }
 
-void InitListTicket(ListTicket &listTicket,Airplane Air){
-	listTicket.DSV = new Ticket[listTicket.size_max];
-    for (int i = 0; i < listTicket.size_max; i++) {
+//Khoi tao danh sach ve
+void InitListTicket(ListTicket &listTicket,Airplane air){
+	listTicket.DSV = new Ticket[listTicket.sizeTotal];
+    for (int i = 0; i < listTicket.sizeTotal; i++) {
 		listTicket.DSV[i].statusTicket = 0;
 		memset(listTicket.DSV[i].idPas,0,sizeof(listTicket.DSV[i].idPas));
-		InitSeats(listTicket,Air);
+		InitSeats(listTicket,air);
 	}
 }
 
-
-
-bool ListTicketIsFull(ListTicket ListTicket) {
-    return ListTicket.size_datve == ListTicket.size_max;
+//Kiem tra danh sach day
+bool ListTicketIsFull(ListTicket listTicket) {
+    return listTicket.sizeBooked == listTicket.sizeTotal;
 }
 
-bool ListTicketIsNull(ListTicket ListTicket) {
-    return ListTicket.size_datve == 0;
+//Kiem tra danh sach rong
+bool ListTicketIsNull(ListTicket listTicket) {
+    return listTicket.sizeBooked == 0;
 }
 
-void InputTicket(Ticket &Ticket) {
+//Nhap thong tin ve
+void InputTicket(Ticket &ticket) {
     ShowCursor(true);
-    CreateForm(ContentTicket_Input,0,2,27);
-    gotoxy(X_Add+12,Y_Add); strcpy(Ticket.idPas, Input(10,Number));
-    gotoxy(X_Add+12,Y_Add+3); strcpy(Ticket.seat, Input(sizeof(Ticket.seat), ID));
+    CreateForm(ContentTicketInput,0,2,27);
+    gotoxy(X_Add+12,Y_Add); strcpy(ticket.idPas, Input(10,Number));
+    gotoxy(X_Add+12,Y_Add+3); strcpy(ticket.seat, Input(sizeof(ticket.seat), ID));
 }
 
+//Chuan hoa MSV
 int ConvertMSVtoNumber(const char msv[3], int column) { 
     int col = (msv[0]-64);
     int row;
@@ -90,48 +93,58 @@ int ConvertMSVtoNumber(const char msv[3], int column) {
     return (col-1)+(row-1)*column;
 }
 
-bool InsertListTicket(Airplane Air, ListTicket &ListTicket, Ticket Ticket) {
-    if (ListTicketIsFull(ListTicket)) return false;
-    int vitri = ConvertMSVtoNumber(Ticket.seat,Air.col);
-    ListTicket.DSV[vitri] = Ticket;
-    ListTicket.DSV[vitri].statusTicket  = 1;
-    ListTicket.size_datve++;
+//Them 1 ve
+bool InsertListTicket(Airplane air, ListTicket &listTicket, Ticket ticket) {
+    if (ListTicketIsFull(listTicket)) return false;
+    int vitri = ConvertMSVtoNumber(ticket.seat,air.col);
+    listTicket.DSV[vitri] = ticket;
+    listTicket.DSV[vitri].statusTicket  = 1;
+    listTicket.sizeBooked++;
     return true;
 }
 
-bool CancelTicket(Airplane Air, ListTicket &ListTicket, Ticket Ticket) {
-    if (ListTicketIsNull(ListTicket)) return false;
-    int vitri = ConvertMSVtoNumber(Ticket.seat,Air.col);
-    ListTicket.DSV[vitri].statusTicket = 2;
+//Huy ve
+bool CancelTicket(Airplane air, ListTicket &listTicket, Ticket ticket) {
+    if (ListTicketIsNull(listTicket)) return false;
+    int vitri = ConvertMSVtoNumber(ticket.seat,air.col);
+    listTicket.DSV[vitri].statusTicket = 2;
     return true;
 }
 
-int CheckSeat(Airplane Air, ListTicket ListTicket, Ticket Ticket) {
-    int vitri = ConvertMSVtoNumber(Ticket.seat, Air.col);
-    if (vitri >= ListTicket.size_max || vitri < 0) return -1;
+//Kiem tra ghe hop le
+int CheckSeat(Airplane air, ListTicket listTicket, Ticket ticket) {
+    int position = ConvertMSVtoNumber(ticket.seat, air.col);
+    if (position >= listTicket.sizeTotal || position < 0) return -1;
     else {
-        if (ListTicket.DSV[vitri].statusTicket == 1) return 0;
+        if (listTicket.DSV[position].statusTicket == 1) return 0;
         else return 1;
     }
 }
 
-bool CheckCMND() {
+//Kiem tra CMND
+bool CheckCMND(ListTicket listTicket, Ticket ticket) {
+	for (int i = 0; i < listTicket.sizeTotal; i++) {
+		if (strcmp(listTicket.DSV[i].idPas,ticket.idPas) == 0) return true;
+	}
+	return false;
 }
 
-void ShowTicket(Ticket Ticket, int position) {
+//Xuat thong tin 1 ve
+void ShowTicket(Ticket ticket, int position) {
         gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
-        cout << left << setw(8) << Ticket.seat;
+        cout << left << setw(8) << ticket.seat;
         gotoxy(xKeyDisplay[1] + 3, Y_Display + position + 3);
-        if(Ticket.statusTicket == 1) cout << left << setw(3) << "Da dat";
-        else if (Ticket.statusTicket == 0) cout << left << setw(3) << "Con ve";
+        if(ticket.statusTicket == 1) cout << left << setw(3) << "Da dat";
+        else if (ticket.statusTicket == 0) cout << left << setw(3) << "Con ve";
         else cout << left << setw(3) << "Da huy";
     	gotoxy(xKeyDisplay[2] + 3, Y_Display + position + 3);
-    	cout << left << setw(8) << Ticket.idPas;
+    	cout << left << setw(8) << ticket.idPas;
 }
 
-void ShowListTicketOnePage(ListTicket ListTicket, int startIndex) {
+//Xuat thong tin danh sach ve trong 1 trang
+void ShowListTicketOnePage(ListTicket listTicket, int startIndex) {
     gotoxy(3,3);
-    cout << "Ve: " << ListTicket.size_datve << "/" << ListTicket.size_max;
+    cout << "Ve: " << listTicket.sizeBooked << "/" << listTicket.sizeTotal;
     
     WORD curColor;
 	GetColor(curColor);
@@ -139,9 +152,9 @@ void ShowListTicketOnePage(ListTicket ListTicket, int startIndex) {
     
     int i; int j = 0;
     
-    for(i = 0 ; i + startIndex < ListTicket.size_max && i < NumberPerPage; i++)
+    for(i = 0 ; i + startIndex < listTicket.sizeTotal && i < NumberPerPage; i++)
 	{
-		ShowTicket(ListTicket.DSV[i+startIndex],i); 
+		ShowTicket(listTicket.DSV[i+startIndex],i); 
 	} 
 	SetColor(curColor);
 	RemoveExceedMember(i, 5);
@@ -149,92 +162,103 @@ void ShowListTicketOnePage(ListTicket ListTicket, int startIndex) {
     cout << "Trang " << CurPage << "/" << TotalPage;
 }
 
+//Thay doi danh sach ve thanh trang khac
 void ChangeTicketMenuManagerPage(ListTicket listTicket)
 {
-	Display( ContentTicket_Output,sizeof(ContentTicket_Output)/sizeof(string) );
+	Display( ContentTicketOutput,sizeof(ContentTicketOutput)/sizeof(string) );
 	ShowListTicketOnePage(listTicket,(CurPage-1)*NumberPerPage);
 }
 
-void MenuManageTicket(Airplane Air, ListTicket &ListTicket) {
+//Quan ly ve
+void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass rootPass) {
     ShowCursor(false);
 	CurPage = 1;
-	TotalPage = (int)ceil((double)ListTicket.size_max/NumberPerPage); 	//ceil : lam tron 
+	TotalPage = (int)ceil((double)listTicket.sizeTotal/NumberPerPage); 	//ceil : lam tron 
 	
-	Display(ContentTicket_Output, sizeof(ContentTicket_Output)/sizeof(string));
-	ShowListTicketOnePage(ListTicket, 0);	
+	Display(ContentTicketOutput, sizeof(ContentTicketOutput)/sizeof(string));
+	ShowListTicketOnePage(listTicket, 0);	
 	
 	Ticket ticket_tmp;
+	Passenger pass_tmp;
 	int signal;
 
     while (true) {
-        signal = menu_dong(X_ThaoTac,Y_ThaoTac,5,ContentTicket_ThaoTac);
+        signal = MenuSelect(X_ThaoTac,Y_ThaoTac,5,ContentTicketSelect2);
         switch(signal) {
-            case 1: //Order
+            case 1: //Dat ve
             {
-                if (ListTicketIsFull(ListTicket)) {
+                if (ListTicketIsFull(listTicket)) {
                     Notification("Da het ve");
                     break;
                 }
                 InputTicket(ticket_tmp);
                 RemoveForm(0,4,27);
-                int vitri = ConvertMSVtoNumber(ticket_tmp.seat,Air.col);
+                int vitri = ConvertMSVtoNumber(ticket_tmp.seat,air.col);
                 
-                if (ListTicket.DSV[vitri].statusTicket == 2) {
+                
+                
+                if (listTicket.DSV[vitri].statusTicket == 2) {
                 	Notification("Ve da huy. Khong the dat!");
                 	break;
 				}
                 
-                if (CheckSeat(Air,ListTicket,ticket_tmp) == -1) {
+                if (CheckSeat(air,listTicket,ticket_tmp) == -1) {
                     Notification("Vi tri nay khong ton tai");
             		break;
-                } else if (CheckSeat(Air,ListTicket,ticket_tmp) == 0) {
+                } else if (CheckSeat(air,listTicket,ticket_tmp) == 0) {
                 	Notification("Vi tri nay da co nguoi dat");
                 	break;
+				} else if (CheckCMND(listTicket,ticket_tmp)) {
+					Notification("Ban da dat ve tren chuyen bay nay");
 				}
                 else {
-                    InsertListTicket(Air,ListTicket,ticket_tmp);
+                	if (!SearchPass(rootPass,ticket_tmp.idPas)) {
+						strcpy(pass_tmp.id,ticket_tmp.idPas);
+                		InputPass(rootPass,pass_tmp,true);
+					}
+                    InsertListTicket(air,listTicket,ticket_tmp);
                     Notification("Them thanh cong");
                 } 
-                ShowListTicketOnePage(ListTicket, (CurPage-1)*NumberPerPage);
+                ShowListTicketOnePage(listTicket, (CurPage-1)*NumberPerPage);
                 ShowCursor(false);
                 break;
             }
-            case 2: //Cancel
+            case 2: //Huy ve
             {
-                if (ListTicketIsNull(ListTicket)) {
+                if (ListTicketIsNull(listTicket)) {
                     Notification("Khong con ve de xoa");
                     break;
                 }
                 //gotoxy(X_Add,Y_Add-1);
                 InputTicket(ticket_tmp);
                 RemoveForm(0,4,27);
-                if (CheckSeat(Air,ListTicket,ticket_tmp) == -1) {
+                if (CheckSeat(air,listTicket,ticket_tmp) == -1) {
                     Notification("Vi tri nay khong ton tai");
                     break;
-                } else if (CheckSeat(Air,ListTicket,ticket_tmp) == 1) {
+                } else if (CheckSeat(air,listTicket,ticket_tmp) == 1) {
                     Notification("Vi tri nay chua duoc dat");
                     break;
                 } else {
-                    CancelTicket(Air,ListTicket,ticket_tmp);
+                    CancelTicket(air,listTicket,ticket_tmp);
                     Notification("Huy ve thanh cong");
                 }
-                ShowListTicketOnePage(ListTicket,(CurPage - 1)/NumberPerPage);
+                ShowListTicketOnePage(listTicket,(CurPage - 1)/NumberPerPage);
                 break;
             }
-            case 3: //Previous Page
+            case 3: //Trang truoc
             {
             	if(CurPage == 1) break;
 				else{
 					CurPage --;
-					ChangeTicketMenuManagerPage(ListTicket);
+					ChangeTicketMenuManagerPage(listTicket);
 					break;
 				}
             }
-            case 4: //Next Page
+            case 4: //Trang sau
             {
             	if(CurPage >= TotalPage) break;
 				CurPage ++;
-				ChangeTicketMenuManagerPage(ListTicket);
+				ChangeTicketMenuManagerPage(listTicket);
                 break;
             }
             default: return;
