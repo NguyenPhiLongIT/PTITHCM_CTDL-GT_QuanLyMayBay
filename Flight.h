@@ -32,55 +32,50 @@ typedef struct _NodeFli
 	struct _NodeFli *pNext;
 } NodeFli, *PNodeFli;
 
-//Thong tin vi tri chuyen bay
-int CurPosFlight = 0;
-int CurFlightPage = 1;
-int TotalFlightPage = 0;
-extern string ContentFlight[6];
-
 void InitFlight(Flight &flight, ListAir listAir);
-bool FlightDataIsEmpty(Flight &flight);
-int size(PNodeFli &pNodeFli);
+int Size(PNodeFli &pNodeFli);
+int SizeTicketAvailable(PNodeFli &first);
+int SizeDateDes(PNodeFli &first, Date date, const char* arrival);
 
 PNodeFli CreateFlight(Flight &flight);
 void InsertListFlight(PNodeFli &first, Flight flight);
 bool CancleFlight(PNodeFli pNodeFli);
+
 PNodeFli FindFlight(PNodeFli &first, const char *idFli);
 PNodeFli FindFlightByIdPlane(PNodeFli &first, const char *idAir);
 int FindIndexFlight(PNodeFli first, const char *idFli);
 int FindDestination(PNodeFli first, const char *arrivalAir);
+
 void AutoUpdateFlightStatus(PNodeFli &pNodeFli);
 int EditDateTime(PNodeFli &pNodeFli, Date date);
 bool CheckDate(PNodeFli first, PDate date);
 
-void InputFlight(PNodeFli &pNodeFli, Flight &flight, ListAir listAir, bool , bool);
+void InputFlight(PNodeFli &first, Flight &flight, ListAir dsmb, bool Edit, bool Cancle);
 void ShowFlight(Flight &flight, int position);
 void ShowListFlightOnePage(PNodeFli first, int startIndex);
-void ChangeFlightMenuManagerPage(PNodeFli first, bool);
+void ChangeFlightMenuManagerPage(PNodeFli first);
 void MenuManageFlight(PNodeFli &first, ListAir listAir);
+
+void ListFlightDateAndDes(PNodeFli first, Date date, const char* arrival, int startIndex, bool ticketAvailable);
+void ChangeListFlightDateAndDesPage(PNodeFli first, Date date, const char* arrival, bool ticketAvailable);
+
+void MenuManageListTicket(ListAir listAir, PNodeFli listFlight, TreePass rootPass);
 
 bool LoadFlight(PNodeFli &first);
 bool SaveFlight(PNodeFli first);
 
 
 //Khoi tao chuyen bay
-void InitFlight(Flight &flight, ListAir dsmb) {
+void InitFlight(Flight &flight, ListAir listAir) {
 	flight.status = CONVE;
-	flight.listTicket.size_datve = 0;
-	int result = IndexAirplane(dsmb,flight.idAir);
-	flight.listTicket.size_max = dsmb.nodes[result]->col*dsmb.nodes[result]->row;
-	InitListTicket(flight.listTicket,*dsmb.nodes[result]);
-}
-
-bool FlightDataIsEmpty(Flight &flight)
-{
-	return 
-		strlen(flight.idAir) == 0 ||
-		strlen(flight.arrivalAir) == 0;
+	flight.listTicket.sizeBooked = 0;
+	int result = IndexAirplane(listAir,flight.idAir);
+	flight.listTicket.sizeTotal = listAir.nodes[result]->col*listAir.nodes[result]->row;
+	InitListTicket(flight.listTicket,*listAir.nodes[result]);
 }
 
 //So luong chuyen bay co trong danh sach
-int size(PNodeFli &first) {
+int Size(PNodeFli &first) {
 	int count = 0;
 		for (PNodeFli p = first; p!= NULL; p=p->pNext)
 		count++;
@@ -88,7 +83,7 @@ int size(PNodeFli &first) {
 }
 
 //So luong chuyen bay con ve 
-int sizeTicketAvailable(PNodeFli &first){
+int SizeTicketAvailable(PNodeFli &first){
 	int count = 0;
 	for(PNodeFli p = first; p != NULL; p = p->pNext){
 		if(p->data.status == CONVE)
@@ -98,7 +93,7 @@ int sizeTicketAvailable(PNodeFli &first){
 }
 
 //So luong chuyen bay theo thoi gian va dia diem
-int sizeDateDes(PNodeFli &first, Date date, const char* arrival) {
+int SizeDateDes(PNodeFli &first, Date date, const char* arrival) {
 	int count = 0;
 	for(PNodeFli p = first; p != NULL; p = p->pNext){
 		if(CheckDate(p, &date) && strcmp(p->data.arrivalAir, arrival) == 0 && p->data.status == CONVE)
@@ -132,6 +127,7 @@ void InsertListFlight(PNodeFli &first, Flight flight) {
 	}
 }
 
+//Huy chuyen bay
 bool CancleFlight(PNodeFli pNodeFli)
 {
 	if (pNodeFli->data.status == CONVE || pNodeFli->data.status == HETVE)
@@ -142,6 +138,7 @@ bool CancleFlight(PNodeFli pNodeFli)
 	return 0;
 }
 
+//Tim chuyen bay
 PNodeFli FindFlight(PNodeFli &first, const char *id)
 {
 	if (first == NULL) return NULL;
@@ -152,6 +149,7 @@ PNodeFli FindFlight(PNodeFli &first, const char *id)
 	return NULL;
 }
 
+//Tra ve chuyen bay theo ma may bay
 PNodeFli FindFlightByIdPlane(PNodeFli &first, const char *id)
 {
 	if (first == NULL)
@@ -164,6 +162,7 @@ PNodeFli FindFlightByIdPlane(PNodeFli &first, const char *id)
 	return NULL;
 }
 
+//Vi tri chuyen bay
 int FindIndexFlight(PNodeFli first, const char *id)
 {
 	int index = 0;
@@ -178,6 +177,7 @@ int FindIndexFlight(PNodeFli first, const char *id)
 	return -1;
 }
 
+//Vi tri chuyen bay theo dia diem
 int FindDestination(PNodeFli first, const char *arrival)
 {
 	int index = 0;
@@ -192,6 +192,7 @@ int FindDestination(PNodeFli first, const char *arrival)
 	return -1;
 }
 
+//Kiem tra ngay thang nam
 bool CheckDate(PNodeFli first, PDate date) {
 	if(	first->data.date.year == date->year &&
 		first->data.date.month == date->month &&
@@ -200,6 +201,7 @@ bool CheckDate(PNodeFli first, PDate date) {
 	return false;
 }
 
+//Tu dong cap nhat trang thai chuyen bay
 void AutoUpdateFlightStatus(PNodeFli &first)
 {
 	for(PNodeFli p = first; p != NULL ; p = p->pNext)
@@ -208,12 +210,13 @@ void AutoUpdateFlightStatus(PNodeFli &first)
 		if(IsValidDate(&p->data.date) == false){
 			p->data.status = 3;
 		}
-		else if(p->data.listTicket.size_datve == p->data.listTicket.size_max){
+		else if(p->data.listTicket.sizeBooked == p->data.listTicket.sizeTotal){
 			p->data.status = 2;
 		}			
 	}
 }
 
+//Chinh sua ngay
 int EditDateTime(PNodeFli &first, Date date){
 	if(IsValidDate(&date)){
 		first->data.date = date;
@@ -222,8 +225,8 @@ int EditDateTime(PNodeFli &first, Date date){
 	return 0;
 }
 
-//Khung nhap
-void InputFlight(PNodeFli &first, Flight &flight, ListAir dsmb, bool Edit = false, bool Cancle = false){
+//Nhap thong tin chuyen bay
+void InputFlight(PNodeFli &first, Flight &flight, ListAir listAir, bool Edit = false, bool Cancle = false){
 	ShowCursor(true);
 	int ordinal = 0;	//thu tu nhap
 	int position = -1;	//vi tri chuyen bay
@@ -270,11 +273,11 @@ void InputFlight(PNodeFli &first, Flight &flight, ListAir dsmb, bool Edit = fals
 							Notification("Chuyen bay khong con hoat dong! Khong the huy chuyen");
 						}
 						else{
-							box(X_Notification,Y_Notification, 29, 3, "Ban co chac muon huy chuyen? ");
+							Box(X_Notification,Y_Notification, 29, 3, "Ban co chac muon huy chuyen? ");
 							gotoxy(X_Notification+1,Y_Notification+2); cout << "ESC: Thoat - ENTER: Huy";
 							char c = _getch();
 							RemoveRow(X_Add, Y_Add, ContentFlight[0], 27);
-							remove_box(X_Notification,Y_Notification, 29, 3);
+							RemoveBox(X_Notification,Y_Notification, 29, 3);
 						
 							if(c == ESC){
 								Notification("Huy that bai!");
@@ -314,7 +317,7 @@ void InputFlight(PNodeFli &first, Flight &flight, ListAir dsmb, bool Edit = fals
 			case 2:{	//Nhap idAir
 				gotoxy(X_Add+10,Y_Add+6); cout << "			";
 				gotoxy(X_Add+10,Y_Add+6);     	strcpy(flight.idAir, Input(sizeof(flight.idAir), ID));
-				position = IndexAirplane(dsmb, flight.idAir);
+				position = IndexAirplane(listAir, flight.idAir);
 				if(strlen(flight.idAir) == 0){
 					Notification("Vui long khong bo trong");
 					break;
@@ -332,7 +335,7 @@ void InputFlight(PNodeFli &first, Flight &flight, ListAir dsmb, bool Edit = fals
 				break;
 			}
 			case 4:{
-				InitFlight(flight,dsmb);
+				InitFlight(flight,listAir);
 				ordinal++;
 				break;
 			}
@@ -363,7 +366,7 @@ void ShowFlight(Flight &fli, int position)
     gotoxy(xKeyDisplay[3] + 2, Y_Display + position +3);
     PrintDate(&fli.date);
     gotoxy(xKeyDisplay[4] + 3, Y_Display + position + 3);
-    cout << fli.listTicket.size_datve << "/" << left << setw(10) <<  fli.listTicket.size_max;
+    cout << fli.listTicket.sizeBooked << "/" << left << setw(10) <<  fli.listTicket.sizeTotal;
     gotoxy(xKeyDisplay[5] + 3, Y_Display + position + 3);
     switch(fli.status){
     	case 0: cout << "Huy	  ";
@@ -378,10 +381,10 @@ void ShowFlight(Flight &fli, int position)
 	}
 }
 
-//Hien thi 1 trang gom nhieu chuyen bay
+//Hien thi danh sach chuyen bay trong 1 trang
 void ShowListFlightOnePage(PNodeFli first, int startIndex)
 {
-	gotoxy(3,3); cout << " So luong chuyen bay : " << size(first);
+	gotoxy(3,3); cout << " So luong chuyen bay : " << Size(first);
 	
 	if(first == NULL) return;
 	
@@ -406,24 +409,23 @@ void ShowListFlightOnePage(PNodeFli first, int startIndex)
 	SetColor(curColor);
 	gotoxy(3,3);
 	gotoxy(X_Page,Y_Page);
-	cout <<" Trang " << CurFlightPage <<"/"<< TotalFlightPage; 
+	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
 }
 
-//Chuyen trang
+//Thay doi danh sach chuyen bay khi qua trang
 void ChangeFlightMenuManagerPage(PNodeFli first)
 {
 	gotoxy(X_TitlePage,Y_TitlePage);
 	cout << "QUAN LY CHUYEN BAY";
 
 	Display( ContentFlight,sizeof(ContentFlight)/sizeof(string) );
-	ShowListFlightOnePage(first,(CurFlightPage-1)*NumberPerPage);
+	ShowListFlightOnePage(first,(CurPage-1)*NumberPerPage);
 }
 
-//Menu thao tac voi chuyen bay
-void MenuManageFlight(PNodeFli &first, ListAir dsmb){
-//	ShowCursor(false);
-	CurFlightPage = 1;
-	TotalFlightPage = (int)ceil((double)size(first)/NumberPerPage); 	//ceil : lam tron 
+//Quan ly chuyen bay
+void MenuManageFlight(PNodeFli &first, ListAir listAir){
+	CurPage = 1;
+	TotalPage = (int)ceil((double)Size(first)/NumberPerPage); 	//ceil : lam tron 
 	
 	Display(ContentFlight, sizeof(ContentFlight)/sizeof(string));
 	ShowListFlightOnePage(first, 0);
@@ -436,56 +438,62 @@ void MenuManageFlight(PNodeFli &first, ListAir dsmb){
 	while(true)
 	{
 		menu:
-		signal = menu_dong(X_ThaoTac,Y_ThaoTac,6,ContentFlight_ThaoTac);
+		signal = MenuSelect(X_ThaoTac,Y_ThaoTac,7,ContentFlightSelect);
 		switch(signal) {
-			case 1: // Insert
+			case 1: // Them chuyen bay
 			{
-				if(CurFlightPage == 0) CurFlightPage = 1;
-				InputFlight(first, fli, dsmb);
+				if(CurPage == 0) CurPage = 1;
+				InputFlight(first, fli, listAir);
 
-				TotalFlightPage = (int)ceil((double)size(first)/NumberPerPage);
-				ShowListFlightOnePage(first, (CurFlightPage-1)*NumberPerPage);
+				TotalPage = (int)ceil((double)Size(first)/NumberPerPage);
+				ShowListFlightOnePage(first, (CurPage-1)*NumberPerPage);
 				ShowCursor(false);
 				break;
 			}
-			edit: case 2: //Edit date time
+			edit: case 2: //Chinh sua ngay thang nam
 			{
 				ShowCursor(true);
 				if(first == NULL) {
 					Notification("Danh sach rong");
 					break;
 				}
-				InputFlight(first, fli, dsmb, true, false);
-				ShowListFlightOnePage(first, (CurFlightPage-1)*NumberPerPage);
+				InputFlight(first, fli, listAir, true, false);
+				ShowListFlightOnePage(first, (CurPage-1)*NumberPerPage);
 				ShowCursor(false);
 				break;		
 			}
-			case 3: //Cancle flight
+			case 3: //Huy chuyen bay
 			{
 				ShowCursor(true);
 				if(first == NULL) {
 					Notification("Danh sach rong");
 					break;
 				}			
-				InputFlight(first, fli, dsmb, false, true);
-				ShowListFlightOnePage(first, (CurFlightPage-1)*NumberPerPage);
+				InputFlight(first, fli, listAir, false, true);
+				ShowListFlightOnePage(first, (CurPage-1)*NumberPerPage);
 				ShowCursor(false);
 				break;
 			}
-			case 4: //Chuyen trang truoc
+			case 4:		//Thong ke so luong hanh khach tren chuyen bay
 			{
-				if(CurFlightPage == 1) break;
+				RemoveTable(ContentFlight,sizeof(ContentFlight)/sizeof(string));
+				
+				break;
+			}
+			case 5: //Chuyen trang truoc
+			{
+				if(CurPage == 1) break;
 				else{
-					CurFlightPage--;
+					CurPage--;
 					ChangeFlightMenuManagerPage(first);
 				}
 				break;
 			}
-			case 5:	//Chuyen trang tiep
+			case 6:	//Chuyen trang tiep
 			{
-				if(CurFlightPage >= TotalFlightPage) break;
+				if(CurPage >= TotalPage) break;
 				else{
-					CurFlightPage++;
+					CurPage++;
 					ChangeFlightMenuManagerPage(first);
 				}
 				break;
@@ -496,6 +504,7 @@ void MenuManageFlight(PNodeFli &first, ListAir dsmb){
 	}
 }
 
+//Xuat danh sach chuyen bay theo ngay va dia diem trong 1 trang
 void ListFlightDateAndDes(PNodeFli first, Date date, const char* arrival, int startIndex, bool ticketAvailable = false){
 	Display( ContentFlight,sizeof(ContentFlight)/sizeof(string) );
 	if(first == NULL) return;
@@ -525,15 +534,16 @@ void ListFlightDateAndDes(PNodeFli first, Date date, const char* arrival, int st
 		}
 	}
 	gotoxy(3,3); 
-	if(ticketAvailable) cout << " So luong chuyen bay : " << sizeTicketAvailable(first);
-	else cout << " So luong chuyen bay : " << sizeDateDes(first,date,arrival);
+	if(ticketAvailable) cout << " So luong chuyen bay : " << SizeTicketAvailable(first);
+	else cout << " So luong chuyen bay : " << SizeDateDes(first,date,arrival);
 	SetColor(curColor);
 	gotoxy(X_Page,Y_Page);
-	cout <<" Trang " << CurFlightPage <<"/"<< TotalFlightPage; 
+	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
 }
 
+
 PNodeFli *ListFlightInDate(PNodeFli first, PDate date){
-	int n = size(first);
+	int n = Size(first);
 	int index = 0;
 	PNodeFli *list = new PNodeFli[n];
 	for(PNodeFli temp = first; temp != NULL; temp = temp->pNext){
@@ -548,44 +558,45 @@ PNodeFli *ListFlightInDate(PNodeFli first, PDate date){
 	return list;
 }
 
+//Thay doi danh sach chuyen bay theo ngay va dia diem sang trang khac
 void ChangeListFlightDateAndDesPage(PNodeFli first, Date date, const char* arrival, bool ticketAvailable) {
-	ListFlightDateAndDes(first, date, arrival, (CurFlightPage-1)*NumberPerPage, ticketAvailable);
+	ListFlightDateAndDes(first, date, arrival, (CurPage-1)*NumberPerPage, ticketAvailable);
 }
 
-//Menu thao tac voi danh sach ve
-void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
-	Flight cb_tmp;
-	Airplane mb_tmp;
-	PNodeFli pcb_tmp;
+//Quan ly danh sach ve
+void MenuManageListTicket(ListAir listAir, PNodeFli listFlight, TreePass rootPass) {
+	Flight flight;
+	Airplane air;
+	PNodeFli pFlight;
 	Date date;
 	bool ticketAvailable = false;
 	int signal;
 	
-	CurFlightPage = 1;
-	TotalFlightPage = (int)ceil((double)sizeTicketAvailable(dscb)/NumberPerPage); 	//ceil : lam tron
+	CurPage = 1;
+	TotalPage = (int)ceil((double)SizeTicketAvailable(listFlight)/NumberPerPage); 	//ceil : lam tron
 	Display(ContentFlight,sizeof(ContentFlight)/sizeof(string));
-	ListFlightDateAndDes(dscb, date, cb_tmp.arrivalAir, 0, true);
+	ListFlightDateAndDes(listFlight, date, flight.arrivalAir, 0, true);
 	gotoxy(X_TitlePage-4,Y_TitlePage);
 	cout << "DANH SACH CAC CHUYEN BAY CON VE";
 	
-	if(dscb == NULL) {
+	if(listFlight == NULL) {
 		Notification("Danh sach chua co chuyen bay nao!");
 		return;
 	}
 	
 	while (true) {
-		signal = menu_dong(X_ThaoTac,Y_ThaoTac,5,ContentTicket_ThaoTac);
+		signal = MenuSelect(X_ThaoTac,Y_ThaoTac,5,ContentTicketSelect1);
 		switch(signal) {
-			case 1: //Book ticket
+			case 1: //Chon chuyen bay muon dat
             {
             	do {
 					CreateRow(X_Add, Y_Add, ContentFlight[0], 32);
-					gotoxy(X_Add+10,Y_Add);       	strcpy(cb_tmp.idFlight, Input(sizeof(cb_tmp.idFlight), ID));
-					pcb_tmp = FindFlight(dscb,cb_tmp.idFlight);
-					if (pcb_tmp == NULL) Notification("Chuyen bay khong ton tai");
-					else if (pcb_tmp->data.status == HETVE) Notification("Chuyen bay da het ve");
-					else if (pcb_tmp->data.status == HUYCHUYEN) Notification("Chuyen bay da bi huy");
-					else if (pcb_tmp->data.status == HOANTAT) Notification("Chuyen bay da hoan tat");
+					gotoxy(X_Add+10,Y_Add);       	strcpy(flight.idFlight, Input(sizeof(flight.idFlight), ID));
+					pFlight = FindFlight(listFlight,flight.idFlight);
+					if (pFlight == NULL) Notification("Chuyen bay khong ton tai");
+					else if (pFlight->data.status == HETVE) Notification("Chuyen bay da het ve");
+					else if (pFlight->data.status == HUYCHUYEN) Notification("Chuyen bay da bi huy");
+					else if (pFlight->data.status == HOANTAT) Notification("Chuyen bay da hoan tat");
 					else break;
 				} while (true);
 				
@@ -593,50 +604,50 @@ void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
 				RemoveTable(ContentFlight,sizeof(ContentFlight)/sizeof(string));
 	
 				//Luu vi tri may bay cua chuyen bay do
-				int result = IndexAirplane(dsmb,pcb_tmp->data.idAir);
-				mb_tmp = *dsmb.nodes[result];
+				int result = IndexAirplane(listAir,pFlight->data.idAir);
+				air = *listAir.nodes[result];
 	
 				//Thuc hien thao tac voi danh sach ve
 				gotoxy(X_TitlePage-10,Y_TitlePage);
-				cout << "MA CHUYEN BAY: " << pcb_tmp->data.idFlight << " - DIA DIEM: " << pcb_tmp->data.arrivalAir << " - THOI GiAN: "; PrintDate(&pcb_tmp->data.date);
-				MenuManageTicket(mb_tmp, pcb_tmp->data.listTicket);
+				cout << "MA CHUYEN BAY: " << pFlight->data.idFlight << " - DIA DIEM: " << pFlight->data.arrivalAir << " - THOI GiAN: "; PrintDate(&pFlight->data.date);
+				MenuManageTicket(air, pFlight->data.listTicket,rootPass);
+				if(SaveFlight(listFlight));
+				if(SaveTreePass(rootPass));
                 return;
             }
-            case 2: //Filter
+            case 2: //Loc chuyen bay theo ngay va dia diem
             {
 				CreateRow(X_Add, Y_Add, ContentFlight[1], 32); 
 				CreateRow(X_Add, Y_Add+3, ContentFlight[3], 32);
-				gotoxy(X_Add+12,Y_Add);     	strcpy(cb_tmp.arrivalAir, Input(sizeof(cb_tmp.arrivalAir), Text));	
+				gotoxy(X_Add+12,Y_Add);     	strcpy(flight.arrivalAir, Input(sizeof(flight.arrivalAir), Text));	
 				gotoxy(X_Add+14,Y_Add+3); 		InputDate(&date);
 					
 				RemoveRow(X_Add, Y_Add, ContentFlight[1], 32);
 				RemoveRow(X_Add, Y_Add+3, ContentFlight[3], 46);
-//				PNodeFli *listInDate = ListFlightInDate(dscb, &date);
+//				PNodeFli *listInDate = ListFlightInDate(listFlight, &date);
 //				ShowListFlightOnePage(listInDate, 0);
 				 
 				RemoveTable(ContentFlight,sizeof(ContentFlight)/sizeof(string));
-				CurFlightPage = 1;
-				TotalFlightPage = (int)ceil((double)sizeDateDes(dscb,date,cb_tmp.arrivalAir)/NumberPerPage);
-				ListFlightDateAndDes(dscb, date, cb_tmp.arrivalAir,0);
+				CurPage = 1;
+				TotalPage = (int)ceil((double)SizeDateDes(listFlight,date,flight.arrivalAir)/NumberPerPage);
+				ListFlightDateAndDes(listFlight, date, flight.arrivalAir,0);
 				ticketAvailable = true;
                 break;
             }
-            case 3: //Previous Page
+            case 3: //Trang truoc
             {
-            	if(CurFlightPage == 1) break;
+            	if(CurPage == 1) break;
 				else{
-					CurFlightPage --;
-					ChangeListFlightDateAndDesPage(dscb, date, cb_tmp.arrivalAir, ticketAvailable);
-//					else ChangeListFlightDateAndDesPage(dscb, date, cb_tmp.arrivalAir, true);
+					CurPage --;
+					ChangeListFlightDateAndDesPage(listFlight, date, flight.arrivalAir, ticketAvailable);
 					break;
 				}
             }
-            case 4: //Next Page
+            case 4: //Trang sau
             {
-            	if(CurFlightPage >= TotalFlightPage) break;
-				CurFlightPage ++;
-				ChangeListFlightDateAndDesPage(dscb, date, cb_tmp.arrivalAir, ticketAvailable);
-//					else ChangeListFlightDateAndDesPage(dscb, date, cb_tmp.arrivalAir, true);
+            	if(CurPage >= TotalPage) break;
+				CurPage ++;
+				ChangeListFlightDateAndDesPage(listFlight, date, flight.arrivalAir, ticketAvailable);
                 break;
             }
             default: return;
@@ -644,6 +655,7 @@ void MenuManageListTicket(ListAir dsmb, PNodeFli dscb) {
 	}
 }
 
+//Load file danh sach chuyen bay
 bool LoadFlight(PNodeFli &First)
 {
     ifstream file("DSCB.TXT", ios_base::in);
@@ -668,15 +680,15 @@ bool LoadFlight(PNodeFli &First)
         getline(file, str, ';');    pNodeFli->data.date.year = atoi(str.c_str());
         getline(file, str, ';');	pNodeFli->data.status = atoi(str.c_str());
 
-        getline(file, str, ';');	pNodeFli->data.listTicket.size_max = atoi(str.c_str());
-        getline(file, str, ';');    pNodeFli->data.listTicket.size_datve = atoi(str.c_str());
+        getline(file, str, ';');	pNodeFli->data.listTicket.sizeTotal = atoi(str.c_str());
+        getline(file, str, ';');    pNodeFli->data.listTicket.sizeBooked = atoi(str.c_str());
        	
-       	pNodeFli->data.listTicket.DSV = new Ticket[pNodeFli->data.listTicket.size_max];
-        for (int i = 0; i < pNodeFli->data.listTicket.size_max; i++)
+       	pNodeFli->data.listTicket.DSV = new Ticket[pNodeFli->data.listTicket.sizeTotal];
+        for (int i = 0; i < pNodeFli->data.listTicket.sizeTotal; i++)
         {
             getline(file, str, ';');	strcpy(pNodeFli->data.listTicket.DSV[i].idPas, str.c_str());
             getline(file, str, ';');	strcpy(pNodeFli->data.listTicket.DSV[i].seat, str.c_str());
-            if(i != pNodeFli->data.listTicket.size_max-1){
+            if(i != pNodeFli->data.listTicket.sizeTotal-1){
             	getline(file, str, ';');
 			}else{
 				getline(file, str);
@@ -689,6 +701,7 @@ bool LoadFlight(PNodeFli &First)
     return true;
 }
 
+//Luu file danh sach chuyen bay
 bool SaveFlight(PNodeFli First)
 {
     ofstream file("DSCB.TXT", ios_base::out);
@@ -707,15 +720,15 @@ bool SaveFlight(PNodeFli First)
              << First->data.date.month << "/"
              << First->data.date.year << ";"
              << First->data.status << ";"
-             << First->data.listTicket.size_max << ";"
-             << First->data.listTicket.size_datve << ";";
+             << First->data.listTicket.sizeTotal << ";"
+             << First->data.listTicket.sizeBooked << ";";
         
-        for (int i = 0; i < First->data.listTicket.size_max; i++)
+        for (int i = 0; i < First->data.listTicket.sizeTotal; i++)
         {
             file << First->data.listTicket.DSV[i].idPas << ";"
                  << First->data.listTicket.DSV[i].seat << ";"
                  << First->data.listTicket.DSV[i].statusTicket;
-            if (i == First->data.listTicket.size_max - 1 && First->pNext != NULL)
+            if (i == First->data.listTicket.sizeTotal - 1 && First->pNext != NULL)
             {
                 file << endl;
             }
