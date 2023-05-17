@@ -25,18 +25,13 @@ typedef struct _PassNode
 	struct _PassNode *pRight;
 } PassNode, *PPassNode, *TreePass;
 
-int CurPosPass = 0;
-int CurPassPage = 1;
-int TotalPassPage = 0;
-extern string ContentFlight[6];
-
 void InitTreePass(TreePass &rootPass);
 bool EmptyPass(TreePass &rootPass);
 PPassNode NewPassNode(Passenger &data);
 void PreOrder(TreePass &rootPass, int &position);
 int countPass(TreePass &rootPass);
 
-void InputPass(TreePass &rootPass, Passenger &pass);
+void InputPass(TreePass &rootPass, Passenger &pass, bool Check);
 void InsertPass(TreePass &rootPass, Passenger &pass);
 PPassNode SearchPass(TreePass rootPass, char *idPass);
 
@@ -47,16 +42,19 @@ void ShowListPass(TreePass root);
 bool LoadTreePass(TreePass &pass);
 bool SaveTreePass(TreePass pass);
 
+//Khoi tao danh sach hanh khach
 void InitTreePass(TreePass &rootPass)
 {
 	rootPass = NULL;
 }
 
+//Kiem tra danh sach trong
 bool EmptyPass(TreePass &rootPass)
 {
 	return rootPass == NULL;
 }
 
+//Tao 1 hanh khach moi
 PPassNode NewPassNode(Passenger &data)
 {
 	PPassNode passNode = new PassNode;
@@ -65,12 +63,14 @@ PPassNode NewPassNode(Passenger &data)
 	return passNode;
 }
 
+//So luong hanh khach
 int countPass(TreePass &rootPass)
 {
 	if(rootPass == NULL)	return 0;
 
 	return 1 + countPass(rootPass->pLeft) + countPass(rootPass->pRight);
 }
+
 
 void PreOrder(TreePass &rootPass, int &position){
 	if(rootPass == NULL) return;
@@ -80,22 +80,22 @@ void PreOrder(TreePass &rootPass, int &position){
 	PreOrder(rootPass->pRight, position);
 }
 
-void ChooseGender(bool &gender){
-	int signal = menu_dong(X_Add+14,Y_Add+9,2,ContentGender);
-	gender = --signal;	
-}
-
-void InputPass(TreePass &rootPass, Passenger &pass)
+//Nhap thong tin hanh khach
+void InputPass(TreePass &rootPass, Passenger &pass, bool Check = false)
 {
 	ShowCursor(true);
 	int ordinal = 0;	//thu tu nhap
 	int position = -1;	//vi tri hanh khach
 	CreateForm(ContentPass, 0, 4, 27);
+	if(Check) 
+	{
+		RemoveRow(X_Add,Y_Add,ContentPass[0],27);
+		ordinal = 1;
+	}
 	while(true){
 		switch(ordinal){
-			case 0:{	//Nhap CCCD
-				gotoxy(X_Add+10,Y_Add);       	strcpy(pass.id, Input(sizeof(pass.id), ID));
-				
+			case 0:{	//Nhap CMND
+				gotoxy(X_Add+10,Y_Add);       	strcpy(pass.id, Input(sizeof(pass.id), ID));		
 				if(strlen(pass.id) == 0){
 					Notification("Vui long khong bo trong");
 					break;
@@ -126,14 +126,16 @@ void InputPass(TreePass &rootPass, Passenger &pass)
 				break;
 			}
 			case 3:{	//Nhap gioi tinh
-				gotoxy(X_Add+13,Y_Add+9);
-				ChooseGender(pass.gender);
+				int signal = MenuSelect(X_Add+9,Y_Add+9,2,ContentGender);
+				pass.gender = --signal;
 				ordinal++;
 				break;
 			}
 			case 4:{
 				InsertPass(rootPass, pass);
 				RemoveForm(0, 4, 27);
+				RemoveBox(X_Add+9,Y_Add+9,16,4);
+				
 			}
 			return;
 		}
@@ -141,6 +143,7 @@ void InputPass(TreePass &rootPass, Passenger &pass)
 	}
 }
 
+//Them hanh khach vao danh sach
 void InsertPass(TreePass &rootPass, Passenger &pass)
 {
 	if (EmptyPass(rootPass))
@@ -178,6 +181,7 @@ void InsertPass(TreePass &rootPass, Passenger &pass)
 	}
 }
 
+//Tim kiem hanh khach
 PPassNode SearchPass(TreePass rootPass, char *idPass)
 {
 	while (!EmptyPass(rootPass))
@@ -192,6 +196,7 @@ PPassNode SearchPass(TreePass rootPass, char *idPass)
 	return NULL;
 }
 
+//Xuat thong tin 1 hanh khach
 void ShowPass(Passenger &pass, int position)
 {
 	gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
@@ -204,6 +209,7 @@ void ShowPass(Passenger &pass, int position)
 	cout << left << setw(8) << (pass.gender ? "Nu" : "Nam");
 }
 
+//Xuat danh sach hanh khach trong 1 trang
 void ShowListPassOnePage(TreePass root, int startIndex)
 {
 	WORD curColor;
@@ -243,21 +249,23 @@ void ShowListPassOnePage(TreePass root, int startIndex)
 	
 	SetColor(curColor);
 	gotoxy(X_Page,Y_Page);
-	cout <<" Trang " << CurPassPage <<"/"<< TotalPassPage; 
+	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
 }
 
+//Thay doi danh sach hanh khach sang trang khac
 void ChangePassMenuManagerPage(TreePass root)
 {
 	gotoxy(X_TitlePage,Y_TitlePage);
 	cout << "QUAN LY HANH KHACH";
 
 	Display( ContentPass,sizeof(ContentPass)/sizeof(string) );
-	ShowListPassOnePage(root,(CurPassPage-1)*NumberPerPage);
+	ShowListPassOnePage(root,(CurPage-1)*NumberPerPage);
 }
 
-void MenuManagePassenger(TreePass &rootPass, Passenger pass){
-	CurPassPage = 1;
-//	TotalPassPage = (int)ceil((double)countPass(rootPass)/NumberPassPage); 	//ceil : lam tron 
+//Quan ly hanh khach
+void MenuManagePassenger(TreePass &rootPass ){
+	CurPage = 1;
+//	TotalPage = (int)ceil((double)countPass(rootPass)/NumberPassPage); 	//ceil : lam tron 
 	
 	Display(ContentPass, sizeof(ContentPass)/sizeof(string));
 	ShowListPassOnePage(rootPass, 0);
@@ -266,35 +274,36 @@ void MenuManagePassenger(TreePass &rootPass, Passenger pass){
 	cout << "QUAN LY HANH KHACH";
 	
 	int signal;
+	Passenger pass;
+
 	while(true)
 	{
-		signal = menu_dong(X_ThaoTac,Y_ThaoTac,3,ContentPass_ThaoTac);
-		gotoxy(50,50); cout << "HAHAHAHA";
+		signal = MenuSelect(X_ThaoTac,Y_ThaoTac,4,ContentPassSelect);
 		switch(signal) {
-			case 1: // Insert
+			case 1: // Them hanh khach
 			{
-				if(CurPassPage == 0) CurPassPage = 1;
+				if(CurPage == 0) CurPage = 1;
 				InputPass(rootPass, pass);
 
-//				TotalPassPage = (int)ceil((double)size(first)/NumberPerPage);
-				ShowListPassOnePage(rootPass, (CurPassPage-1)*NumberPerPage);
+//				TotalPage = (int)ceil((double)size(first)/NumberPerPage);
+				ShowListPassOnePage(rootPass, (CurPage-1)*NumberPerPage);
 				ShowCursor(false);
 				break;
 			}
 			case 2: //Chuyen trang truoc
 			{
-				if(CurPassPage == 1) break;
+				if(CurPage == 1) break;
 				else{
-					CurPassPage--;
+					CurPage--;
 					ChangePassMenuManagerPage(rootPass);
 				}
 				break;
 			}
 			case 3:	//Chuyen trang tiep
 			{
-				if(CurPassPage >= TotalPassPage) break;
+				if(CurPage >= TotalPage) break;
 				else{
-					CurPassPage++;
+					CurPage++;
 					ChangePassMenuManagerPage(rootPass);
 				}
 				break;
@@ -305,6 +314,7 @@ void MenuManagePassenger(TreePass &rootPass, Passenger pass){
 	}
 }
 
+//Load file danh sach hanh khach
 bool LoadTreePass(TreePass &root)
 {
 	ifstream file("DSHK.TXT", ios_base::in);
@@ -334,6 +344,7 @@ bool LoadTreePass(TreePass &root)
 	return true;
 }
 
+//Luu file danh sach hanh khach
 bool SaveTreePass(TreePass root)
 {
 	ofstream file("DSHK.TXT", ios_base::out);
