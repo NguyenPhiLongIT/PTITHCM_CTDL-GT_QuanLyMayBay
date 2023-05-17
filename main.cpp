@@ -15,57 +15,50 @@ using namespace std;
 //#include "Process.h"
 
 
-void menu_xuli();
+void MainMenu();
 
 int main(){
-
     fullScreen();
-    menu_xuli();
+    MainMenu();
     return 0;
 }
 
-void menu_xuli() {
-    ListAir list;
-    InitListAirplane(list);
-    Airplane air;
-    
-    PNodeFli dscb = NULL;
-    Flight cb_tmp;
-    
+void MainMenu() {
+    ListAir listAir;
+    InitListAirplane(listAir); 
+    PNodeFli listFlight = NULL;
     TreePass rootPass = NULL;
-    Passenger pass;
     
-    if(!LoadFlight(dscb));
-	if(!LoadAirplane(list));
+    if(!LoadFlight(listFlight));
+	if(!LoadAirplane(listAir));
 	if(!LoadTreePass(rootPass));
-//	InputPass(rootPass, pass);
 	
     while (true) {
     	Clear();
         gotoxy(X_TitlePage-1,Y_TitlePage-1);
 	    cout << "HANG HANG KHONG PTITHCM";
-        int tt = menu_dong(X_Menu, Y_Menu,6, ContentMenu);
+        int tt = MenuSelect(X_Menu, Y_Menu,6, ContentMenu);
         switch(tt) {
             case 1: //Home
                 break;
             case 2: //Airplane
             {
-            	remove_box(X_Menu, Y_Menu, 20, 12);
-                MenuManageAirplane(list, air);
+            	RemoveBox(X_Menu, Y_Menu, 20, 12);
+                MenuManageAirplane(listAir);
                 break;
             }
             case 3: // Flight
-            	remove_box(X_Menu, Y_Menu, 20, 12);
-            	MenuManageFlight(dscb,list);
+            	RemoveBox(X_Menu, Y_Menu, 20, 12);
+            	MenuManageFlight(listFlight,listAir);
                 break;
             case 4: // Passenger
-            	remove_box(X_Menu, Y_Menu, 20, 12);
-            	MenuManagePassenger(rootPass, pass);
+            	RemoveBox(X_Menu, Y_Menu, 20, 12);
+            	MenuManagePassenger(rootPass);
                 break;
             case 5: // Ticket
             {
-	           	remove_box(X_Menu, Y_Menu, 20, 12);  	
-				MenuManageListTicket(list,dscb);
+	           	RemoveBox(X_Menu, Y_Menu, 20, 12);  	
+				MenuManageListTicket(listAir,listFlight,rootPass);
 				break;
             }
             default: //Exit
