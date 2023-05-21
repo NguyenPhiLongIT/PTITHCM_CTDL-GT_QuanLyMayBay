@@ -192,6 +192,20 @@ int FindDestination(PNodeFli first, const char *arrival)
 	return -1;
 }
 
+bool FindDate(PNodeFli first, Flight fli){
+	for(PNodeFli p = first; p != NULL; p = p->pNext){
+		if(strcmp(p->data.idAir, fli.idAir) == 0 &&
+			p->data.date.year == fli.date.year && 
+			p->data.date.month == fli.date.month)
+		{
+			if (p->data.date.day == fli.date.day || abs(p->data.date.day - fli.date.day) == 1) {
+				if(CompareDate(&p->data.date,&fli.date) < 120) return false;
+			}
+		}
+	}
+	return true;
+}
+
 //Kiem tra ngay thang nam
 bool CheckDate(PNodeFli first, PDate date) {
 	if(	first->data.date.year == date->year &&
@@ -306,7 +320,7 @@ void InputFlight(PNodeFli &first, Flight &flight, ListAir listAir, bool Edit = f
 				break;
 			}
 			case 1:{	//Nhap arrivalAir
-				gotoxy(X_Add+11,Y_Add+3);     	strcpy(flight.arrivalAir, Input(sizeof(flight.arrivalAir), Text));
+				gotoxy(X_Add+11,Y_Add+3);     	strcpy(flight.arrivalAir, Input(sizeof(flight.arrivalAir), AutoCapitalText));
 				if(strlen(flight.arrivalAir) == 0){
 					Notification("Vui long khong bo trong");
 					break;
@@ -329,8 +343,17 @@ void InputFlight(PNodeFli &first, Flight &flight, ListAir listAir, bool Edit = f
 				ordinal++;
 				break;
 			}
-			case 3:{	//Nhap DateTime
-				gotoxy(X_Add+13,Y_Add+9);		InputDate(&flight.date); 
+			case 3:{	//Nhap DateTime		
+				do {
+					gotoxy(X_Add+13,Y_Add+9);
+					cout << "          ";
+					gotoxy(X_Add+13,Y_Add+9);
+					InputDate(&flight.date);
+					if(!FindDate(first, flight)) {
+						Notification("Thoi gian khong hop le! Vui long nhap thoi gian cach 2 tieng");
+					}
+					else break;
+				} while(true);
 				ordinal++;
 				break;
 			}
@@ -438,7 +461,7 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir){
 	while(true)
 	{
 		menu:
-		signal = MenuSelect(X_ThaoTac,Y_ThaoTac,7,ContentFlightSelect);
+		signal = MenuSelect(X_ThaoTac,Y_ThaoTac,6,ContentFlightSelect);
 		switch(signal) {
 			case 1: // Them chuyen bay
 			{
@@ -619,8 +642,8 @@ void MenuManageListTicket(ListAir listAir, PNodeFli listFlight, TreePass rootPas
             {
 				CreateRow(X_Add, Y_Add, ContentFlight[1], 32); 
 				CreateRow(X_Add, Y_Add+3, ContentFlight[3], 32);
-				gotoxy(X_Add+12,Y_Add);     	strcpy(flight.arrivalAir, Input(sizeof(flight.arrivalAir), Text));	
-				gotoxy(X_Add+14,Y_Add+3); 		InputDate(&date);
+				gotoxy(X_Add+12,Y_Add);     	strcpy(flight.arrivalAir, Input(sizeof(flight.arrivalAir), AutoCapitalText));	
+				gotoxy(X_Add+14,Y_Add+3); 		InputDate(&date, true);
 					
 				RemoveRow(X_Add, Y_Add, ContentFlight[1], 32);
 				RemoveRow(X_Add, Y_Add+3, ContentFlight[3], 46);
