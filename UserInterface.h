@@ -22,7 +22,7 @@ string ContentAirplaneInput[3] = {"Plane ID", "Plane Type", "Column & Row"};
 
 //Chuyen bay
 string ContentFlight[6] = { "Flight ID", "Destination", "Plane ID", "Date and Time", "Number Tickets", "Status"};
-string ContentFlightSelect[7] = {"Insert", "Edit DateTime", "Cancle Flight", "NumberOfPass", "Previous Page", "Next Page", "Back"};
+string ContentFlightSelect[6] = {"Insert", "Edit DateTime", "Cancle Flight", "Previous Page", "Next Page", "Back"};
 
 //Ve
 string ContentTicketInput[2] = {"PassengerID","Seat"};
@@ -36,7 +36,7 @@ string ContentPassSelect[4] = {"Insert", "Previous Page", "Next Page", "Back"};
 string ContentGender[2] = {"Nam", "Nu"};
 
 //Menu
-string ContentMenu[6] = {"Home", "Plane", "Flight", "Passenger", "Ticket", "Exit"};
+string ContentMenu[7] = {"Home", "Plane", "Flight", "Passenger", "Ticket", "List", "Exit"};
 
 //Ve 1 hop thoai
 void Box(int x, int y, int w, int h, string nd) {
