@@ -2,6 +2,7 @@
 #include <iostream>
 #include <ctime>
 #include <string.h>
+#include <math.h>
 
 #include "Mylibrary.h"
 #include "Constraint.h"
@@ -21,7 +22,7 @@ char *DateToString(PDate pDate);
 PDate StringToDate(char *str);
 bool IsLeapYear(PDate pDate);
 int CompareDate(PDate date1, PDate date2);
-void InputDate(PDate pDate);
+void InputDate(PDate pDate, bool filter);
 void PrintDate(PDate date);
 
 Date GetCurTime(){
@@ -64,7 +65,7 @@ bool IsRightDate(PDate date){
         if(IsLeapYear(date))
             dayOfMonth[1] = 29;
     }
-    return date->day < dayOfMonth[date->month-1];
+    return date->day <= dayOfMonth[date->month-1];
 }
 
 bool IsValidDate(PDate date){
@@ -87,14 +88,15 @@ bool IsLeapYear(PDate pDate){
         || (pDate->year%4 == 0 && pDate->year%100 != 0);
 }
 
-/*
-So sÃƒÂ¡nh 2 ngÃƒÂ y nhÃ¡ÂºÂ­p vÃƒÂ o chÃƒÂ­nh xÃƒÂ¡c theo giÃƒÂ¢y
-NÃ¡ÂºÂ¿u khÃƒÂ´ng cÃƒÂ³ tham sÃ¡Â»â€˜ thÃ¡Â»Â© 2 thÃƒÂ¬ so sÃƒÂ¡nh ngÃƒÂ y nhÃ¡ÂºÂ­p vÃƒÂ o vÃ¡Â»â€ºi ngÃƒÂ y hiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i cÃ¡Â»Â§a hÃ¡Â»â€¡ thÃ¡Â»â€˜ng
-*/
 int CompareDate(PDate date1, PDate date2){
-    int SumSecond1 = date1->hour*3600+date1->minute*60+date1->second;
-    int SumSecond2 = date2->hour*3600+date2->minute*60+date2->second;
-    return SumSecond1 - SumSecond2;
+	int result, SumSecond1, SumSecond2;
+	SumSecond1 = date1->hour*60+date1->minute;
+   	SumSecond2 = date2->hour*60+date2->minute;
+   	result = abs(SumSecond1 - SumSecond2);
+	if(abs(date1->day - date2->day) == 1 || ){
+		result = abs(abs(SumSecond1 - SumSecond2) - 24*60);
+	}
+	return result;
 }
 
 void PrintDate(PDate date){
@@ -103,7 +105,7 @@ void PrintDate(PDate date){
     	delete DateString;
 }
 
-void InputDate(PDate pDate)
+void InputDate(PDate pDate, bool filter = false)
 {
     char hour[2], minute[2];
     char day[2], month[2], year[4]; 
@@ -115,13 +117,21 @@ void InputDate(PDate pDate)
     {
         ShowCursor(true);
         gotoxy(x,y);    
-        std::cout <<"  :   -   /  /    .";
-
-        gotoxy(x, y);    strcpy(hour, Input(sizeof(hour), Number));      pDate->hour = atoi(hour);
-        gotoxy(x+3,y);   strcpy(minute, Input(sizeof(minute), Number));  pDate->minute = atoi(minute);
-        gotoxy(x+8,y);   strcpy(day, Input(sizeof(day), Number));        pDate->day = atoi(day); 
-        gotoxy(x+11,y);  strcpy(month, Input(sizeof(month), Number));    pDate->month = atoi(month);
-        gotoxy(x+14,y);  strcpy(year, Input(sizeof(year), Number));      pDate->year = atoi(year);
+        if(filter == false) {
+        	std::cout <<"  :   -   /  /    .";
+        	gotoxy(x, y);    strcpy(hour, Input(sizeof(hour), Number));      pDate->hour = atoi(hour);
+        	gotoxy(x+3,y);   strcpy(minute, Input(sizeof(minute), Number));  pDate->minute = atoi(minute);
+        	gotoxy(x+8,y);   strcpy(day, Input(sizeof(day), Number));        pDate->day = atoi(day); 
+        	gotoxy(x+11,y);  strcpy(month, Input(sizeof(month), Number));    pDate->month = atoi(month);
+        	gotoxy(x+14,y);  strcpy(year, Input(sizeof(year), Number));      pDate->year = atoi(year);
+		}
+		else {
+			std::cout <<"   /  /    .";
+			gotoxy(x+1,y);   strcpy(day, Input(sizeof(day), Number));        pDate->day = atoi(day); 
+        	gotoxy(x+4,y);  strcpy(month, Input(sizeof(month), Number));    pDate->month = atoi(month);
+        	gotoxy(x+7,y);  strcpy(year, Input(sizeof(year), Number));      pDate->year = atoi(year);
+		}
+        
 
         isValidDate = IsValidDate(pDate);
         if(isValidDate == false)
