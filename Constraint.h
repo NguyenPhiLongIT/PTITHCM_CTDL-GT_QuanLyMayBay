@@ -54,6 +54,15 @@ bool Text(char &res)
            Space(res);
 }
 
+bool AutoCapitalText(char &res)
+{	
+    if (NormalText(res))
+    {
+        res -= 32;
+    }
+    return CapitalText(res);
+}
+
 bool All(char &res)
 {
     return 1;
