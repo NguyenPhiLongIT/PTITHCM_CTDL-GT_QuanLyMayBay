@@ -193,12 +193,30 @@ int FindDestination(PNodeFli first, const char *arrival)
 }
 
 bool FindDate(PNodeFli first, Flight fli){
-	for(PNodeFli p = first; p != NULL; p = p->pNext){
+	for(PNodeFli p = first; p != NULL; p = p->pNext)
+	{
 		if(strcmp(p->data.idAir, fli.idAir) == 0 &&
 			p->data.date.year == fli.date.year && 
 			p->data.date.month == fli.date.month)
 		{
-			if (p->data.date.day == fli.date.day || abs(p->data.date.day - fli.date.day) == 1) {
+			if(p->data.date.day == fli.date.day || abs(p->data.date.day - fli.date.day) == 1) 
+			{
+				if(CompareDate(&p->data.date,&fli.date) < 120) return false;
+			}
+		}
+		else if(strcmp(p->data.idAir, fli.idAir) == 0 &&
+				p->data.date.year == fli.date.year)
+		{
+			if(abs(p->data.date.day - fli.date.day) == 30 || abs(p->data.date.day - fli.date.day) == 29 ||
+				abs(p->data.date.day - fli.date.day) == 27)
+			{
+				if(CompareDate(&p->data.date,&fli.date) < 120) return false;
+			}
+		}
+		else if(strcmp(p->data.idAir, fli.idAir) == 0){
+			if(abs(p->data.date.day - fli.date.day) == 30 || abs(p->data.date.day - fli.date.day) == 29 ||
+				abs(p->data.date.day - fli.date.day) == 27)
+			{
 				if(CompareDate(&p->data.date,&fli.date) < 120) return false;
 			}
 		}
@@ -329,6 +347,8 @@ void InputFlight(PNodeFli &first, Flight &flight, ListAir listAir, bool Edit = f
 				break;
 			}
 			case 2:{	//Nhap idAir
+//				RemoveTable(ContentFlight,sizeof(ContentFlight)/sizeof(string));
+//				MenuManageAirplane(listAir);
 				gotoxy(X_Add+10,Y_Add+6); cout << "			";
 				gotoxy(X_Add+10,Y_Add+6);     	strcpy(flight.idAir, Input(sizeof(flight.idAir), ID));
 				position = IndexAirplane(listAir, flight.idAir);
@@ -497,13 +517,7 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir){
 				ShowCursor(false);
 				break;
 			}
-			case 4:		//Thong ke so luong hanh khach tren chuyen bay
-			{
-				RemoveTable(ContentFlight,sizeof(ContentFlight)/sizeof(string));
-				
-				break;
-			}
-			case 5: //Chuyen trang truoc
+			case 4: //Chuyen trang truoc
 			{
 				if(CurPage == 1) break;
 				else{
@@ -512,7 +526,7 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir){
 				}
 				break;
 			}
-			case 6:	//Chuyen trang tiep
+			case 5:	//Chuyen trang tiep
 			{
 				if(CurPage >= TotalPage) break;
 				else{
