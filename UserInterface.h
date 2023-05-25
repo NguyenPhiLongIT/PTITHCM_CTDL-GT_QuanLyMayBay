@@ -142,32 +142,29 @@ int MenuSelect(int x, int y, int sl, string nd[]) {
 	int j = i; //luu vi tri box gan nhat
 	bool kt = true; //kiem tra co nhap phim khong
 	while (true) {
-		if (kt == true) {
-			gotoxy(xOld,yOld);
-			Highlight(xOld,yOld,Box_Width,Box_Height,BLACK,nd[j]);
-			j = i; xOld = xtmp; yOld = ytmp;
-			Highlight(xtmp,ytmp,Box_Width,Box_Height,BLUE_LIGHT,nd[i]);
-			kt = false;
-		}
-		if (_kbhit()) {
-			char c = _getch();
-			if (c == -32) {
-				kt = true;
-				c = _getch();
-				if (c == UP && ytmp != y) {
-					ytmp -= Box_Height;
-					i--;
-				} else if (c == DOWN && ytmp != y + Box_Height*(sl-1)) {
-					ytmp += Box_Height;
-					i++;
-				} 
-			} else if (c == ENTER) {
-				if (ytmp == y + Box_Height*(sl-1)) Highlight(xtmp,ytmp,Box_Width,Box_Height,BLACK,nd[i]);
-				return i+1;
-			} else if (c == ESC) {
-				Highlight(xtmp,ytmp,Box_Width,Box_Height,BLACK,nd[i]);
-				return -1;
+		gotoxy(xOld,yOld);
+		Highlight(xOld,yOld,Box_Width,Box_Height,BLACK,nd[j]);
+		j = i; xOld = xtmp; yOld = ytmp;
+		Highlight(xtmp,ytmp,Box_Width,Box_Height,BLUE_LIGHT,nd[i]);
+		kt = false;
+		char c = _getch();
+		if (c == -32) {
+			kt = true;
+			c = _getch();
+			if (c == UP && ytmp != y) {
+				ytmp -= Box_Height;
+				i--;
+			} else if (c == DOWN && ytmp != y + Box_Height*(sl-1)) {
+				ytmp += Box_Height;
+				i++;
 			}
+			if (c == LEFT || c == RIGHT)	return c;
+		} else if (c == ENTER) {
+			if (ytmp == y + Box_Height*(sl-1)) Highlight(xtmp,ytmp,Box_Width,Box_Height,BLACK,nd[i]);
+			return i+1;
+		} else if (c == ESC) {
+			Highlight(xtmp,ytmp,Box_Width,Box_Height,BLACK,nd[i]);
+			return -1;
 		}
 	}
 }
