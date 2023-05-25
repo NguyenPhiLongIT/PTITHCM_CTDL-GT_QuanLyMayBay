@@ -89,12 +89,13 @@ bool IsLeapYear(PDate pDate){
 }
 
 int CompareDate(PDate date1, PDate date2){
-	int result, SumSecond1, SumSecond2;
-	SumSecond1 = date1->hour*60+date1->minute;
-   	SumSecond2 = date2->hour*60+date2->minute;
-   	result = abs(SumSecond1 - SumSecond2);
-	if(abs(date1->day - date2->day) == 1 || ){
-		result = abs(abs(SumSecond1 - SumSecond2) - 24*60);
+	int result, SumMinute1, SumMinute2;
+	SumMinute1 = date1->hour*60+date1->minute;
+   	SumMinute2 = date2->hour*60+date2->minute;
+   	result = abs(SumMinute1 - SumMinute2);
+	if(abs(date1->day - date2->day) == 1 || abs(date1->day - date2->day) == 30 ||
+		abs(date1->day - date2->day) == 29 || abs(date1->day - date2->day) == 27){
+		result = abs(abs(SumMinute1 - SumMinute2) - 24*60);
 	}
 	return result;
 }
