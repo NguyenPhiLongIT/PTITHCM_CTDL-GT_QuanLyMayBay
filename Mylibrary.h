@@ -14,7 +14,7 @@
 void gotoxy(short x, short y);
 int wherex();
 int wherey();
-void Clean();
+void Clean(int left, int top, int right, int bottom);
 void SetColor(WORD color);
 void SetBGColor(WORD color);
 void Clear();
