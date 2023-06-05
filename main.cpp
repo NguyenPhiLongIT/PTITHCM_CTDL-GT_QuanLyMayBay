@@ -37,30 +37,38 @@ void MainMenu() {
     	Clear();
         gotoxy(X_TitlePage-1,Y_TitlePage-1);
 	    cout << "HANG HANG KHONG PTITHCM";
-        int tt = MenuSelect(X_Menu, Y_Menu,6, ContentMenu);
+        int tt = MenuSelect(X_Menu, Y_Menu,7, ContentMenu);
         switch(tt) {
             case 1: //Home
                 break;
             case 2: //Airplane
             {
-            	RemoveBox(X_Menu, Y_Menu, 20, 12);
+            	RemoveBox(X_Menu, Y_Menu, 20, 14);
                 MenuManageAirplane(listAir);
                 break;
             }
             case 3: // Flight
-            	RemoveBox(X_Menu, Y_Menu, 20, 12);
+            {
+            	RemoveBox(X_Menu, Y_Menu, 20, 14);
             	MenuManageFlight(listFlight,listAir);
-                break;
+                break;	
+			}
             case 4: // Passenger
-            	RemoveBox(X_Menu, Y_Menu, 20, 12);
+            {
+            	RemoveBox(X_Menu, Y_Menu, 20, 14);
             	MenuManagePassenger(rootPass);
-                break;
+                break;	
+			}
             case 5: // Ticket
             {
-	           	RemoveBox(X_Menu, Y_Menu, 20, 12);  	
+	           	RemoveBox(X_Menu, Y_Menu, 20, 14);  	
 				MenuManageListTicket(listAir,listFlight,rootPass);
 				break;
             }
+            case 6: // List
+            {
+            	break;
+			}
             default: //Exit
                 return;
         }
