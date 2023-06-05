@@ -71,22 +71,40 @@ int wherey()
     return screen_buffer_info.dwCursorPosition.Y;
 }
 // Sá»­ dá»¥ng Ä‘á»ƒ xÃ³a dÃ²ng tá»« vá»‹ trÃ­ coord Ä‘áº¿n con trá» hiá»‡n táº¡i trÃªn Console
-void clreol(COORD coord)
+void Clean(int left, int top, int right, int bottom)
 {
-    // COORD coord;
-    DWORD written;
+    HANDLE hConsoleOutput;
+    COORD coord;
+    DWORD written, dwCells;
     CONSOLE_SCREEN_BUFFER_INFO info;
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
-    // coord.X = info.dwCursorPosition.X;
-    // coord.Y = info.dwCursorPosition.Y;
-    FillConsoleOutputCharacter(
-        GetStdHandle(STD_OUTPUT_HANDLE),
-        ' ',
-        info.dwSize.X - info.dwCursorPosition.X * info.dwCursorPosition.Y,
-        coord,
-        &written
-    );
-    gotoxy(info.dwCursorPosition.X, info.dwCursorPosition.Y);
+
+    hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    if(GetConsoleScreenBufferInfo(hConsoleOutput, &info)){
+        coord.X = left;
+        coord.Y = top;
+
+        dwCells = right - left + 1;
+        while(coord.Y <= bottom){
+            FillConsoleOutputCharacter(
+                hConsoleOutput,
+                ' ',
+                dwCells,
+                coord,
+                &written
+            );
+            FillConsoleOutputAttribute(
+                hConsoleOutput,
+                // (info.wAttributes & 0xff00) | 0x0007,
+                info.wAttributes,
+                dwCells,
+                coord,
+                &written
+            );
+            ++coord.Y;
+        }
+        SetConsoleCursorPosition(hConsoleOutput, info.dwCursorPosition);
+    }
 }
 
 void SetColor(WORD color)
