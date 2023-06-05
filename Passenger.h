@@ -265,7 +265,7 @@ void ChangePassMenuManagerPage(TreePass root)
 //Quan ly hanh khach
 void MenuManagePassenger(TreePass &rootPass ){
 	CurPage = 1;
-//	TotalPage = (int)ceil((double)countPass(rootPass)/NumberPassPage); 	//ceil : lam tron 
+	TotalPage = (int)ceil((double)countPass(rootPass)/NumberPerPage); 	//ceil : lam tron 
 	
 	Display(ContentPass, sizeof(ContentPass)/sizeof(string));
 	ShowListPassOnePage(rootPass, 0);
@@ -285,7 +285,7 @@ void MenuManagePassenger(TreePass &rootPass ){
 				if(CurPage == 0) CurPage = 1;
 				InputPass(rootPass, pass);
 
-//				TotalPage = (int)ceil((double)size(first)/NumberPerPage);
+				TotalPage = (int)ceil((double)countPass(rootPass)/NumberPerPage);
 				ShowListPassOnePage(rootPass, (CurPage-1)*NumberPerPage);
 				ShowCursor(false);
 				break;
