@@ -43,21 +43,21 @@ void MainMenu() {
                 break;
             case 2: //Airplane
             {
-            	RemoveBox(X_Menu, Y_Menu, 20, 12);
+            	RemoveBox(X_Menu, Y_Menu, 20, 15);
                 MenuManageAirplane(listAir);
                 break;
             }
             case 3: // Flight
-            	RemoveBox(X_Menu, Y_Menu, 20, 12);
+            	RemoveBox(X_Menu, Y_Menu, 20, 15);
             	MenuManageFlight(listFlight,listAir);
                 break;
             case 4: // Passenger
-            	RemoveBox(X_Menu, Y_Menu, 20, 12);
+            	RemoveBox(X_Menu, Y_Menu, 20, 15);
             	MenuManagePassenger(rootPass);
                 break;
             case 5: // Ticket
             {
-	           	RemoveBox(X_Menu, Y_Menu, 20, 12);  	
+	           	RemoveBox(X_Menu, Y_Menu, 20, 15);  	
 				MenuManageListTicket(listAir,listFlight,rootPass);
 				break;
             }
