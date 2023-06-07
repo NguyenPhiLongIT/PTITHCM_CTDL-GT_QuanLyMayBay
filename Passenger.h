@@ -318,26 +318,23 @@ void MenuManagePassenger(TreePass &rootPass ){
 bool LoadTreePass(TreePass &root)
 {
 	ifstream file("DSHK.TXT", ios_base::in);
-	char str[10];
+	string str;
 	Passenger pass;
 
 	if(!file.is_open())
 		return false;
 	
-	while(!file.eof())
+	while(getline(file, str))
 	{
-		
-		file.getline(pass.id, sizeof(pass.id), ';');
-		if(strcmp(pass.id, "") != 0)
-		{
-			file.getline(pass.firstName, sizeof(pass.firstName), ';');
-			file.getline(pass.lastName, sizeof(pass.lastName), ';');
-//			file >> pass.gender;
-//			file.ignore();
-			file.getline(str,sizeof(str));
-			pass.gender = atoi(str);
-			InsertPass(root, pass);
-		}
+		stringstream ss(str);
+
+		getline(ss, str, ';');	strcpy(pass.id, str.c_str());
+		if(strcmp(pass.id,"") == 0)
+			continue;
+		getline(ss, str, ';');	strcpy(pass.firstName, str.c_str());
+		getline(ss, str, ';');	strcpy(pass.lastName, str.c_str());
+		getline(ss, str, ';');	pass.gender = atoi(str.c_str());
+		InsertPass(root, pass);
 	}
 
 	file.close();
