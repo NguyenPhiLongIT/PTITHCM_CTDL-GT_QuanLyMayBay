@@ -61,7 +61,7 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir);
 void ListFlightDateAndDes(PNodeFli first, Date date, const char* arrival, int startIndex, bool ticketAvailable);
 void ChangeListFlightDateAndDesPage(PNodeFli first, Date date, const char* arrival, bool ticketAvailable);
 
-void MenuManageListTicket(ListAir listAir, PNodeFli listFlight, TreePass rootPass);
+void MenuManageListTicket(ListAir &listAir, PNodeFli &listFlight, TreePass &rootPass);
 
 bool LoadFlight(PNodeFli &first);
 bool SaveFlight(PNodeFli first);
@@ -677,7 +677,7 @@ void ChangeListFlightDateAndDesPage(PNodeFli first, Date date, const char* arriv
 }
 
 //Quan ly danh sach ve
-void MenuManageListTicket(ListAir listAir, PNodeFli listFlight, TreePass rootPass) {
+void MenuManageListTicket(ListAir &listAir, PNodeFli &listFlight, TreePass &rootPass) {
 	Flight flight;
 	Airplane air;
 	PNodeFli pFlight;
@@ -723,6 +723,9 @@ void MenuManageListTicket(ListAir listAir, PNodeFli listFlight, TreePass rootPas
 				//Thuc hien thao tac voi danh sach ve
 				gotoxy(X_TitlePage-10,Y_TitlePage);
 				cout << "MA CHUYEN BAY: " << pFlight->data.idFlight << " - DIA DIEM: " << pFlight->data.arrivalAir << " - THOI GiAN: "; PrintDate(&pFlight->data.date);
+				if(rootPass == NULL){
+					system("pause");
+				}
 				MenuManageTicket(air, pFlight->data.listTicket,rootPass);
 				if(SaveFlight(listFlight));
 				if(SaveTreePass(rootPass));
@@ -793,7 +796,7 @@ void ShowListAirplaneFlyOnePage(ListAir list, int startIndex)
 		ShowAirplaneFly(list.nodes[i+startIndex], i); 
 	} 
 	SetColor(curColor);
-	RemoveExceedMember(i, 5);
+	RemoveExceedMember(i, 2);
 	gotoxy(X_Page,Y_Page);
 	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
 }
@@ -837,6 +840,146 @@ void ListAirplaneFly(PNodeFli first, ListAir listAir){
 			} else if (c == RIGHT && CurPage < TotalPage) {
 				CurPage ++;
 				ChangeAirplaneFlyMenuManagerPage(listAir);
+			}
+		} else if (c == ESC) {
+			return;
+		}
+	}
+}
+
+//So luong hanh khach theo chuyen bay
+int CountPassOfFlight(PNodeFli fli){
+	int count = 0;
+	if(fli == NULL){
+		return count;
+	}
+	
+	for (int i = 0; i < fli->data.listTicket.sizeTotal; i++) {
+		if (fli->data.listTicket.DSV[i].statusTicket == 1) count ++;
+	}
+	return count;
+}
+
+//Xuat thong tin hanh khach theo chuyen bay
+void ShowPassFli(Passenger &pass, PNodeFli fli, int position)
+{
+	gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
+//    cout << left << setw(8) << pass.id;
+    gotoxy(xKeyDisplay[1] + 3, Y_Display + position + 3);
+//    cout << left << setw(8) << fli->data.listTicket.DSV.seat;
+    gotoxy(xKeyDisplay[2] + 3, Y_Display + position + 3);
+    cout << left << setw(8) << pass.id;
+    gotoxy(xKeyDisplay[3] + 3, Y_Display + position + 3);
+    cout << left << setw(8) << pass.firstName << " " << pass.lastName;
+    gotoxy(xKeyDisplay[4] + 3, Y_Display + position + 3);
+	cout << left << setw(8) << (pass.gender ? "Nu" : "Nam");
+}
+
+//Xuat danh sach hanh khach trong 1 trang
+void ShowListPassFliOnePage(TreePass root, PNodeFli fli, int startIndex)
+{
+	WORD curColor;
+	GetColor(curColor);
+	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
+	int position = startIndex;
+	int count = 0;
+	
+//	gotoxy(3,3);
+//	cout << " So luong hanh khach : " << position;
+	
+	PPassenger temp;
+	PPassNode node;
+	Queue<Passenger> queue;
+	InitQueue(queue);
+	pushQueue(queue, root->data);
+
+	while (!emptyQueue(queue))
+	{
+		temp = frontQueue(queue);
+		popQueue(queue);
+		
+		for (int i = 0; i < fli->data.listTicket.sizeTotal; i++) {
+			if (fli->data.listTicket.DSV[i].statusTicket == 1 &&  strcmp(fli->data.listTicket.DSV[i].idPas, temp->id) == 0) {
+				count ++;
+				ShowPassFli(*temp, fli, position);
+				++position;
+				break;
+			} 
+			
+		}
+		
+		
+		node = (PPassNode)(temp);
+		if(node->pLeft != NULL){
+			pushQueue(queue, node->pLeft->data);
+		}
+		if(node->pRight != NULL){
+			pushQueue(queue, node->pRight->data);
+		}
+		if(position >= NumberPerPage){
+			break;
+		}
+	}
+	
+	SetColor(curColor);
+	gotoxy(X_Display, Y_Display-1);
+	cout << "So luong hanh khach: "<< count;
+	gotoxy(X_Page,Y_Page);
+	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
+}
+
+//Thay doi danh sach hanh khach sang trang khac
+//void ChangePassMenuManagerPage(TreePass root)
+//{
+//	gotoxy(X_TitlePage,Y_TitlePage);
+//	cout << "QUAN LY HANH KHACH";
+//
+//	Display( ContentPass,sizeof(ContentPass)/sizeof(string) );
+//	ShowListPassOnePage(root,(CurPage-1)*NumberPerPage);
+//}
+
+//Danh sach hanh khach thuoc chuyen bay X
+void ListPassOfFlight(PNodeFli listFlight, TreePass rootPass){
+	ShowCursor(false);
+	CurPage = 1;
+	
+
+	Flight flight;
+	PNodeFli pFlight;
+	do {
+					CreateRow(X_Add, Y_Add, ContentFlight[0], 32);
+					gotoxy(X_Add+10,Y_Add);       	strcpy(flight.idFlight, Input(sizeof(flight.idFlight), ID));
+					pFlight = FindFlight(listFlight,flight.idFlight);
+					if (pFlight == NULL) Notification("Chuyen bay khong ton tai");
+					else if (pFlight->data.status == HETVE) Notification("Chuyen bay da het ve");
+					else if (pFlight->data.status == HUYCHUYEN) Notification("Chuyen bay da bi huy");
+					else if (pFlight->data.status == HOANTAT) Notification("Chuyen bay da hoan tat");
+					else break;
+				} while (true);
+				
+	RemoveRow(X_Add, Y_Add, ContentFlight[0], 32);
+	
+	TotalPage = (int)ceil((double)CountPassOfFlight(pFlight)/NumberPerPage);
+	Display(ContentListPass, sizeof(ContentListPass)/sizeof(string));
+	
+	gotoxy(X_TitlePage-10,Y_TitlePage);
+	cout << "DANH SACH HANH KHACH THUOC CHUYEN BAY " << pFlight->data.idFlight;
+	gotoxy(X_TitlePage-20, Y_TitlePage+1); cout << "Ngay gio khoi hanh: "; PrintDate(&pFlight->data.date); 
+	gotoxy(X_TitlePage+30, Y_TitlePage+1); cout << "Noi den: " << pFlight->data.arrivalAir;
+	
+	ShowListPassFliOnePage(rootPass, pFlight, 0);
+	
+	while(true)
+	{
+		char c = _getch();
+		if (c == -32) {
+			c = _getch();
+			if (c == LEFT && CurPage != 1) {
+				CurPage --;
+//				ChangeAirplaneFlyMenuManagerPage(listAir);
+			} else if (c == RIGHT && CurPage < TotalPage) {
+				CurPage ++;
+//				ChangeAirplaneFlyMenuManagerPage(listAir);
 			}
 		} else if (c == ESC) {
 			return;
