@@ -186,16 +186,11 @@ void InsertPass(TreePass &rootPass, Passenger &pass)
 //Tim kiem hanh khach
 PPassNode SearchPass(TreePass rootPass, char *idPass)
 {
-	while (!EmptyPass(rootPass))
-	{
-		if (0 == strcmp(rootPass->data.id, idPass))
-			return rootPass;
-		else if (strcmp(rootPass->data.id, idPass) < 0)
-			rootPass = rootPass->pLeft;
-		else
-			rootPass = rootPass->pRight;
-	}
-	return NULL;
+	if(rootPass == NULL || strcmp(idPass, rootPass->data.id) == 0)
+		return rootPass;
+	if (strcmp(rootPass->data.id, idPass) < 0)
+        return SearchPass(rootPass->pLeft, idPass);
+    return SearchPass(rootPass->pLeft, idPass);
 }
 
 //Xuat thong tin 1 hanh khach
