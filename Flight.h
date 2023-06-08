@@ -864,9 +864,9 @@ int CountPassOfFlight(PNodeFli fli){
 void ShowPassFli(Passenger &pass, PNodeFli fli, int position)
 {
 	gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
-//    cout << left << setw(8) << pass.id;
+	cout << left << setw(8) << position+1;
     gotoxy(xKeyDisplay[1] + 3, Y_Display + position + 3);
-//    cout << left << setw(8) << fli->data.listTicket.DSV.seat;
+    cout << left << setw(8) << fli->data.listTicket.DSV[position].seat;
     gotoxy(xKeyDisplay[2] + 3, Y_Display + position + 3);
     cout << left << setw(8) << pass.id;
     gotoxy(xKeyDisplay[3] + 3, Y_Display + position + 3);
@@ -875,7 +875,7 @@ void ShowPassFli(Passenger &pass, PNodeFli fli, int position)
 	cout << left << setw(8) << (pass.gender ? "Nu" : "Nam");
 }
 
-//Xuat danh sach hanh khach trong 1 trang
+//Xuat danh sach hanh khach theo chuyen bay trong 1 trang
 void ShowListPassFliOnePage(TreePass root, PNodeFli fli, int startIndex)
 {
 	WORD curColor;
@@ -904,10 +904,8 @@ void ShowListPassFliOnePage(TreePass root, PNodeFli fli, int startIndex)
 				ShowPassFli(*temp, fli, position);
 				++position;
 				break;
-			} 
-			
+			} 	
 		}
-		
 		
 		node = (PPassNode)(temp);
 		if(node->pLeft != NULL){
@@ -929,43 +927,38 @@ void ShowListPassFliOnePage(TreePass root, PNodeFli fli, int startIndex)
 }
 
 //Thay doi danh sach hanh khach sang trang khac
-//void ChangePassMenuManagerPage(TreePass root)
-//{
-//	gotoxy(X_TitlePage,Y_TitlePage);
-//	cout << "QUAN LY HANH KHACH";
-//
-//	Display( ContentPass,sizeof(ContentPass)/sizeof(string) );
-//	ShowListPassOnePage(root,(CurPage-1)*NumberPerPage);
-//}
+void ChangePassFliMenuManagerPage(TreePass root, PNodeFli fli)
+{
+	Display(ContentListPass,sizeof(ContentListPass)/sizeof(string) );
+	ShowListPassFliOnePage(root,fli,(CurPage-1)*NumberPerPage);
+}
 
 //Danh sach hanh khach thuoc chuyen bay X
 void ListPassOfFlight(PNodeFli listFlight, TreePass rootPass){
 	ShowCursor(false);
 	CurPage = 1;
 	
-
 	Flight flight;
 	PNodeFli pFlight;
 	do {
-					CreateRow(X_Add, Y_Add, ContentFlight[0], 32);
-					gotoxy(X_Add+10,Y_Add);       	strcpy(flight.idFlight, Input(sizeof(flight.idFlight), ID));
-					pFlight = FindFlight(listFlight,flight.idFlight);
-					if (pFlight == NULL) Notification("Chuyen bay khong ton tai");
-					else if (pFlight->data.status == HETVE) Notification("Chuyen bay da het ve");
-					else if (pFlight->data.status == HUYCHUYEN) Notification("Chuyen bay da bi huy");
-					else if (pFlight->data.status == HOANTAT) Notification("Chuyen bay da hoan tat");
-					else break;
-				} while (true);
+		CreateRow(X_Add, Y_Add, ContentFlight[0], 32);
+		gotoxy(X_Add+10,Y_Add);       	strcpy(flight.idFlight, Input(sizeof(flight.idFlight), ID));
+		pFlight = FindFlight(listFlight,flight.idFlight);
+		if (pFlight == NULL) Notification("Chuyen bay khong ton tai");
+		else if (pFlight->data.status == HETVE) Notification("Chuyen bay da het ve");
+		else if (pFlight->data.status == HUYCHUYEN) Notification("Chuyen bay da bi huy");
+		else if (pFlight->data.status == HOANTAT) Notification("Chuyen bay da hoan tat");
+		else break;
+	} while (true);
 				
-	RemoveRow(X_Add, Y_Add, ContentFlight[0], 32);
-	
+	RemoveRow(X_Add, Y_Add, ContentFlight[0], 32);	
 	TotalPage = (int)ceil((double)CountPassOfFlight(pFlight)/NumberPerPage);
 	Display(ContentListPass, sizeof(ContentListPass)/sizeof(string));
 	
 	gotoxy(X_TitlePage-10,Y_TitlePage);
 	cout << "DANH SACH HANH KHACH THUOC CHUYEN BAY " << pFlight->data.idFlight;
 	gotoxy(X_TitlePage-20, Y_TitlePage+1); cout << "Ngay gio khoi hanh: "; PrintDate(&pFlight->data.date); 
-	gotoxy(X_TitlePage+30, Y_TitlePage+1); cout << "Noi den: " << pFlight->data.arrivalAir;
+	gotoxy(X_TitlePage+25, Y_TitlePage+1); cout << "Noi den: " << pFlight->data.arrivalAir;
 	
 	ShowListPassFliOnePage(rootPass, pFlight, 0);
 	
@@ -976,10 +969,10 @@ void ListPassOfFlight(PNodeFli listFlight, TreePass rootPass){
 			c = _getch();
 			if (c == LEFT && CurPage != 1) {
 				CurPage --;
-//				ChangeAirplaneFlyMenuManagerPage(listAir);
+				ChangePassFliMenuManagerPage(rootPass, listFlight);
 			} else if (c == RIGHT && CurPage < TotalPage) {
 				CurPage ++;
-//				ChangeAirplaneFlyMenuManagerPage(listAir);
+				ChangePassFliMenuManagerPage(rootPass, listFlight);
 			}
 		} else if (c == ESC) {
 			return;
