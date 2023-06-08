@@ -18,6 +18,8 @@ typedef struct _Airplane{
     char typeAir[40];
     int col; // so day
     int row; // so hang
+    int amount; //so luong chuyen bay cua may bay
+    
 }Airplane, *PAirplane;
 
 typedef struct _ListAir{
@@ -61,6 +63,7 @@ bool ListAirIsNull(ListAir &listAir){
 PAirplane CreateAirplane(Airplane &air){
     PAirplane tmp = new Airplane;
     *tmp = air;
+    tmp->amount = 0;
     return tmp;
 }
 
@@ -243,9 +246,6 @@ void ShowListAirplaneOnePage(ListAir list, int startIndex)
 //Thay doi danh sach may bay qua trang khac
 void ChangeAirplaneMenuManagerPage(ListAir list)
 {
-	gotoxy(X_TitlePage,Y_TitlePage);
-	cout << "QUAN LY MAY BAY";
-
 	Display( ContentAirplane,sizeof(ContentAirplane)/sizeof(string) );
 	ShowListAirplaneOnePage(list,(CurPage-1)*NumberPerPage);
 }
@@ -318,6 +318,7 @@ void MenuManageAirplane(ListAir &list){
 				ShowListAirplaneOnePage(list, (CurPage-1)*NumberPerPage);
 				break;
 			}
+			case LEFT:
 			case 4: //Chuyen trang truoc
 			{
 				if(CurPage == 1) break;
@@ -327,6 +328,7 @@ void MenuManageAirplane(ListAir &list){
 					break;
 				}
 			}
+			case RIGHT:
 			case 5:	//Chuyen trang sau
 			{
 				if(CurPage >= TotalPage) break;
@@ -359,8 +361,10 @@ bool LoadAirplane(ListAir &listAir)
         filein.getline(pAir->typeAir, sizeof(pAir->typeAir), ';');
         filein.getline(str, sizeof(str), ';');
         pAir->col = atoi(str);
-        filein.getline(str, sizeof(str));
+        filein.getline(str, sizeof(str), ';');
         pAir->row = atoi(str);
+        filein.getline(str, sizeof(str));
+        pAir->amount = atoi(str);
 
         listAir.nodes[i] = pAir;
     }
@@ -383,7 +387,8 @@ bool SaveAirplane(ListAir &listAir)
         file << listAir.nodes[i]->idAir << ";"
              << listAir.nodes[i]->typeAir << ";"
              << listAir.nodes[i]->col << ";"
-             << listAir.nodes[i]->row << endl;
+             << listAir.nodes[i]->row << ";"
+			 << listAir.nodes[i]->amount << endl;
     }
     file.close();
     return true;
