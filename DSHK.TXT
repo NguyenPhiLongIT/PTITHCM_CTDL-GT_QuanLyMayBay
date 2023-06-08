@@ -1,7 +1,11 @@
 111;Nguyen;Nguyen;0
 222;Nguyen;Thuy;1
+000;le;na;1
 333;Nguyen;Konstan;1
 444;Nguyen;Paul;0
 555;Nguyen;Henrry;1
 666;Nguyen;Justin;0
-
+456;nguyen;hanh;1
+1009;Nguyen;Long;0
+112003;Nguye;KhANG;0
+10092003;Nguyen;Nguyen;0
