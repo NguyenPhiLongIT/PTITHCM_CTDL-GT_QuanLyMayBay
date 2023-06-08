@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string.h>
 #include <fstream>
+#include <sstream>
 
 #include "KeyValue.h"
 #include "Constraint.h"
@@ -133,6 +134,7 @@ void InputPass(TreePass &rootPass, Passenger &pass, bool Check = false)
 			}
 			case 4:{
 				InsertPass(rootPass, pass);
+				if(SaveTreePass(rootPass));
 				RemoveForm(0, 4, 27);
 				RemoveBox(X_Add+9,Y_Add+9,16,4);
 				
@@ -218,8 +220,8 @@ void ShowListPassOnePage(TreePass root, int startIndex)
 	int position = startIndex;
 	
 	
-	gotoxy(3,3);
-	cout << " So luong hanh khach : " << position;
+//	gotoxy(3,3);
+//	cout << " So luong hanh khach : " << position;
 	
 	PPassenger temp;
 	PPassNode node;
@@ -247,6 +249,8 @@ void ShowListPassOnePage(TreePass root, int startIndex)
 		}
 	}
 	
+	gotoxy(3,3);
+	cout << " So luong hanh khach : " << position;
 	SetColor(curColor);
 	gotoxy(X_Page,Y_Page);
 	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
@@ -290,6 +294,7 @@ void MenuManagePassenger(TreePass &rootPass ){
 				ShowCursor(false);
 				break;
 			}
+			case LEFT:
 			case 2: //Chuyen trang truoc
 			{
 				if(CurPage == 1) break;
@@ -299,6 +304,7 @@ void MenuManagePassenger(TreePass &rootPass ){
 				}
 				break;
 			}
+			case RIGHT:
 			case 3:	//Chuyen trang tiep
 			{
 				if(CurPage >= TotalPage) break;
