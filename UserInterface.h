@@ -40,6 +40,7 @@ string ContentMenu[7] = {"Home", "Plane", "Flight", "Passenger", "Ticket", "List
 
 //List
 string ContentListAir[2] = {"Plane ID", "NumOfFlying"};
+string ContentListPass[5] = {"STT", "Ticket", "ID Pass", "Name", "Gender"};
 
 //Ve 1 hop thoai
 void Box(int x, int y, int w, int h, string nd) {
