@@ -15,6 +15,7 @@ using namespace std;
 #include "KeyValue.h"
 #include "Ticket.h"
 #include "UserInterface.h"
+#include "Sort.h"
 
 typedef struct _FLight
 {
@@ -37,6 +38,7 @@ int Size(PNodeFli &pNodeFli);
 int SizeTicketAvailable(PNodeFli &first);
 int SizeDateDes(PNodeFli &first, Date date, const char* arrival);
 
+bool LessAmount(Airplane *&a, Airplane *&b);
 PNodeFli CreateFlight(Flight &flight);
 void InsertListFlight(PNodeFli &first, Flight flight);
 bool CancleFlight(PNodeFli pNodeFli);
@@ -102,6 +104,11 @@ int SizeDateDes(PNodeFli &first, Date date, const char* arrival) {
 	return count;
 }
 
+bool LessAmount(Airplane *&a, Airplane *&b){
+	return a->amount > b->amount;
+}
+
+
 //Tao Node chuyen bay
 PNodeFli CreateFlight(Flight &flight) {
 	PNodeFli tmp = new NodeFli;
@@ -116,12 +123,11 @@ void InsertListFlight(PNodeFli &first, Flight flight) {
 	PNodeFli p, t, s;		//t la nut truoc, s la nut sau
 	p = CreateFlight(flight);
 	for(s = first; s != NULL && strcmp(s->data.idFlight,flight.idFlight) < 0; t=s, s = s->pNext);
-	//for(s = first; s != NULL && s->data.idFlight > flight.idFlight; t=s, s = s->pNext);
 	if(s == first){		//Them nut vao dau ds
 		p->pNext = first;
 		first = p;
 	}
-	else{
+	else{				//Them nut p vao truoc nut s
 		p->pNext = s;
 		t->pNext = p;
 	}
@@ -138,6 +144,15 @@ bool CancleFlight(PNodeFli pNodeFli)
 	return 0;
 }
 
+/*
+	PNodeFli temp[26] = {0}; 
+	while(first != NULL){
+		if(temp[first->data.idFli[0]-'A'] == NULL){
+			temp[first->data.idFli[0]-'A'] = first->data;
+		}
+	}
+	for(... it
+*/
 //Tim chuyen bay
 PNodeFli FindFlight(PNodeFli &first, const char *id)
 {
@@ -147,6 +162,17 @@ PNodeFli FindFlight(PNodeFli &first, const char *id)
 		if (strcmp(p->data.idFlight, id) == 0)
 			return p;
 	return NULL;
+
+//	if (first == NULL) return NULL;
+//	PNodeFli left = first;
+//	PNodeFli right = first;
+//	while(left->pNext != NULL)
+//		right = right->pNext;
+//	PNodeFli p;
+//	while(strcmp(left->data.idFlight, right->data.idFlight) <= 0){
+//		p = (left + right)/2;
+//		if(strcmp(p->data.idFlight, id) == )
+//	}
 }
 
 //Tra ve chuyen bay theo ma may bay
@@ -269,6 +295,8 @@ void InputFlight(PNodeFli &first, Flight &flight, ListAir listAir, bool Edit = f
 				do{
 					CreateRow(X_Add, Y_Add, ContentFlight[0], 27);
 					gotoxy(X_Add+10,Y_Add);       	strcpy(flight.idFlight, Input(sizeof(flight.idFlight), ID));
+					//Mang con tro
+					//Duyet DSLK
 					position = FindIndexFlight(first, flight.idFlight);
 					if(strlen(flight.idFlight) == 0){
 						Notification("Vui long khong bo trong");
@@ -345,12 +373,56 @@ void InputFlight(PNodeFli &first, Flight &flight, ListAir listAir, bool Edit = f
 				}
 				ordinal++;
 				break;
-			}
+			}		
 			case 2:{	//Nhap idAir
-//				RemoveTable(ContentFlight,sizeof(ContentFlight)/sizeof(string));
-//				MenuManageAirplane(listAir);
+				char signal;
+				char strFind[1000] = "";
+				int cursize = 0;
+				int index;
+				RemoveTable(ContentFlight, 6);
 				gotoxy(X_Add+10,Y_Add+6); cout << "			";
-				gotoxy(X_Add+10,Y_Add+6);     	strcpy(flight.idAir, Input(sizeof(flight.idAir), ID));
+				do{
+					if(cursize == 0){
+						Display( ContentAirplane,sizeof(ContentAirplane)/sizeof(string) );
+						ShowListAirplaneOnePage(listAir,0);
+					}
+					index = 0;
+					gotoxy(X_Add+10+cursize,Y_Add+6);
+					signal = getch();
+					Clean(xKeyDisplay[0]+1,Y_Display+3,xKeyDisplay[1]-1, Y_Display + 24);    
+					Clean(xKeyDisplay[1]+1,Y_Display+3,xKeyDisplay[2]-1, Y_Display + 24);    
+					Clean(xKeyDisplay[2]+1,Y_Display+3,xKeyDisplay[3]-1, Y_Display + 24);    
+					Clean(xKeyDisplay[3]+1,Y_Display+3,xKeyDisplay[4]-1, Y_Display + 24);    
+					Clean(xKeyDisplay[4]+1,Y_Display+3,xKeyDisplay[5]-1, Y_Display + 24);    
+					if (signal == -32 || signal == 0 || signal == 224)
+					{
+						getch();
+						continue;
+					}
+					if(ID(signal) && cursize < 1000 && signal != BACKSPACE){
+						strFind[cursize++] = signal;
+            			std::cout << signal;
+					}
+					if (
+						(cursize == 1 && (Space(signal) || Dash(signal) || Underscore(signal))) ||
+						(cursize > 1 && Space(signal) && Space(strFind[cursize - 2])) ||
+						(cursize > 0 && signal == BACKSPACE))
+					{
+						std::cout << "\b \b";
+						strFind[cursize--] = '\0';
+					}
+					for(int i = 0; i + index < listAir.size; i++){
+						if(index == 20) break;
+						if(strstr(listAir.nodes[i]->idAir, strFind) != NULL){
+							ShowAirplane(listAir.nodes[i], index);
+							index++;
+						}
+					}
+				}while (
+					(signal != ENTER) &&
+					(signal != TAB)
+				);
+				strcpy(flight.idAir, strFind);
 				position = IndexAirplane(listAir, flight.idAir);
 				if(strlen(flight.idAir) == 0){
 					Notification("Vui long khong bo trong");
@@ -361,6 +433,7 @@ void InputFlight(PNodeFli &first, Flight &flight, ListAir listAir, bool Edit = f
 					break;
 				}
 				ordinal++;
+				listAir.nodes[position]->amount++;
 				break;
 			}
 			case 3:{	//Nhap DateTime		
@@ -458,9 +531,6 @@ void ShowListFlightOnePage(PNodeFli first, int startIndex)
 //Thay doi danh sach chuyen bay khi qua trang
 void ChangeFlightMenuManagerPage(PNodeFli first)
 {
-	gotoxy(X_TitlePage,Y_TitlePage);
-	cout << "QUAN LY CHUYEN BAY";
-
 	Display( ContentFlight,sizeof(ContentFlight)/sizeof(string) );
 	ShowListFlightOnePage(first,(CurPage-1)*NumberPerPage);
 }
@@ -489,7 +559,8 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir){
 				InputFlight(first, fli, listAir);
 
 				TotalPage = (int)ceil((double)Size(first)/NumberPerPage);
-				ShowListFlightOnePage(first, (CurPage-1)*NumberPerPage);
+//				ShowListFlightOnePage(first, (CurPage-1)*NumberPerPage);
+				ChangeFlightMenuManagerPage(first);
 				ShowCursor(false);
 				break;
 			}
@@ -517,6 +588,7 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir){
 				ShowCursor(false);
 				break;
 			}
+			case LEFT:
 			case 4: //Chuyen trang truoc
 			{
 				if(CurPage == 1) break;
@@ -526,6 +598,7 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir){
 				}
 				break;
 			}
+			case RIGHT:
 			case 5:	//Chuyen trang tiep
 			{
 				if(CurPage >= TotalPage) break;
@@ -551,14 +624,17 @@ void ListFlightDateAndDes(PNodeFli first, Date date, const char* arrival, int st
 	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
 	int count = -1;
 	AutoUpdateFlightStatus(first);
+	
+	int x = 60;
+	int y = 62;
 
 	for(PNodeFli p = first; p != NULL; p = p->pNext)
 	{
-		count++;
+		if (p->data.status == CONVE)	count++;
 		if(count == startIndex){
 			int i = -1;
 			while(p != NULL && i < NumberPerPage - 1){
-				if(CheckDate(p, &date) && strcmp(p->data.arrivalAir, arrival) == 0 && p->data.status == CONVE){
+				if(CheckDate(p, &date) && strcmp(p->data.arrivalAir, arrival) == 0 && p->data.status == CONVE && !ticketAvailable){
 					ShowFlight(p->data, ++i);
 				}
 				else if(p->data.status == CONVE && ticketAvailable){
@@ -606,13 +682,13 @@ void MenuManageListTicket(ListAir listAir, PNodeFli listFlight, TreePass rootPas
 	Airplane air;
 	PNodeFli pFlight;
 	Date date;
-	bool ticketAvailable = false;
+	bool ticketAvailable = true;
 	int signal;
 	
 	CurPage = 1;
 	TotalPage = (int)ceil((double)SizeTicketAvailable(listFlight)/NumberPerPage); 	//ceil : lam tron
 	Display(ContentFlight,sizeof(ContentFlight)/sizeof(string));
-	ListFlightDateAndDes(listFlight, date, flight.arrivalAir, 0, true);
+	ListFlightDateAndDes(listFlight, date, flight.arrivalAir, 0, ticketAvailable);
 	gotoxy(X_TitlePage-4,Y_TitlePage);
 	cout << "DANH SACH CAC CHUYEN BAY CON VE";
 	
@@ -671,6 +747,7 @@ void MenuManageListTicket(ListAir listAir, PNodeFli listFlight, TreePass rootPas
 				ticketAvailable = true;
                 break;
             }
+            case LEFT:
             case 3: //Trang truoc
             {
             	if(CurPage == 1) break;
@@ -680,6 +757,7 @@ void MenuManageListTicket(ListAir listAir, PNodeFli listFlight, TreePass rootPas
 					break;
 				}
             }
+            case RIGHT:
             case 4: //Trang sau
             {
             	if(CurPage >= TotalPage) break;
@@ -689,6 +767,80 @@ void MenuManageListTicket(ListAir listAir, PNodeFli listFlight, TreePass rootPas
             }
             default: return;
         }
+	}
+}
+
+//Xuat thong tin 1 may bay
+void ShowAirplaneFly(PAirplane pAir, int position)
+{	
+	gotoxy(xKeyDisplay[0] + 3, Y_Display + position +3);
+    cout << left << setw(8) << pAir->idAir;
+    gotoxy(xKeyDisplay[1] + 3, Y_Display + position +3);
+    cout << left << setw(4) << (pAir->amount);
+}
+
+//Xuat danh sach may bay trong 1 trang
+void ShowListAirplaneFlyOnePage(ListAir list, int startIndex)
+{
+	gotoxy(3,3);
+	cout << " So luong may bay : " << list.size;
+	int i;
+	WORD curColor;
+	GetColor(curColor);
+	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
+	for(i = 0 ; i + startIndex < list.size && i < NumberPerPage; i++)
+	{
+		ShowAirplaneFly(list.nodes[i+startIndex], i); 
+	} 
+	SetColor(curColor);
+	RemoveExceedMember(i, 5);
+	gotoxy(X_Page,Y_Page);
+	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
+}
+
+//Thay doi danh sach may bay qua trang khac
+void ChangeAirplaneFlyMenuManagerPage(ListAir list)
+{
+	Display( ContentListAir,sizeof(ContentListAir)/sizeof(string) );
+	ShowListAirplaneFlyOnePage(list,(CurPage-1)*NumberPerPage);
+}
+
+//Thong ke so luot thuc hien chuyen bay cua may bay
+void ListAirplaneFly(PNodeFli first, ListAir listAir){
+	PNodeFli p;
+//	for (int i = 0; i < listAir.size; i++){
+//		 for (p = first; p != NULL; p = p->pNext){
+//			if(strcmp(p->data.idAir, listAir.nodes[i]->idAir) == 0) listAir.nodes[i]->amount++;
+//		}
+//	}
+//	if(!SaveAirplane(listAir)){
+//		Notification("Luu file that bai!");
+//	}
+	ShowCursor(false);
+	CurPage = 1;
+	TotalPage = (int)ceil((double)listAir.size/NumberPerPage);
+	
+	Display(ContentAirplane, sizeof(ContentListAir)/sizeof(string));
+	gotoxy(X_TitlePage,Y_TitlePage);
+	cout << "DANH SACH THONG KE SO LUOT THUC HIEN CHUYEN BAY CUA MAY BAY";
+	Quicksort<Airplane*>(listAir.nodes,0, listAir.size-1, LessAmount);
+	ShowListAirplaneFlyOnePage(listAir, 0);
+	
+	while(true)
+	{
+		char c = _getch();
+		if (c == -32) {
+			c = _getch();
+			if (c == LEFT && CurPage != 1) {
+				CurPage --;
+				ChangeAirplaneFlyMenuManagerPage(listAir);
+			} else if (c == RIGHT && CurPage < TotalPage) {
+				CurPage ++;
+				ChangeAirplaneFlyMenuManagerPage(listAir);
+			}
+		} else if (c == ESC) {
+			return;
+		}
 	}
 }
 
