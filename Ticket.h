@@ -40,7 +40,7 @@ bool InsertListTicket(Airplane air, ListTicket &listTicket, Ticket ticket);
 void ShowTicket(Ticket ticket, int position);
 void ShowListTicketOnePage(ListTicket listTicket, int startIndex);
 void ChangeTicketMenuManagerPage(ListTicket listTicket);
-void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass rootPass);
+void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass &rootPass);
 
 //----------------------------------------------------------------//
 
@@ -170,7 +170,7 @@ void ChangeTicketMenuManagerPage(ListTicket listTicket)
 }
 
 //Quan ly ve
-void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass rootPass) {
+void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass &rootPass) {
     ShowCursor(false);
 	CurPage = 1;
 	TotalPage = (int)ceil((double)listTicket.sizeTotal/NumberPerPage); 	//ceil : lam tron 
@@ -197,28 +197,32 @@ void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass rootPass) {
                 
                 
                 
-                if (listTicket.DSV[vitri].statusTicket == 2) {
+                if (listTicket.DSV[vitri].statusTicket == 2) { // ve huy
                 	Notification("Ve da huy. Khong the dat!");
                 	break;
 				}
                 
-                if (CheckSeat(air,listTicket,ticket_tmp) == -1) {
+                if (CheckSeat(air,listTicket,ticket_tmp) == -1) { // khong ton tai
                     Notification("Vi tri nay khong ton tai");
             		break;
-                } else if (CheckSeat(air,listTicket,ticket_tmp) == 0) {
+                } else if (CheckSeat(air,listTicket,ticket_tmp) == 0) { // da dat
                 	Notification("Vi tri nay da co nguoi dat");
                 	break;
-				} else if (CheckCMND(listTicket,ticket_tmp)) {
+				} else { // ve trong
+					if (CheckCMND(listTicket,ticket_tmp)) {
 					Notification("Ban da dat ve tren chuyen bay nay");
-				}
-                else {
-                	if (!SearchPass(rootPass,ticket_tmp.idPas)) {
-						strcpy(pass_tmp.id,ticket_tmp.idPas);
-                		InputPass(rootPass,pass_tmp,true);
 					}
-                    InsertListTicket(air,listTicket,ticket_tmp);
-                    Notification("Them thanh cong");
-                } 
+                	else {
+                		if (SearchPass(rootPass,ticket_tmp.idPas) == NULL) {
+							strcpy(pass_tmp.id, ticket_tmp.idPas);
+//							strcpy(ticket_tmp.idPas, pass_tmp.id);
+                			InputPass(rootPass,pass_tmp,true);
+                			
+						}
+                    	InsertListTicket(air,listTicket,ticket_tmp);
+                    	Notification("Them thanh cong");
+                	} 
+				}
                 ShowListTicketOnePage(listTicket, (CurPage-1)*NumberPerPage);
                 ShowCursor(false);
                 break;
@@ -245,6 +249,7 @@ void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass rootPass) {
                 ShowListTicketOnePage(listTicket,(CurPage - 1)/NumberPerPage);
                 break;
             }
+            case LEFT:
             case 3: //Trang truoc
             {
             	if(CurPage == 1) break;
@@ -254,6 +259,7 @@ void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass rootPass) {
 					break;
 				}
             }
+            case RIGHT:
             case 4: //Trang sau
             {
             	if(CurPage >= TotalPage) break;
