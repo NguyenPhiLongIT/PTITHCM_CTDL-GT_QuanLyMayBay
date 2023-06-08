@@ -38,6 +38,9 @@ string ContentGender[2] = {"Nam", "Nu"};
 //Menu
 string ContentMenu[7] = {"Home", "Plane", "Flight", "Passenger", "Ticket", "List", "Exit"};
 
+//List
+string ContentListAir[2] = {"Plane ID", "NumOfFlying"};
+
 //Ve 1 hop thoai
 void Box(int x, int y, int w, int h, string nd) {
 	WORD curColor;
@@ -264,21 +267,26 @@ void RemoveForm(int StartIndex,int nContent,int length) {
 
 //Xoa bang hien thi
 void RemoveTable(string content[], int nContent){
+	//xoa content cua cac cot
 	for (int i = 0; i < nContent; i++)
 	{
-		gotoxy(xKeyDisplay[i] + 3, Y_Display+1);
-		printf("%-16s"," ");
+		gotoxy(xKeyDisplay[i] + 2, Y_Display);
+		printf("%-18s"," ");
+		gotoxy(xKeyDisplay[i] + 2, Y_Display+1);
+		printf("%-18s"," "); 
+		Clean(xKeyDisplay[i]+1,Y_Display+3,xKeyDisplay[i+1]-1, Y_Display + 24);   
 	}
 
-	//xoa cac duong thang de phan chia cac cot - kich thuoc toi da la 28 ve chieu dai
+//	xoa cac duong thang de phan chia cac cot - kich thuoc toi da la 28 ve chieu dai
 	for (int j = Y_Display ; j <= Y_Display + 24; j++)
 	{
 		for (int i = 0; i < nContent+1; i++)
 		{
 			gotoxy(xKeyDisplay[i], j);	
-			printf("%-20s"," ");
+			cout << "  ";
 		}
 	}
+	
 	//xoa thanh ngang ben tren va duoi
 	for (int i = xKeyDisplay[0]; i <= xKeyDisplay[nContent]; i++)
 	{
@@ -293,6 +301,16 @@ void RemoveTable(string content[], int nContent){
 		//xoa thanh ngang ben duoi
 		gotoxy(i, Y_Display + 25);
 		cout << " ";
+	}
+	
+	//xoa bang chuc nang
+	for (int i = 111; i <= 130; i++)
+	{
+		for(int j = 4; j <= 20; j++)
+		{
+			gotoxy(i, j);
+			cout << " ";
+		}
 	}
 	gotoxy(X_Page,Y_Page);
 	cout << "                    ";
