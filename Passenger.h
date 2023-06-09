@@ -26,6 +26,9 @@ typedef struct _PassNode
 	struct _PassNode *pRight;
 } PassNode, *PPassNode, *TreePass;
 
+int xKeyDisplayPas[5] = {1,19,44,62,74};
+
+
 void InitTreePass(TreePass &rootPass);
 bool EmptyPass(TreePass &rootPass);
 PPassNode NewPassNode(Passenger &data);
@@ -196,14 +199,14 @@ PPassNode SearchPass(TreePass rootPass, char *idPass)
 //Xuat thong tin 1 hanh khach
 void ShowPass(Passenger &pass, int position)
 {
-	gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
+	gotoxy(xKeyDisplayPas[0] + 3, Y_Display + position + 3);
     cout << left << setw(8) << pass.id;
-    gotoxy(xKeyDisplay[1] + 3, Y_Display + position + 3);
+    gotoxy(xKeyDisplayPas[1] + 3, Y_Display + position + 3);
     cout << left << setw(8) << pass.firstName;
-    gotoxy(xKeyDisplay[2] + 3, Y_Display + position + 3);
+    gotoxy(xKeyDisplayPas[2] + 3, Y_Display + position + 3);
     cout << left << setw(8) << pass.lastName;
-    gotoxy(xKeyDisplay[3] + 3, Y_Display + position + 3);
-	cout << left << setw(8) << (pass.gender ? "Nu" : "Nam");
+    gotoxy(xKeyDisplayPas[3] + 3, Y_Display + position + 3);
+	cout << left << setw(5) << (pass.gender ? "Nu" : "Nam");
 }
 
 //Xuat danh sach hanh khach trong 1 trang
@@ -212,52 +215,45 @@ void ShowListPassOnePage(TreePass root, int startIndex)
 	WORD curColor;
 	GetColor(curColor);
 	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
-	int position = startIndex;
-	
-	
-//	gotoxy(3,3);
-//	cout << " So luong hanh khach : " << position;
-	
+
 	PPassenger temp;
 	PPassNode node;
 	Queue<Passenger> queue;
 	InitQueue(queue);
 	pushQueue(queue, root->data);
-
-	while (!emptyQueue(queue))
-	{
+	int count = -1;
+	int i = 0;
+	RemoveContent(xKeyDisplayPas,4);
+	while (!emptyQueue(queue)){
 		temp = frontQueue(queue);
 		popQueue(queue);
-		
-		ShowPass(*temp, position);
-		++position;
-		
 		node = (PPassNode)(temp);
 		if(node->pLeft != NULL){
-			pushQueue(queue, node->pLeft->data);
+				pushQueue(queue, node->pLeft->data);
+			}
+			if(node->pRight != NULL){
+				pushQueue(queue, node->pRight->data);
+			}
+		if(count < startIndex-1){
+			count ++;
+			continue;
 		}
-		if(node->pRight != NULL){
-			pushQueue(queue, node->pRight->data);
-		}
-		if(position >= NumberPerPage){
+		ShowPass(*temp, i++);			
+		if(i == 20) {	
 			break;
 		}
 	}
-	
-	gotoxy(3,3);
-	cout << " So luong hanh khach : " << position;
 	SetColor(curColor);
+	gotoxy(3,3);
+	cout << " So luong hanh khach : " << countPass(root);
 	gotoxy(X_Page,Y_Page);
-	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
+	cout <<" Trang " << CurPage <<"/"<< TotalPage;
 }
 
 //Thay doi danh sach hanh khach sang trang khac
 void ChangePassMenuManagerPage(TreePass root)
 {
-	gotoxy(X_TitlePage,Y_TitlePage);
-	cout << "QUAN LY HANH KHACH";
-
-	Display( ContentPass,sizeof(ContentPass)/sizeof(string) );
+	DisplayTest(xKeyDisplayPas, ContentPass,sizeof(ContentPass)/sizeof(string) );
 	ShowListPassOnePage(root,(CurPage-1)*NumberPerPage);
 }
 
@@ -266,7 +262,7 @@ void MenuManagePassenger(TreePass &rootPass ){
 	CurPage = 1;
 	TotalPage = (int)ceil((double)countPass(rootPass)/NumberPerPage); 	//ceil : lam tron 
 	
-	Display(ContentPass, sizeof(ContentPass)/sizeof(string));
+	DisplayTest(xKeyDisplayPas, ContentPass, sizeof(ContentPass)/sizeof(string));
 	ShowListPassOnePage(rootPass, 0);
 	
 	gotoxy(X_TitlePage,Y_TitlePage);
