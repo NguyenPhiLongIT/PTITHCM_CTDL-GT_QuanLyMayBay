@@ -16,7 +16,7 @@ using namespace std;
 #include "Passenger.h"
 
 typedef struct _Ticket {
-    char idPas[13];
+    char idPas[15];
     char seat[5];
     int statusTicket; // 0: ve trong, 1: ve da duoc dat, 2: ve da huy
 } Ticket, PTicket;
@@ -26,6 +26,8 @@ typedef struct _ListTicket {
     int sizeTotal; // tong so luong ve cua 1 may bay
     Ticket *DSV;
 } ListTicket, PListTicket;
+
+int xKeyDisplayTicket[4] = {1,13,25,43};
 
 void InitSeats(ListTicket &listTicket, Airplane air);
 void InitListTicket(ListTicket &listTicket,Airplane air);
@@ -131,13 +133,13 @@ bool CheckCMND(ListTicket listTicket, Ticket ticket) {
 
 //Xuat thong tin 1 ve
 void ShowTicket(Ticket ticket, int position) {
-        gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
+        gotoxy(xKeyDisplayTicket[0] + 3, Y_Display + position + 3);
         cout << left << setw(8) << ticket.seat;
-        gotoxy(xKeyDisplay[1] + 3, Y_Display + position + 3);
+        gotoxy(xKeyDisplayTicket[1] + 3, Y_Display + position + 3);
         if(ticket.statusTicket == 1) cout << left << setw(3) << "Da dat";
         else if (ticket.statusTicket == 0) cout << left << setw(3) << "Con ve";
         else cout << left << setw(3) << "Da huy";
-    	gotoxy(xKeyDisplay[2] + 3, Y_Display + position + 3);
+    	gotoxy(xKeyDisplayTicket[2] + 3, Y_Display + position + 3);
     	cout << left << setw(8) << ticket.idPas;
 }
 
@@ -152,12 +154,14 @@ void ShowListTicketOnePage(ListTicket listTicket, int startIndex) {
     
     int i; int j = 0;
     
+    RemoveContent(xKeyDisplayTicket,3);
+    
     for(i = 0 ; i + startIndex < listTicket.sizeTotal && i < NumberPerPage; i++)
 	{
 		ShowTicket(listTicket.DSV[i+startIndex],i); 
 	} 
 	SetColor(curColor);
-	RemoveExceedMember(i, 5);
+
     gotoxy(X_Page,Y_Page);
     cout << "Trang " << CurPage << "/" << TotalPage;
 }
@@ -165,7 +169,7 @@ void ShowListTicketOnePage(ListTicket listTicket, int startIndex) {
 //Thay doi danh sach ve thanh trang khac
 void ChangeTicketMenuManagerPage(ListTicket listTicket)
 {
-	Display( ContentTicketOutput,sizeof(ContentTicketOutput)/sizeof(string) );
+	DisplayTest(xKeyDisplayTicket, ContentTicketOutput,sizeof(ContentTicketOutput)/sizeof(string) );
 	ShowListTicketOnePage(listTicket,(CurPage-1)*NumberPerPage);
 }
 
@@ -175,7 +179,7 @@ void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass &rootPass) 
 	CurPage = 1;
 	TotalPage = (int)ceil((double)listTicket.sizeTotal/NumberPerPage); 	//ceil : lam tron 
 	
-	Display(ContentTicketOutput, sizeof(ContentTicketOutput)/sizeof(string));
+	DisplayTest(xKeyDisplayTicket, ContentTicketOutput, sizeof(ContentTicketOutput)/sizeof(string));
 	ShowListTicketOnePage(listTicket, 0);	
 	
 	Ticket ticket_tmp;
