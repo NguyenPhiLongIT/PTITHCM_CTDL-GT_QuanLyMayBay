@@ -106,6 +106,8 @@ char *Input(int size, bool (*constraint)(char &) = All)
             getch();
             continue;
         }
+        
+        if (signal == ESC)  res[cursize++] = signal;
 
         if (constraint(signal) && cursize < size && signal != BACKSPACE)
         {
@@ -122,7 +124,8 @@ char *Input(int size, bool (*constraint)(char &) = All)
         }
     } while (
         (signal != ENTER) &&
-        (signal != TAB)
+        (signal != TAB) &&
+        (signal != ESC)
     );
 
     res[cursize] = '\0';
