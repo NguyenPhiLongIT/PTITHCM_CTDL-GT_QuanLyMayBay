@@ -33,6 +33,9 @@ typedef struct _NodeFli
 	struct _NodeFli *pNext;
 } NodeFli, *PNodeFli;
 
+int xKeyDisplayFli[8] = {1,19,37,55,78,96,114,130};
+int xKeyDisplayPassFli[8] = {1,10,22,40,65,78,88,130};
+
 void InitFlight(Flight &flight, ListAir listAir);
 int Size(PNodeFli &pNodeFli);
 int SizeTicketAvailable(PNodeFli &first);
@@ -383,17 +386,13 @@ void InputFlight(PNodeFli &first, Flight &flight, ListAir listAir, bool Edit = f
 				gotoxy(X_Add+10,Y_Add+6); cout << "			";
 				do{
 					if(cursize == 0){
-						Display( ContentAirplane,sizeof(ContentAirplane)/sizeof(string) );
+						DisplayTest(xKeyDisplayAir, ContentAirplane,sizeof(ContentAirplane)/sizeof(string) );
 						ShowListAirplaneOnePage(listAir,0);
 					}
 					index = 0;
 					gotoxy(X_Add+10+cursize,Y_Add+6);
 					signal = getch();
-					Clean(xKeyDisplay[0]+1,Y_Display+3,xKeyDisplay[1]-1, Y_Display + 24);    
-					Clean(xKeyDisplay[1]+1,Y_Display+3,xKeyDisplay[2]-1, Y_Display + 24);    
-					Clean(xKeyDisplay[2]+1,Y_Display+3,xKeyDisplay[3]-1, Y_Display + 24);    
-					Clean(xKeyDisplay[3]+1,Y_Display+3,xKeyDisplay[4]-1, Y_Display + 24);    
-					Clean(xKeyDisplay[4]+1,Y_Display+3,xKeyDisplay[5]-1, Y_Display + 24);    
+					RemoveContent(xKeyDisplayAir,5);   
 					if (signal == -32 || signal == 0 || signal == 224)
 					{
 						getch();
@@ -473,17 +472,17 @@ void InputFlight(PNodeFli &first, Flight &flight, ListAir listAir, bool Edit = f
 //Hien thi thong tin 1 chuyen bay
 void ShowFlight(Flight &fli, int position)
 {	
-	gotoxy(xKeyDisplay[0] + 3, Y_Display + position +3);
+	gotoxy(xKeyDisplayFli[0] + 3, Y_Display + position +3);
     cout << left << setw(10) << fli.idFlight;
-    gotoxy(xKeyDisplay[1] + 3, Y_Display + position +3);
+    gotoxy(xKeyDisplayFli[1] + 3, Y_Display + position +3);
     cout << left << setw(12) << fli.arrivalAir;
-    gotoxy(xKeyDisplay[2] + 3, Y_Display + position +3);
+    gotoxy(xKeyDisplayFli[2] + 3, Y_Display + position +3);
     cout << left << setw(10) << fli.idAir;
-    gotoxy(xKeyDisplay[3] + 2, Y_Display + position +3);
+    gotoxy(xKeyDisplayFli[3] + 3, Y_Display + position +3);
     PrintDate(&fli.date);
-    gotoxy(xKeyDisplay[4] + 3, Y_Display + position + 3);
+    gotoxy(xKeyDisplayFli[4] + 3, Y_Display + position + 3);
     cout << fli.listTicket.sizeBooked << "/" << left << setw(10) <<  fli.listTicket.sizeTotal;
-    gotoxy(xKeyDisplay[5] + 3, Y_Display + position + 3);
+    gotoxy(xKeyDisplayFli[5] + 3, Y_Display + position + 3);
     switch(fli.status){
     	case 0: cout << "Huy	  ";
     		break;
@@ -509,6 +508,7 @@ void ShowListFlightOnePage(PNodeFli first, int startIndex)
 	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
 	int count = -1;
 	AutoUpdateFlightStatus(first);
+	RemoveContent(xKeyDisplayFli,6);
 	for(PNodeFli p = first; p != NULL; p = p->pNext)
 	{
 		count++;
@@ -518,7 +518,7 @@ void ShowListFlightOnePage(PNodeFli first, int startIndex)
 				ShowFlight(p->data, ++i);
 				p = p->pNext;
 			}
-			RemoveExceedMember(i+1, 6);
+			//RemoveExceedMember(i+1, 6);
 			break;
 		}
 	}
@@ -531,7 +531,7 @@ void ShowListFlightOnePage(PNodeFli first, int startIndex)
 //Thay doi danh sach chuyen bay khi qua trang
 void ChangeFlightMenuManagerPage(PNodeFli first)
 {
-	Display( ContentFlight,sizeof(ContentFlight)/sizeof(string) );
+	DisplayTest(xKeyDisplayFli, ContentFlight,sizeof(ContentFlight)/sizeof(string) );
 	ShowListFlightOnePage(first,(CurPage-1)*NumberPerPage);
 }
 
@@ -540,7 +540,7 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir){
 	CurPage = 1;
 	TotalPage = (int)ceil((double)Size(first)/NumberPerPage); 	//ceil : lam tron 
 	
-	Display(ContentFlight, sizeof(ContentFlight)/sizeof(string));
+	DisplayTest(xKeyDisplayFli, ContentFlight, sizeof(ContentFlight)/sizeof(string));
 	ShowListFlightOnePage(first, 0);
 	
 	gotoxy(X_TitlePage,Y_TitlePage);
@@ -559,7 +559,6 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir){
 				InputFlight(first, fli, listAir);
 
 				TotalPage = (int)ceil((double)Size(first)/NumberPerPage);
-//				ShowListFlightOnePage(first, (CurPage-1)*NumberPerPage);
 				ChangeFlightMenuManagerPage(first);
 				ShowCursor(false);
 				break;
@@ -616,7 +615,7 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir){
 
 //Xuat danh sach chuyen bay theo ngay va dia diem trong 1 trang
 void ListFlightDateAndDes(PNodeFli first, Date date, const char* arrival, int startIndex, bool ticketAvailable = false){
-	Display( ContentFlight,sizeof(ContentFlight)/sizeof(string) );
+	DisplayTest(xKeyDisplayFli, ContentFlight,sizeof(ContentFlight)/sizeof(string) );
 	if(first == NULL) return;
 	
 	WORD curColor;
@@ -625,9 +624,7 @@ void ListFlightDateAndDes(PNodeFli first, Date date, const char* arrival, int st
 	int count = -1;
 	AutoUpdateFlightStatus(first);
 	
-	int x = 60;
-	int y = 62;
-
+	RemoveContent(xKeyDisplayFli,6);
 	for(PNodeFli p = first; p != NULL; p = p->pNext)
 	{
 		if (p->data.status == CONVE)	count++;
@@ -642,14 +639,15 @@ void ListFlightDateAndDes(PNodeFli first, Date date, const char* arrival, int st
 				}
 				p = p->pNext;
 			}
-			RemoveExceedMember(i+1, 6);
+			//RemoveExceedMember(i+1, 6);
 			break;
 		}
 	}
+	SetColor(curColor);
 	gotoxy(3,3); 
 	if(ticketAvailable) cout << " So luong chuyen bay : " << SizeTicketAvailable(first);
 	else cout << " So luong chuyen bay : " << SizeDateDes(first,date,arrival);
-	SetColor(curColor);
+
 	gotoxy(X_Page,Y_Page);
 	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
 }
@@ -687,7 +685,7 @@ void MenuManageListTicket(ListAir &listAir, PNodeFli &listFlight, TreePass &root
 	
 	CurPage = 1;
 	TotalPage = (int)ceil((double)SizeTicketAvailable(listFlight)/NumberPerPage); 	//ceil : lam tron
-	Display(ContentFlight,sizeof(ContentFlight)/sizeof(string));
+	DisplayTest(xKeyDisplayFli, ContentFlight,sizeof(ContentFlight)/sizeof(string));
 	ListFlightDateAndDes(listFlight, date, flight.arrivalAir, 0, ticketAvailable);
 	gotoxy(X_TitlePage-4,Y_TitlePage);
 	cout << "DANH SACH CAC CHUYEN BAY CON VE";
@@ -791,12 +789,15 @@ void ShowListAirplaneFlyOnePage(ListAir list, int startIndex)
 	WORD curColor;
 	GetColor(curColor);
 	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
+	
+	RemoveContent(xKeyDisplay,2);
+	
 	for(i = 0 ; i + startIndex < list.size && i < NumberPerPage; i++)
 	{
 		ShowAirplaneFly(list.nodes[i+startIndex], i); 
 	} 
 	SetColor(curColor);
-	RemoveExceedMember(i, 2);
+
 	gotoxy(X_Page,Y_Page);
 	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
 }
@@ -804,12 +805,15 @@ void ShowListAirplaneFlyOnePage(ListAir list, int startIndex)
 //Thay doi danh sach may bay qua trang khac
 void ChangeAirplaneFlyMenuManagerPage(ListAir list)
 {
-	Display( ContentListAir,sizeof(ContentListAir)/sizeof(string) );
+	DisplayTest(xKeyDisplay, ContentListAir,sizeof(ContentListAir)/sizeof(string) );
 	ShowListAirplaneFlyOnePage(list,(CurPage-1)*NumberPerPage);
 }
 
 //Thong ke so luot thuc hien chuyen bay cua may bay
 void ListAirplaneFly(PNodeFli first, ListAir listAir){
+	WORD curColor;
+	GetColor(curColor);
+	SetColor(WHITE);
 	PNodeFli p;
 //	for (int i = 0; i < listAir.size; i++){
 //		 for (p = first; p != NULL; p = p->pNext){
@@ -823,7 +827,9 @@ void ListAirplaneFly(PNodeFli first, ListAir listAir){
 	CurPage = 1;
 	TotalPage = (int)ceil((double)listAir.size/NumberPerPage);
 	
-	Display(ContentAirplane, sizeof(ContentListAir)/sizeof(string));
+	SetColor(curColor);
+	DisplayTest(xKeyDisplayFli, ContentAirplane, sizeof(ContentListAir)/sizeof(string));
+
 	gotoxy(X_TitlePage,Y_TitlePage);
 	cout << "DANH SACH THONG KE SO LUOT THUC HIEN CHUYEN BAY CUA MAY BAY";
 	Quicksort<Airplane*>(listAir.nodes,0, listAir.size-1, LessAmount);
@@ -861,80 +867,137 @@ int CountPassOfFlight(PNodeFli fli){
 }
 
 //Xuat thong tin hanh khach theo chuyen bay
-void ShowPassFli(Passenger &pass, PNodeFli fli, int position)
+void ShowPassFli(Passenger &pass, Ticket &ticket, int position)
 {
-	gotoxy(xKeyDisplay[0] + 3, Y_Display + position + 3);
-	cout << left << setw(8) << position+1;
-    gotoxy(xKeyDisplay[1] + 3, Y_Display + position + 3);
-    cout << left << setw(8) << fli->data.listTicket.DSV[position].seat;
-    gotoxy(xKeyDisplay[2] + 3, Y_Display + position + 3);
+	gotoxy(xKeyDisplayPassFli[0] + 3, Y_Display + position + 3);
+	cout << left << setw(5) << position+1;
+    gotoxy(xKeyDisplayPassFli[1] + 3, Y_Display + position + 3);
+    cout << left << setw(8) << ticket.seat;
+    gotoxy(xKeyDisplayPassFli[2] + 3, Y_Display + position + 3);
     cout << left << setw(8) << pass.id;
-    gotoxy(xKeyDisplay[3] + 3, Y_Display + position + 3);
-    cout << left << setw(8) << pass.firstName << " " << pass.lastName;
-    gotoxy(xKeyDisplay[4] + 3, Y_Display + position + 3);
-	cout << left << setw(8) << (pass.gender ? "Nu" : "Nam");
+    gotoxy(xKeyDisplayPassFli[3] + 3, Y_Display + position + 3);
+    cout << left << setw(8) << pass.firstName;
+    gotoxy(xKeyDisplayPassFli[4] + 3, Y_Display + position + 3);
+    cout << left << setw(8) << pass.lastName;
+    gotoxy(xKeyDisplayPassFli[5] + 3, Y_Display + position + 3);
+	cout << left << setw(5) << (pass.gender ? "Nu" : "Nam");
 }
 
 //Xuat danh sach hanh khach theo chuyen bay trong 1 trang
 void ShowListPassFliOnePage(TreePass root, PNodeFli fli, int startIndex)
 {
+//	WORD curColor;
+//	GetColor(curColor);
+//	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
+//	int position = startIndex;
+//	int count = 0;
+//	
+//	PPassenger temp;
+//	PPassNode node;
+//	Queue<Passenger> queue;
+//	InitQueue(queue);
+//	pushQueue(queue, root->data);
+//
+//	while (!emptyQueue(queue))
+//	{
+//		temp = frontQueue(queue);
+//		popQueue(queue);
+//		
+//		for (int i = 0; i < fli->data.listTicket.sizeTotal; i++) {
+//			if (fli->data.listTicket.DSV[i].statusTicket == 1 &&  strcmp(fli->data.listTicket.DSV[i].idPas, temp->id) == 0) {
+//				count ++;
+//				ShowPassFli(*temp, fli->data.listTicket.DSV[i], position);
+//				++position;
+//				break;
+//			} 	
+//		}
+//		
+//		node = (PPassNode)(temp);
+//		if(node->pLeft != NULL){
+//			pushQueue(queue, node->pLeft->data);
+//		}
+//		if(node->pRight != NULL){
+//			pushQueue(queue, node->pRight->data);
+//		}
+//		if(position >= NumberPerPage){
+//			break;
+//		}
+//	}
+//	
+//	SetColor(curColor);
+//	gotoxy(X_Display, Y_Display-1);
+//	cout << "So luong hanh khach: "<< count;
+//	gotoxy(X_Page,Y_Page);
+//	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
+	
+	
+	
 	WORD curColor;
 	GetColor(curColor);
 	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
-	int position = startIndex;
-	int count = 0;
-	
-//	gotoxy(3,3);
-//	cout << " So luong hanh khach : " << position;
-	
-	PPassenger temp;
-	PPassNode node;
-	Queue<Passenger> queue;
-	InitQueue(queue);
-	pushQueue(queue, root->data);
+//
+//	PPassenger temp;
+//	PPassNode node;
+//	Queue<Passenger> queue;
+//	InitQueue(queue);
+//	pushQueue(queue, root->data);
+//		temp = frontQueue(queue);
+//		popQueue(queue);
+//		node = (PPassNode)(temp);
+//		if(node->pLeft != NULL){
+//			pushQueue(queue, node->pLeft->data);
+//		}
+//		if(node->pRight != NULL){
+//			pushQueue(queue, node->pRight->data);
+//		}
+//		if(count < startIndex){
+//			count ++;
+//			continue;
+//		}
+//		 
+//		if (fli->data.listTicket.DSV[count].statusTicket == 1 &&  strcmp(fli->data.listTicket.DSV[count].idPas, temp->id) == 0) {
+//			ShowPassFli(*temp, fli->data.listTicket.DSV[count], i++);
+//			break;
+//		} 			
+//		if(i == 20) {	
+//			break;
+//		}
 
-	while (!emptyQueue(queue))
-	{
-		temp = frontQueue(queue);
-		popQueue(queue);
-		
-		for (int i = 0; i < fli->data.listTicket.sizeTotal; i++) {
-			if (fli->data.listTicket.DSV[i].statusTicket == 1 &&  strcmp(fli->data.listTicket.DSV[i].idPas, temp->id) == 0) {
-				count ++;
-				ShowPassFli(*temp, fli, position);
+	RemoveContent(xKeyDisplayPassFli,6);
+	int count = 0;
+	for(int i = 0, position = 0; i < fli->data.listTicket.sizeTotal && position <= 20; i++){
+		if (fli->data.listTicket.DSV[i].statusTicket == 1) {
+			if(count < startIndex){
+				++count;
+			}else{
+				PPassNode temp = SearchPass(root, fli->data.listTicket.DSV[i].idPas);
+				ShowPassFli(temp->data, fli->data.listTicket.DSV[i], position);
 				++position;
-				break;
-			} 	
-		}
-		
-		node = (PPassNode)(temp);
-		if(node->pLeft != NULL){
-			pushQueue(queue, node->pLeft->data);
-		}
-		if(node->pRight != NULL){
-			pushQueue(queue, node->pRight->data);
-		}
-		if(position >= NumberPerPage){
-			break;
+			}		
 		}
 	}
-	
+	gotoxy(xKeyDisplayPassFli[0] + 3, Y_Display + 3);
+	cout << 111 << endl;
+
 	SetColor(curColor);
-	gotoxy(X_Display, Y_Display-1);
-	cout << "So luong hanh khach: "<< count;
+	gotoxy(3,3);
+	cout << " So luong hanh khach : " << fli->data.listTicket.sizeBooked;
 	gotoxy(X_Page,Y_Page);
-	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
+	cout <<" Trang " << CurPage <<"/"<< TotalPage;
 }
 
 //Thay doi danh sach hanh khach sang trang khac
 void ChangePassFliMenuManagerPage(TreePass root, PNodeFli fli)
 {
-	Display(ContentListPass,sizeof(ContentListPass)/sizeof(string) );
+	DisplayTest(xKeyDisplayPassFli, ContentListPass,sizeof(ContentListPass)/sizeof(string) );
 	ShowListPassFliOnePage(root,fli,(CurPage-1)*NumberPerPage);
 }
 
 //Danh sach hanh khach thuoc chuyen bay X
 void ListPassOfFlight(PNodeFli listFlight, TreePass rootPass){
+	WORD curColor;
+	GetColor(curColor);
+	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
 	ShowCursor(false);
 	CurPage = 1;
 	
@@ -951,10 +1014,10 @@ void ListPassOfFlight(PNodeFli listFlight, TreePass rootPass){
 		else break;
 	} while (true);
 				
-	RemoveRow(X_Add, Y_Add, ContentFlight[0], 32);	
+	RemoveRow(X_Add, Y_Add, ContentFlight[0], 46);	
 	TotalPage = (int)ceil((double)CountPassOfFlight(pFlight)/NumberPerPage);
-	Display(ContentListPass, sizeof(ContentListPass)/sizeof(string));
-	
+	SetColor(curColor);
+	DisplayTest(xKeyDisplayPassFli, ContentListPass, sizeof(ContentListPass)/sizeof(string));
 	gotoxy(X_TitlePage-10,Y_TitlePage);
 	cout << "DANH SACH HANH KHACH THUOC CHUYEN BAY " << pFlight->data.idFlight;
 	gotoxy(X_TitlePage-20, Y_TitlePage+1); cout << "Ngay gio khoi hanh: "; PrintDate(&pFlight->data.date); 
