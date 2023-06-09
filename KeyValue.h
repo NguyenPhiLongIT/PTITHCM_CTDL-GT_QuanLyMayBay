@@ -51,33 +51,26 @@ const int MaxItem = 9;
 #define X_Display 1
 #define Y_Display 4
 // Toa do de tao ra bang them thong tin
-#define X_Add 115
+#define X_Add 118
 #define Y_Add 22
 // Toa do cua phan hien thi page/ total Page
-#define X_Page 112
+#define X_Page 115
 #define Y_Page 3
-// Toa do phan chuc nang
-#define X_Tutorial 5
-#define Y_Tutorial 28
 // Toa do dat tieu de VD: Quan Li May Bay
 #define X_TitlePage 60
 #define Y_TitlePage 2
 // Toa do phan thong bao
-#define X_Notification 112
+#define X_Notification 115
 #define Y_Notification 37
 // Toa do thanh menu
 #define X_Menu 1
 #define Y_Menu 4
 //Toa do thanh thao tac
-#define X_ThaoTac 112
+#define X_ThaoTac 115
 #define Y_ThaoTac 4
 //Chieu cao va chieu rong cua box
 #define Box_Height 2
 #define Box_Width 15
-//Toa do thong bao EditPlane
-#define X_EditPlane 124
-#define Y_EditPlane 7
-
 
 //Mau sac
 #define BLACK 0
