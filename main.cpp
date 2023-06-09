@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <string.h>
 
@@ -68,7 +69,8 @@ void MainMenu() {
             case 6: // List
             {
             	RemoveBox(X_Menu, Y_Menu, 20, 15);
-            	ListAirplaneFly(listFlight,listAir);
+//            	ListAirplaneFly(listFlight,listAir);
+            	ListPassOfFlight(listFlight,rootPass);
             	break;
 			}
             default: //Exit
