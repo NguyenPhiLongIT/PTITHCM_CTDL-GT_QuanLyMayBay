@@ -24,7 +24,7 @@ void Quicksort(valueType *array, int low, int up, bool (*compare)(valueType &a, 
 
     //Setting the index
     left = low;
-    right = up-1;
+    right = up;
     temp = array[(left + right)/2];
 
     //Loop till pivot is placed at proper place in the sublist
@@ -43,6 +43,6 @@ void Quicksort(valueType *array, int low, int up, bool (*compare)(valueType &a, 
         if(low < right)
             Quicksort(array, low, right, compare);
         if(left < up)
-            Quicksort(array, left, up-1, compare);
+            Quicksort(array, left, up, compare);
     }
 }

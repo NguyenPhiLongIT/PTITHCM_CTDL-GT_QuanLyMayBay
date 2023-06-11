@@ -22,13 +22,14 @@ string ContentAirplaneInput[3] = {"Plane ID", "Plane Type", "Column & Row"};
 
 //Chuyen bay
 string ContentFlight[6] = { "Flight ID", "Destination", "Plane ID", "Date and Time", "Number Tickets", "Status"};
-string ContentFlightSelect[6] = {"Insert", "Edit DateTime", "Cancle Flight", "Previous Page", "Next Page", "Back"};
+string ContentFlightSelect[7] = {"Insert", "Edit DateTime", "Cancle Flight", "PassOfFlight", "Previous Page", "Next Page", "Back"};
 
 //Ve
 string ContentTicketInput[2] = {"PassengerID","Seat"};
 string ContentTicketOutput[3] = {"Seat", "Status", "PassengerID"};
-string ContentTicketSelect2[5] = {"Book Seat", "Cancel Seat", "Previous Page", "Next Page", "Back"};
 string ContentTicketSelect1[5] = {"Book Ticket", "Filter", "Previous Page", "Next Page", "Back"};
+string ContentTicketSelect2[6] = {"Book Seat", "Cancel Seat", "Change Display", "Previous Page", "Next Page", "Back"};
+string ContentTicketEmpty[2] = {"Full Ticket", "Empty Ticket"};
 
 //Hanh khach
 string ContentPass[4] = {"ID", "FirstName", "LastName", "Gender"};
@@ -209,6 +210,10 @@ void DisplayTest(int *xKey, string content[], int nContent)
 		gotoxy(i, Y_Display + 25);
 		cout << char(205);
 	}
+	//ve khung huong dan phim tat
+	gotoxy(X_Shortcuts, Y_Shortcuts); cout << "----Phim Tat----" << endl;
+	cout << " ESC : Thoat hoac Tro Lai Thao Tac Truoc" << "    " 
+		<< "-> : Chuyen Trang Sau" << "    " << "<- : Chuyen Trang Truoc";
 }
 
 //Loai bo nhung phan tu da hien thi o Page truoc 

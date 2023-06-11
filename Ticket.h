@@ -16,7 +16,8 @@ using namespace std;
 #include "Passenger.h"
 
 typedef struct _Ticket {
-    char idPas[15];
+//    char idPas[13];
+	int idPas;
     char seat[5];
     int statusTicket; // 0: ve trong, 1: ve da duoc dat, 2: ve da huy
 } Ticket, PTicket;
@@ -40,9 +41,9 @@ int CheckSeat(Airplane air, ListTicket listTicket, Ticket ticket);
 bool CheckCMND(ListTicket listTicket, Ticket ticket);
 bool InsertListTicket(Airplane air, ListTicket &listTicket, Ticket ticket);
 void ShowTicket(Ticket ticket, int position);
-void ShowListTicketOnePage(ListTicket listTicket, int startIndex);
-void ChangeTicketMenuManagerPage(ListTicket listTicket);
-void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass &rootPass);
+void ShowListTicketOnePage(ListTicket listTicket, int startIndex, bool emptyTicket);
+void ChangeTicketMenuManagerPage(ListTicket listTicket, bool emptyTicket);
+void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass &rootPass, bool emptyTicket);
 
 //----------------------------------------------------------------//
 
@@ -60,7 +61,7 @@ void InitListTicket(ListTicket &listTicket,Airplane air){
 	listTicket.DSV = new Ticket[listTicket.sizeTotal];
     for (int i = 0; i < listTicket.sizeTotal; i++) {
 		listTicket.DSV[i].statusTicket = 0;
-		memset(listTicket.DSV[i].idPas,0,sizeof(listTicket.DSV[i].idPas));
+		listTicket.DSV[i].idPas = -1;
 		InitSeats(listTicket,air);
 	}
 }
@@ -79,8 +80,8 @@ bool ListTicketIsNull(ListTicket listTicket) {
 void InputTicket(Ticket &ticket) {
     ShowCursor(true);
     CreateForm(ContentTicketInput,0,2,27);
-    gotoxy(X_Add+12,Y_Add); strcpy(ticket.idPas, Input(10,Number));
-    gotoxy(X_Add+12,Y_Add+3); strcpy(ticket.seat, Input(sizeof(ticket.seat), ID));
+    gotoxy(X_Add+12,Y_Add); char c[9]; strcpy(c, Input(sizeof(c), Number)); ticket.idPas = atoi(c);
+    gotoxy(X_Add+12,Y_Add+3); strcpy(ticket.seat, Input(sizeof(ticket.seat), ID)); 
 }
 
 //Chuan hoa MSV
@@ -126,7 +127,7 @@ int CheckSeat(Airplane air, ListTicket listTicket, Ticket ticket) {
 //Kiem tra CMND
 bool CheckCMND(ListTicket listTicket, Ticket ticket) {
 	for (int i = 0; i < listTicket.sizeTotal; i++) {
-		if (strcmp(listTicket.DSV[i].idPas,ticket.idPas) == 0) return true;
+		if (listTicket.DSV[i].idPas == ticket.idPas) return true;
 	}
 	return false;
 }
@@ -144,22 +145,50 @@ void ShowTicket(Ticket ticket, int position) {
 }
 
 //Xuat thong tin danh sach ve trong 1 trang
-void ShowListTicketOnePage(ListTicket listTicket, int startIndex) {
-    gotoxy(3,3);
-    cout << "Ve: " << listTicket.sizeBooked << "/" << listTicket.sizeTotal;
+void ShowListTicketOnePage(ListTicket listTicket, int startIndex, bool emptyTicket = false) {
+
     
     WORD curColor;
 	GetColor(curColor);
 	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
     
-    int i; int j = 0;
+
     
     RemoveContent(xKeyDisplayTicket,3);
     
-    for(i = 0 ; i + startIndex < listTicket.sizeTotal && i < NumberPerPage; i++)
-	{
-		ShowTicket(listTicket.DSV[i+startIndex],i); 
-	} 
+//    for(i = 0 ; i + startIndex < listTicket.sizeTotal && position < NumberPerPage; i++)
+//	{
+//		if(!emptyTicket){
+//			ShowTicket(listTicket.DSV[i+startIndex],position);
+//			position++;
+//		} 
+//		else if(emptyTicket && listTicket.DSV[i+startIndex].statusTicket == 0){
+//			ShowTicket(listTicket.DSV[i+startIndex],position);
+//			position++;
+//		}
+//	} 
+
+	if(!emptyTicket){
+		gotoxy(3,3);
+    	cout << "Ve: " << listTicket.sizeBooked << "/" << listTicket.sizeTotal;
+		for(int i = startIndex ; i < listTicket.sizeTotal && i < startIndex + NumberPerPage; i++)
+			ShowTicket(listTicket.DSV[i],i - startIndex);
+	}else{
+		gotoxy(3,3);
+    	cout << "Ve trong: " << listTicket.sizeTotal - listTicket.sizeBooked ;
+		int position = 0;
+		int count = 0;
+		for(int i = 0; i < listTicket.sizeTotal && position < NumberPerPage; i++){
+			if(listTicket.DSV[i].statusTicket == 0){
+				if(count < startIndex){
+					++count;
+					continue;
+				}
+				ShowTicket(listTicket.DSV[i],position++);
+			}
+		}
+	}
+	
 	SetColor(curColor);
 
     gotoxy(X_Page,Y_Page);
@@ -167,18 +196,25 @@ void ShowListTicketOnePage(ListTicket listTicket, int startIndex) {
 }
 
 //Thay doi danh sach ve thanh trang khac
-void ChangeTicketMenuManagerPage(ListTicket listTicket)
+void ChangeTicketMenuManagerPage(ListTicket listTicket, bool emptyTicket)
 {
 	DisplayTest(xKeyDisplayTicket, ContentTicketOutput,sizeof(ContentTicketOutput)/sizeof(string) );
-	ShowListTicketOnePage(listTicket,(CurPage-1)*NumberPerPage);
+	ShowListTicketOnePage(listTicket,(CurPage-1)*NumberPerPage, emptyTicket);
 }
 
 //Quan ly ve
-void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass &rootPass) {
+void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass &rootPass, bool emptyTicket = false) {
     ShowCursor(false);
 	CurPage = 1;
-	TotalPage = (int)ceil((double)listTicket.sizeTotal/NumberPerPage); 	//ceil : lam tron 
 	
+	gotoxy(20,3);
+	if (!emptyTicket) {
+		cout << "_DANH SACH VE_";
+		TotalPage = (int)ceil((double)listTicket.sizeTotal/NumberPerPage); 	//ceil : lam tron 
+	} else {
+		cout << "_DANH SACH CAC VE CON TRONG_";
+		TotalPage = (int)ceil((double)listTicket.sizeTotal-listTicket.sizeBooked/NumberPerPage); 	//ceil : lam tron 
+	}
 	DisplayTest(xKeyDisplayTicket, ContentTicketOutput, sizeof(ContentTicketOutput)/sizeof(string));
 	ShowListTicketOnePage(listTicket, 0);	
 	
@@ -187,7 +223,7 @@ void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass &rootPass) 
 	int signal;
 
     while (true) {
-        signal = MenuSelect(X_ThaoTac,Y_ThaoTac,5,ContentTicketSelect2);
+        signal = MenuSelect(X_ThaoTac,Y_ThaoTac,6,ContentTicketSelect2);
         switch(signal) {
             case 1: //Dat ve
             {
@@ -218,8 +254,7 @@ void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass &rootPass) 
 					}
                 	else {
                 		if (SearchPass(rootPass,ticket_tmp.idPas) == NULL) {
-							strcpy(pass_tmp.id, ticket_tmp.idPas);
-//							strcpy(ticket_tmp.idPas, pass_tmp.id);
+							pass_tmp.id = ticket_tmp.idPas;
                 			InputPass(rootPass,pass_tmp,true);
                 			
 						}
@@ -253,23 +288,41 @@ void MenuManageTicket(Airplane air, ListTicket &listTicket, TreePass &rootPass) 
                 ShowListTicketOnePage(listTicket,(CurPage - 1)/NumberPerPage);
                 break;
             }
+            case 3:	//Chuyen che do xem full ve va cac ve con trong
+			{
+				int signal = MenuSelect(X_ThaoTac+16,Y_ThaoTac+3,2,ContentTicketEmpty);
+				if(signal == 1){
+					emptyTicket = false;
+					gotoxy(20,3);
+					cout << "                                     ";
+					gotoxy(20,3);
+					cout << "_DANH SACH VE_";
+					ChangeTicketMenuManagerPage(listTicket, emptyTicket);
+				}
+				else {
+					emptyTicket = true;
+					gotoxy(20,3);
+					cout << "                                       ";
+					gotoxy(20,3);
+					cout << "_DANH SACH CAC VE CON TRONG_";
+					ChangeTicketMenuManagerPage(listTicket, emptyTicket);
+				}
+			} 
             case LEFT:
-            case 3: //Trang truoc
+            case 4: //Trang truoc
             {
             	if(CurPage == 1) break;
-				else{
-					CurPage --;
-					ChangeTicketMenuManagerPage(listTicket);
-					break;
-				}
+				CurPage --;
+				ChangeTicketMenuManagerPage(listTicket, emptyTicket);
+				break;
             }
             case RIGHT:
-            case 4: //Trang sau
+            case 5: //Trang sau
             {
             	if(CurPage >= TotalPage) break;
 				CurPage ++;
-				ChangeTicketMenuManagerPage(listTicket);
-                break;
+				ChangeTicketMenuManagerPage(listTicket, emptyTicket);
+				break;
             }
             default: return;
         }

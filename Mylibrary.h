@@ -70,7 +70,7 @@ int wherey()
     GetConsoleScreenBufferInfo(hConsoleOutput, &screen_buffer_info);
     return screen_buffer_info.dwCursorPosition.Y;
 }
-// Sá»­ dá»¥ng Ä‘á»ƒ xÃ³a dÃ²ng tá»« vá»‹ trÃ­ coord Ä‘áº¿n con trá» hiá»‡n táº¡i trÃªn Console
+// Sử dụng để xóa dòng từ vị trí coord đến con trỏ hiện tại trên Console
 void Clean(int left, int top, int right, int bottom)
 {
     HANDLE hConsoleOutput;
@@ -150,7 +150,7 @@ void SetBGColor(WORD color)
 
     SetConsoleTextAttribute(hConsoleOutput, wAttributes);
 }
-//XÃ³a toÃ n bá»™ mÃ n hÃ¬nh console
+//Xóa toàn bộ màn hình console
 void Clear()
 {
 	SetBGColor(0);

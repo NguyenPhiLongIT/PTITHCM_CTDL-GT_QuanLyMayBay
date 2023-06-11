@@ -51,7 +51,7 @@ void MainMenu() {
             case 3: // Flight
             {
             	RemoveBox(X_Menu, Y_Menu, 20, 15);
-            	MenuManageFlight(listFlight,listAir);
+            	MenuManageFlight(listFlight,listAir,rootPass);
                 break;	
 			}
             case 4: // Passenger
@@ -69,8 +69,7 @@ void MainMenu() {
             case 6: // List
             {
             	RemoveBox(X_Menu, Y_Menu, 20, 15);
-//            	ListAirplaneFly(listFlight,listAir);
-            	ListPassOfFlight(listFlight,rootPass);
+            	ListAirplaneFly(listFlight,listAir);
             	break;
 			}
             default: //Exit

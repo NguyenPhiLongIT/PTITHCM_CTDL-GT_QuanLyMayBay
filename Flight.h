@@ -63,7 +63,7 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir);
 
 void ListFlightDateAndDes(PNodeFli first, Date date, const char* arrival, int startIndex, bool ticketAvailable);
 void ChangeListFlightDateAndDesPage(PNodeFli first, Date date, const char* arrival, bool ticketAvailable);
-
+void ListPassOfFlight(PNodeFli listFlight, TreePass rootPass);
 void MenuManageListTicket(ListAir &listAir, PNodeFli &listFlight, TreePass &rootPass);
 
 bool LoadFlight(PNodeFli &first);
@@ -536,7 +536,7 @@ void ChangeFlightMenuManagerPage(PNodeFli first)
 }
 
 //Quan ly chuyen bay
-void MenuManageFlight(PNodeFli &first, ListAir listAir){
+void MenuManageFlight(PNodeFli &first, ListAir listAir, TreePass rootPass){
 	CurPage = 1;
 	TotalPage = (int)ceil((double)Size(first)/NumberPerPage); 	//ceil : lam tron 
 	
@@ -551,7 +551,7 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir){
 	while(true)
 	{
 		menu:
-		signal = MenuSelect(X_ThaoTac,Y_ThaoTac,6,ContentFlightSelect);
+		signal = MenuSelect(X_ThaoTac,Y_ThaoTac,7,ContentFlightSelect);
 		switch(signal) {
 			case 1: // Them chuyen bay
 			{
@@ -563,7 +563,7 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir){
 				ShowCursor(false);
 				break;
 			}
-			edit: case 2: //Chinh sua ngay thang nam
+			case 2: //Chinh sua ngay thang nam
 			{
 				ShowCursor(true);
 				if(first == NULL) {
@@ -587,8 +587,12 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir){
 				ShowCursor(false);
 				break;
 			}
+			case 4:	//Danh sach hanh khach thuoc chuyen bay
+            {
+				ListPassOfFlight(first, rootPass);
+			}
 			case LEFT:
-			case 4: //Chuyen trang truoc
+			case 5: //Chuyen trang truoc
 			{
 				if(CurPage == 1) break;
 				else{
@@ -598,7 +602,7 @@ void MenuManageFlight(PNodeFli &first, ListAir listAir){
 				break;
 			}
 			case RIGHT:
-			case 5:	//Chuyen trang tiep
+			case 6:	//Chuyen trang tiep
 			{
 				if(CurPage >= TotalPage) break;
 				else{
@@ -721,9 +725,6 @@ void MenuManageListTicket(ListAir &listAir, PNodeFli &listFlight, TreePass &root
 				//Thuc hien thao tac voi danh sach ve
 				gotoxy(X_TitlePage-10,Y_TitlePage);
 				cout << "MA CHUYEN BAY: " << pFlight->data.idFlight << " - DIA DIEM: " << pFlight->data.arrivalAir << " - THOI GiAN: "; PrintDate(&pFlight->data.date);
-				if(rootPass == NULL){
-					system("pause");
-				}
 				MenuManageTicket(air, pFlight->data.listTicket,rootPass);
 				if(SaveFlight(listFlight));
 				if(SaveTreePass(rootPass));
@@ -856,10 +857,6 @@ void ListAirplaneFly(PNodeFli first, ListAir listAir){
 //So luong hanh khach theo chuyen bay
 int CountPassOfFlight(PNodeFli fli){
 	int count = 0;
-	if(fli == NULL){
-		return count;
-	}
-	
 	for (int i = 0; i < fli->data.listTicket.sizeTotal; i++) {
 		if (fli->data.listTicket.DSV[i].statusTicket == 1) count ++;
 	}
@@ -869,8 +866,6 @@ int CountPassOfFlight(PNodeFli fli){
 //Xuat thong tin hanh khach theo chuyen bay
 void ShowPassFli(Passenger &pass, Ticket &ticket, int position)
 {
-	gotoxy(xKeyDisplayPassFli[0] + 3, Y_Display + position + 3);
-	cout << left << setw(5) << position+1;
     gotoxy(xKeyDisplayPassFli[1] + 3, Y_Display + position + 3);
     cout << left << setw(8) << ticket.seat;
     gotoxy(xKeyDisplayPassFli[2] + 3, Y_Display + position + 3);
@@ -886,104 +881,32 @@ void ShowPassFli(Passenger &pass, Ticket &ticket, int position)
 //Xuat danh sach hanh khach theo chuyen bay trong 1 trang
 void ShowListPassFliOnePage(TreePass root, PNodeFli fli, int startIndex)
 {
-//	WORD curColor;
-//	GetColor(curColor);
-//	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
-//	int position = startIndex;
-//	int count = 0;
-//	
-//	PPassenger temp;
-//	PPassNode node;
-//	Queue<Passenger> queue;
-//	InitQueue(queue);
-//	pushQueue(queue, root->data);
-//
-//	while (!emptyQueue(queue))
-//	{
-//		temp = frontQueue(queue);
-//		popQueue(queue);
-//		
-//		for (int i = 0; i < fli->data.listTicket.sizeTotal; i++) {
-//			if (fli->data.listTicket.DSV[i].statusTicket == 1 &&  strcmp(fli->data.listTicket.DSV[i].idPas, temp->id) == 0) {
-//				count ++;
-//				ShowPassFli(*temp, fli->data.listTicket.DSV[i], position);
-//				++position;
-//				break;
-//			} 	
-//		}
-//		
-//		node = (PPassNode)(temp);
-//		if(node->pLeft != NULL){
-//			pushQueue(queue, node->pLeft->data);
-//		}
-//		if(node->pRight != NULL){
-//			pushQueue(queue, node->pRight->data);
-//		}
-//		if(position >= NumberPerPage){
-//			break;
-//		}
-//	}
-//	
-//	SetColor(curColor);
-//	gotoxy(X_Display, Y_Display-1);
-//	cout << "So luong hanh khach: "<< count;
-//	gotoxy(X_Page,Y_Page);
-//	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
-	
-	
-	
 	WORD curColor;
 	GetColor(curColor);
 	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
-//
-//	PPassenger temp;
-//	PPassNode node;
-//	Queue<Passenger> queue;
-//	InitQueue(queue);
-//	pushQueue(queue, root->data);
-//		temp = frontQueue(queue);
-//		popQueue(queue);
-//		node = (PPassNode)(temp);
-//		if(node->pLeft != NULL){
-//			pushQueue(queue, node->pLeft->data);
-//		}
-//		if(node->pRight != NULL){
-//			pushQueue(queue, node->pRight->data);
-//		}
-//		if(count < startIndex){
-//			count ++;
-//			continue;
-//		}
-//		 
-//		if (fli->data.listTicket.DSV[count].statusTicket == 1 &&  strcmp(fli->data.listTicket.DSV[count].idPas, temp->id) == 0) {
-//			ShowPassFli(*temp, fli->data.listTicket.DSV[count], i++);
-//			break;
-//		} 			
-//		if(i == 20) {	
-//			break;
-//		}
-
-	RemoveContent(xKeyDisplayPassFli,6);
+	int position = 0;
 	int count = 0;
-	for(int i = 0, position = 0; i < fli->data.listTicket.sizeTotal && position <= 20; i++){
-		if (fli->data.listTicket.DSV[i].statusTicket == 1) {
-			if(count < startIndex){
-				++count;
-			}else{
+	RemoveContent(xKeyDisplayPassFli,6);
+		for (int i = 0; i < fli->data.listTicket.sizeTotal; i++) {
+			if (fli->data.listTicket.DSV[i].statusTicket == 1 && position < NumberPerPage) {
+				if(count < startIndex){
+					count ++;
+					continue;
+				}
 				PPassNode temp = SearchPass(root, fli->data.listTicket.DSV[i].idPas);
+				gotoxy(xKeyDisplayPassFli[0] + 3, Y_Display + position + 3);
+				cout << left << setw(5) << position+startIndex+1;
 				ShowPassFli(temp->data, fli->data.listTicket.DSV[i], position);
 				++position;
-			}		
+				
+			} 	
 		}
-	}
-	gotoxy(xKeyDisplayPassFli[0] + 3, Y_Display + 3);
-	cout << 111 << endl;
-
+	
 	SetColor(curColor);
-	gotoxy(3,3);
-	cout << " So luong hanh khach : " << fli->data.listTicket.sizeBooked;
+	gotoxy(X_Display, Y_Display-1);
+	cout << "So luong hanh khach: "<< countPass(root);
 	gotoxy(X_Page,Y_Page);
-	cout <<" Trang " << CurPage <<"/"<< TotalPage;
+	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
 }
 
 //Thay doi danh sach hanh khach sang trang khac
@@ -1015,7 +938,8 @@ void ListPassOfFlight(PNodeFli listFlight, TreePass rootPass){
 	} while (true);
 				
 	RemoveRow(X_Add, Y_Add, ContentFlight[0], 46);	
-	TotalPage = (int)ceil((double)CountPassOfFlight(pFlight)/NumberPerPage);
+	RemoveTable(ContentFlight,sizeof(ContentFlight)/sizeof(string));
+	TotalPage = (int)ceil((double)pFlight->data.listTicket.sizeBooked/NumberPerPage);
 	SetColor(curColor);
 	DisplayTest(xKeyDisplayPassFli, ContentListPass, sizeof(ContentListPass)/sizeof(string));
 	gotoxy(X_TitlePage-10,Y_TitlePage);
@@ -1032,10 +956,10 @@ void ListPassOfFlight(PNodeFli listFlight, TreePass rootPass){
 			c = _getch();
 			if (c == LEFT && CurPage != 1) {
 				CurPage --;
-				ChangePassFliMenuManagerPage(rootPass, listFlight);
+				ChangePassFliMenuManagerPage(rootPass, pFlight);
 			} else if (c == RIGHT && CurPage < TotalPage) {
 				CurPage ++;
-				ChangePassFliMenuManagerPage(rootPass, listFlight);
+				ChangePassFliMenuManagerPage(rootPass, pFlight);
 			}
 		} else if (c == ESC) {
 			return;
@@ -1057,6 +981,8 @@ bool LoadFlight(PNodeFli &First)
     {
         pNodeFli = new NodeFli;
         getline(file, str, ';');	strcpy(pNodeFli->data.idFlight, str.c_str());
+        if(strcmp(pNodeFli->data.idFlight, "") == 0)
+        	continue;
         getline(file, str, ';');	strcpy(pNodeFli->data.arrivalAir, str.c_str());
         getline(file, str, ';');	strcpy(pNodeFli->data.idAir, str.c_str());
         
@@ -1074,7 +1000,7 @@ bool LoadFlight(PNodeFli &First)
        	pNodeFli->data.listTicket.DSV = new Ticket[pNodeFli->data.listTicket.sizeTotal];
         for (int i = 0; i < pNodeFli->data.listTicket.sizeTotal; i++)
         {
-            getline(file, str, ';');	strcpy(pNodeFli->data.listTicket.DSV[i].idPas, str.c_str());
+            getline(file, str, ';');	pNodeFli->data.listTicket.DSV[i].idPas = atoi(str.c_str());
             getline(file, str, ';');	strcpy(pNodeFli->data.listTicket.DSV[i].seat, str.c_str());
             if(i != pNodeFli->data.listTicket.sizeTotal-1){
             	getline(file, str, ';');

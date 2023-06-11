@@ -13,7 +13,8 @@ using namespace std;
 
 typedef struct _Passenger
 {
-	char id[13];
+//	char id[13];
+	int id;
 	char firstName[31];
 	char lastName[11];
 	bool gender; // 0 la nam , 1 la nu
@@ -37,7 +38,7 @@ int countPass(TreePass &rootPass);
 
 void InputPass(TreePass &rootPass, Passenger &pass, bool Check);
 void InsertPass(TreePass &rootPass, Passenger &pass);
-PPassNode SearchPass(TreePass rootPass, char *idPass);
+PPassNode SearchPass(TreePass rootPass, int idPass);
 
 
 void ShowPass(Passenger &pass, int position);
@@ -79,7 +80,8 @@ int countPass(TreePass &rootPass)
 void PreOrder(TreePass &rootPass, int &position){
 	if(rootPass == NULL) return;
 	ShowPass(rootPass->data, position);
-	++position;
+	position++;
+	system("pause");
 	PreOrder(rootPass->pLeft, position);
 	PreOrder(rootPass->pRight, position);
 }
@@ -99,8 +101,8 @@ void InputPass(TreePass &rootPass, Passenger &pass, bool Check = false)
 	while(true){
 		switch(ordinal){
 			case 0:{	//Nhap CMND
-				gotoxy(X_Add+10,Y_Add);       	strcpy(pass.id, Input(sizeof(pass.id), ID));		
-				if(strlen(pass.id) == 0){
+				gotoxy(X_Add+10,Y_Add);       	char c[9]; strcpy(c, Input(sizeof(c), Number)); pass.id = atoi(c);		
+				if(pass.id < 1){
 					Notification("Vui long khong bo trong");
 					break;
 				}
@@ -156,43 +158,19 @@ void InsertPass(TreePass &rootPass, Passenger &pass)
 		rootPass = NewPassNode(pass);
 		return;
 	}
-	PPassNode p = rootPass;
-	while (true)
-	{
-		if (atoi(rootPass->data.id) > atoi(pass.id))
-		{
-			if (p->pRight == NULL)
-			{
-				p->pRight = NewPassNode(pass);
-				return;
-			}
-			else
-			{
-				p = p->pRight;
-			}
-		}
-		else
-		{
-			if (p->pLeft == NULL)
-			{
-				p->pLeft = NewPassNode(pass);
-				return;
-			}
-			else
-			{
-				p = p->pLeft;
-			}
-		}
-	}
+
+	if (pass.id > rootPass->data.id)
+        InsertPass(rootPass->pRight, pass);
+    else InsertPass(rootPass->pLeft, pass);
 }
 
 //Tim kiem hanh khach
-PPassNode SearchPass(TreePass rootPass, char *idPass)
+PPassNode SearchPass(TreePass rootPass, int idPass)
 {
-	if(rootPass == NULL || strcmp(idPass, rootPass->data.id) == 0)
+	if(rootPass == NULL || idPass == rootPass->data.id)
 		return rootPass;
-	if (strcmp(rootPass->data.id, idPass) < 0)
-        return SearchPass(rootPass->pLeft, idPass);
+	if (idPass > rootPass->data.id)
+        return SearchPass(rootPass->pRight, idPass);
     return SearchPass(rootPass->pLeft, idPass);
 }
 
@@ -210,44 +188,74 @@ void ShowPass(Passenger &pass, int position)
 }
 
 //Xuat danh sach hanh khach trong 1 trang
+//void ShowListPassOnePage(TreePass root, int startIndex)
+//{
+//	WORD curColor;
+//	GetColor(curColor);
+//	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
+//
+//	int position = 0;
+//	int count = 0;
+//	
+//	PPassenger temp;
+//	PPassNode node;
+//	Queue<Passenger> queue;
+//	InitQueue(queue);
+//	pushQueue(queue, root->data);
+//	RemoveContent(xKeyDisplayPas,4);
+//	PreOrder(root, position);
+//	
+//	SetColor(curColor);
+//	gotoxy(3,3);
+//	cout << " So luong hanh khach : " << countPass(root);
+//	gotoxy(X_Page,Y_Page);
+//	cout <<" Trang " << CurPage <<"/"<< TotalPage;
+//}
+
 void ShowListPassOnePage(TreePass root, int startIndex)
 {
 	WORD curColor;
 	GetColor(curColor);
 	SetColor(WHITE); //cac phan tu hien trong bang se co chu mau trang
-
+	int position = 0;
+	int count = 0;
+	
+	gotoxy(3,3);
+	cout << " So luong hanh khach : " << countPass(root);
+	
 	PPassenger temp;
 	PPassNode node;
 	Queue<Passenger> queue;
 	InitQueue(queue);
 	pushQueue(queue, root->data);
-	int count = -1;
-	int i = 0;
-	RemoveContent(xKeyDisplayPas,4);
-	while (!emptyQueue(queue)){
+
+	RemoveContent(xKeyDisplayPas, 4);
+	while (!emptyQueue(queue))
+	{
 		temp = frontQueue(queue);
 		popQueue(queue);
 		node = (PPassNode)(temp);
 		if(node->pLeft != NULL){
-				pushQueue(queue, node->pLeft->data);
-			}
-			if(node->pRight != NULL){
-				pushQueue(queue, node->pRight->data);
-			}
-		if(count < startIndex-1){
-			count ++;
+			pushQueue(queue, node->pLeft->data);
+		}
+		if(node->pRight != NULL){
+			pushQueue(queue, node->pRight->data);
+		}
+		if(count < startIndex){
+			count++;
 			continue;
 		}
-		ShowPass(*temp, i++);			
-		if(i == 20) {	
+		ShowPass(*temp, position);
+		++position;
+		
+		if(position >= NumberPerPage){
 			break;
 		}
 	}
+	
 	SetColor(curColor);
-	gotoxy(3,3);
-	cout << " So luong hanh khach : " << countPass(root);
 	gotoxy(X_Page,Y_Page);
-	cout <<" Trang " << CurPage <<"/"<< TotalPage;
+	cout <<" Trang " << CurPage <<"/"<< TotalPage; 
 }
 
 //Thay doi danh sach hanh khach sang trang khac
@@ -325,9 +333,10 @@ bool LoadTreePass(TreePass &root)
 	{
 		stringstream ss(str);
 
-		getline(ss, str, ';');	strcpy(pass.id, str.c_str());
-		if(strcmp(pass.id,"") == 0)
+		getline(ss, str, ';');	
+		if(strlen(str.c_str()) == 0)
 			continue;
+		pass.id = atoi(str.c_str());
 		getline(ss, str, ';');	strcpy(pass.firstName, str.c_str());
 		getline(ss, str, ';');	strcpy(pass.lastName, str.c_str());
 		getline(ss, str, ';');	pass.gender = atoi(str.c_str());

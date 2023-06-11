@@ -68,6 +68,9 @@ const int MaxItem = 9;
 //Toa do thanh thao tac
 #define X_ThaoTac 115
 #define Y_ThaoTac 4
+//Toa do phan huong dan phim tat
+#define X_Shortcuts 30
+#define Y_Shortcuts 37
 //Chieu cao va chieu rong cua box
 #define Box_Height 2
 #define Box_Width 15
