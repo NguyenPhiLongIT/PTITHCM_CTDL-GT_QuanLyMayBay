@@ -1,4 +1,4 @@
-Một sản phẩm đến từ 3 anh em Khánh Hòa: Nguyễn Tấn Nguyên, Nguyễn Phúc Minh Khang, Nguyễn Phi Long khóa D21 của PTITHCM.
+Một sản phẩm đến từ: Nguyễn Tấn Nguyên, Nguyễn Phúc Minh Khang, Nguyễn Phi Long khóa D21 của PTITHCM.
 Đây là đồ án năm 2 của môn Cấu trúc dữ liệu & giải thuật do thầy Lưu Nguyễn Kì Thư phụ trách.
 Nội dung đồ án:
 Quản lý các chuyến bay nội địa thuộc 1 hãng hàng không: Ta tổ chức các danh sách sau: 
